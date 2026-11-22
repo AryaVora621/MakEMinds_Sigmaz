@@ -1,0 +1,931 @@
+{
+ "schema": 1,
+ "units": "in",
+ "frame": "pedro",
+ "tapes": [
+  {
+   "id": "M0GtRWB1EZJxDGTya",
+   "name": "Gaffer Tape, Red, 2in Wide, 18.69in Long",
+   "part": "p016",
+   "color": "red",
+   "width": 2.0,
+   "length": 18.692,
+   "p0": [
+    11.894,
+    97.907
+   ],
+   "p1": [
+    11.894,
+    116.599
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "M9BSZqhwm+ESLIxBr",
+   "name": "Gaffer Tape, Red, 1in Wide, 11in Long",
+   "part": "p005",
+   "color": "red",
+   "width": 1.0,
+   "length": 11.0,
+   "p0": [
+    12.899,
+    96.402
+   ],
+   "p1": [
+    1.899,
+    96.402
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MBd6mJRW5se6O9OlL",
+   "name": "Gaffer Tape, Blue, 2in Wide, 18.69in Long",
+   "part": "p012",
+   "color": "blue",
+   "width": 2.0,
+   "length": 18.692,
+   "p0": [
+    132.106,
+    46.093
+   ],
+   "p1": [
+    132.106,
+    27.401
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MCa1OizmHGC3EB06p",
+   "name": "Gaffer Tape, Blue, 1in Wide, 20.69in Long",
+   "part": "p001",
+   "color": "blue",
+   "width": 1.0,
+   "length": 20.692,
+   "p0": [
+    131.606,
+    47.093
+   ],
+   "p1": [
+    131.606,
+    26.401
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MDJtJHiO/t1zHhUvS",
+   "name": "Gaffer Tape, Red, 2in Wide, 11in Long",
+   "part": "p017",
+   "color": "red",
+   "width": 2.0,
+   "length": 11.0,
+   "p0": [
+    12.899,
+    117.594
+   ],
+   "p1": [
+    1.899,
+    117.594
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MHRdtpSukRCTVlElV",
+   "name": "Gaffer Tape, Blue, 1in Wide, 54in Long",
+   "part": "p009",
+   "color": "blue",
+   "width": 1.0,
+   "length": 54.0,
+   "p0": [
+    197.65,
+    119.905
+   ],
+   "p1": [
+    143.65,
+    119.905
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MHcTVbO6Wl9hE01yv",
+   "name": "Gaffer Tape, Red, 1in Wide, 20.69in Long",
+   "part": "p004",
+   "color": "red",
+   "width": 1.0,
+   "length": 20.692,
+   "p0": [
+    12.394,
+    96.907
+   ],
+   "p1": [
+    12.394,
+    117.599
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MIHxLapzMZ3EpRGYH",
+   "name": "Gaffer Tape, Blue, 1in Wide, 11in Long",
+   "part": "p000",
+   "color": "blue",
+   "width": 1.0,
+   "length": 11.0,
+   "p0": [
+    131.101,
+    25.906
+   ],
+   "p1": [
+    142.101,
+    25.906
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MIk6aEI1oIU6R2sbX",
+   "name": "Gaffer Tape, Red, 1in Wide, 94.82in Long",
+   "part": "p007",
+   "color": "red",
+   "width": 1.0,
+   "length": 94.82,
+   "p0": [
+    -53.145,
+    119.41
+   ],
+   "p1": [
+    -53.145,
+    24.59
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MJ1TJA9YxWqJ46aUm",
+   "name": "Gaffer Tape, Red, 1in Wide, 54in Long",
+   "part": "p006",
+   "color": "red",
+   "width": 1.0,
+   "length": 54.0,
+   "p0": [
+    -53.65,
+    24.095
+   ],
+   "p1": [
+    0.35,
+    24.095
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MM9fuztIyuiMK+QiW",
+   "name": "Gaffer Tape, Red, 1in Wide, 22.69in Long",
+   "part": "p002",
+   "color": "red",
+   "width": 1.0,
+   "length": 22.692,
+   "p0": [
+    1.899,
+    2.404
+   ],
+   "p1": [
+    24.591,
+    2.404
+   ],
+   "z": 0.0,
+   "role": "garden"
+  },
+  {
+   "id": "MMAwOzICGNvSJtAVW",
+   "name": "Gaffer Tape, Blue, 2in Wide, 11in Long",
+   "part": "p013",
+   "color": "blue",
+   "width": 2.0,
+   "length": 11.0,
+   "p0": [
+    131.101,
+    26.406
+   ],
+   "p1": [
+    142.101,
+    26.406
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MNGf/GGvNTrqcG35r",
+   "name": "Gaffer Tape, Blue, 1in Wide, 22.69in Long",
+   "part": "p003",
+   "color": "blue",
+   "width": 1.0,
+   "length": 22.692,
+   "p0": [
+    119.409,
+    140.606
+   ],
+   "p1": [
+    142.101,
+    140.606
+   ],
+   "z": 0.0,
+   "role": "garden"
+  },
+  {
+   "id": "MO3bw1P2cWM0bvmhP",
+   "name": "Gaffer Tape, Blue, 1in Wide, 94.82in Long",
+   "part": "p008",
+   "color": "blue",
+   "width": 1.0,
+   "length": 94.82,
+   "p0": [
+    197.145,
+    24.59
+   ],
+   "p1": [
+    197.145,
+    119.41
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MRKPbIc09yMhiWaTy",
+   "name": "Gaffer Tape, Blue, 2in Wide, 11in Long",
+   "part": "p013",
+   "color": "blue",
+   "width": 2.0,
+   "length": 11.0,
+   "p0": [
+    131.101,
+    47.098
+   ],
+   "p1": [
+    142.101,
+    47.098
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MSPgwl982AolLoRrN",
+   "name": "Gaffer Tape, Red, 2in Wide, 22.69in Long",
+   "part": "p014",
+   "color": "red",
+   "width": 2.0,
+   "length": 22.692,
+   "p0": [
+    1.899,
+    2.904
+   ],
+   "p1": [
+    24.591,
+    2.904
+   ],
+   "z": 0.0,
+   "role": "garden"
+  },
+  {
+   "id": "MVNpMuDqysII1CSj6",
+   "name": "Gaffer Tape, Red, 1in Wide, 11in Long",
+   "part": "p005",
+   "color": "red",
+   "width": 1.0,
+   "length": 11.0,
+   "p0": [
+    12.899,
+    118.094
+   ],
+   "p1": [
+    1.899,
+    118.094
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MYlYQxQM2i1tB+Vc4",
+   "name": "Gaffer Tape, Blue, 1in Wide, 11in Long",
+   "part": "p000",
+   "color": "blue",
+   "width": 1.0,
+   "length": 11.0,
+   "p0": [
+    131.101,
+    47.598
+   ],
+   "p1": [
+    142.101,
+    47.598
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MYxY8g3J3hDntxyrX",
+   "name": "Gaffer Tape, Blue, 2in Wide, 54in Long",
+   "part": "p018",
+   "color": "blue",
+   "width": 2.0,
+   "length": 54.0,
+   "p0": [
+    197.65,
+    119.405
+   ],
+   "p1": [
+    143.65,
+    119.405
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "McCMwdgwg79FpKDtE",
+   "name": "Gaffer Tape, Red, 2in Wide, 92.82in Long",
+   "part": "p010",
+   "color": "red",
+   "width": 2.0,
+   "length": 92.82,
+   "p0": [
+    -52.645,
+    118.41
+   ],
+   "p1": [
+    -52.645,
+    25.59
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MdMo6/Zihk9Sj+tPS",
+   "name": "Gaffer Tape, Blue, 2in Wide, 22.69in Long",
+   "part": "p015",
+   "color": "blue",
+   "width": 2.0,
+   "length": 22.692,
+   "p0": [
+    119.409,
+    141.106
+   ],
+   "p1": [
+    142.101,
+    141.106
+   ],
+   "z": 0.0,
+   "role": "garden"
+  },
+  {
+   "id": "Me/9wZw/nqqNLvcQr",
+   "name": "Gaffer Tape, Blue, 1in Wide, 54in Long",
+   "part": "p009",
+   "color": "blue",
+   "width": 1.0,
+   "length": 54.0,
+   "p0": [
+    197.65,
+    24.085
+   ],
+   "p1": [
+    143.65,
+    24.085
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MexCvZAUyPs2QqTIL",
+   "name": "Gaffer Tape, Blue, 2in Wide, 54in Long",
+   "part": "p018",
+   "color": "blue",
+   "width": 2.0,
+   "length": 54.0,
+   "p0": [
+    197.65,
+    24.585
+   ],
+   "p1": [
+    143.65,
+    24.585
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MeyjLvhC5ewmmezjq",
+   "name": "Gaffer Tape, Red, 1in Wide, 54in Long",
+   "part": "p006",
+   "color": "red",
+   "width": 1.0,
+   "length": 54.0,
+   "p0": [
+    -53.65,
+    119.915
+   ],
+   "p1": [
+    0.35,
+    119.915
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MfhAO9fYWr9YodMPI",
+   "name": "Gaffer Tape, Red, 1in Wide, 22.69in Long",
+   "part": "p002",
+   "color": "red",
+   "width": 1.0,
+   "length": 22.692,
+   "p0": [
+    1.899,
+    3.404
+   ],
+   "p1": [
+    24.591,
+    3.404
+   ],
+   "z": 0.0,
+   "role": "garden"
+  },
+  {
+   "id": "Mo134nwtUnucqFuah",
+   "name": "Gaffer Tape, Blue, 2in Wide, 92.82in Long",
+   "part": "p019",
+   "color": "blue",
+   "width": 2.0,
+   "length": 92.82,
+   "p0": [
+    196.645,
+    25.59
+   ],
+   "p1": [
+    196.645,
+    118.41
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "Mrzj6tA2Zh2Xn82X/",
+   "name": "Gaffer Tape, Red, 2in Wide, 54in Long",
+   "part": "p011",
+   "color": "red",
+   "width": 2.0,
+   "length": 54.0,
+   "p0": [
+    -53.65,
+    24.595
+   ],
+   "p1": [
+    0.35,
+    24.595
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MtbRWYVbV9p4M5I6w",
+   "name": "Gaffer Tape, Red, 2in Wide, 54in Long",
+   "part": "p011",
+   "color": "red",
+   "width": 2.0,
+   "length": 54.0,
+   "p0": [
+    -53.65,
+    119.415
+   ],
+   "p1": [
+    0.35,
+    119.415
+   ],
+   "z": -0.589,
+   "role": "alliance_area"
+  },
+  {
+   "id": "MtgVuMaEAU6x4+Uvm",
+   "name": "Gaffer Tape, Red, 2in Wide, 11in Long",
+   "part": "p017",
+   "color": "red",
+   "width": 2.0,
+   "length": 11.0,
+   "p0": [
+    12.899,
+    96.902
+   ],
+   "p1": [
+    1.899,
+    96.902
+   ],
+   "z": 0.0,
+   "role": "loading_zone"
+  },
+  {
+   "id": "MzTZ6O0FZMeBiufyq",
+   "name": "Gaffer Tape, Blue, 1in Wide, 22.69in Long",
+   "part": "p003",
+   "color": "blue",
+   "width": 1.0,
+   "length": 22.692,
+   "p0": [
+    119.409,
+    141.606
+   ],
+   "p1": [
+    142.101,
+    141.606
+   ],
+   "z": 0.0,
+   "role": "garden"
+  }
+ ],
+ "zones": [
+  {
+   "name": "blue alliance area",
+   "kind": "alliance_area",
+   "alliance": "blue",
+   "polygon": [
+    [
+     143.65,
+     23.585
+    ],
+    [
+     197.65,
+     23.585
+    ],
+    [
+     197.65,
+     120.405
+    ],
+    [
+     143.65,
+     120.405
+    ]
+   ],
+   "source": "tape",
+   "size": [
+    54.0,
+    96.82
+   ],
+   "note": "outer envelope of the alliance-coloured tape strips (1in and 2in variants overlap); loading/alliance polygons extend to the tape ends at the wall"
+  },
+  {
+   "name": "red alliance area",
+   "kind": "alliance_area",
+   "alliance": "red",
+   "polygon": [
+    [
+     -53.65,
+     23.595
+    ],
+    [
+     0.35,
+     23.595
+    ],
+    [
+     0.35,
+     120.415
+    ],
+    [
+     -53.65,
+     120.415
+    ]
+   ],
+   "source": "tape",
+   "size": [
+    54.0,
+    96.82
+   ],
+   "note": "outer envelope of the alliance-coloured tape strips (1in and 2in variants overlap); loading/alliance polygons extend to the tape ends at the wall"
+  },
+  {
+   "name": "blue garden",
+   "kind": "garden",
+   "alliance": "blue",
+   "polygon": [
+    [
+     119.409,
+     140.106
+    ],
+    [
+     142.101,
+     140.106
+    ],
+    [
+     142.101,
+     142.106
+    ],
+    [
+     119.409,
+     142.106
+    ]
+   ],
+   "source": "tape",
+   "size": [
+    22.69,
+    2.0
+   ],
+   "note": "outer envelope of the alliance-coloured tape strips (1in and 2in variants overlap); loading/alliance polygons extend to the tape ends at the wall"
+  },
+  {
+   "name": "red garden",
+   "kind": "garden",
+   "alliance": "red",
+   "polygon": [
+    [
+     1.899,
+     1.904
+    ],
+    [
+     24.591,
+     1.904
+    ],
+    [
+     24.591,
+     3.904
+    ],
+    [
+     1.899,
+     3.904
+    ]
+   ],
+   "source": "tape",
+   "size": [
+    22.69,
+    2.0
+   ],
+   "note": "outer envelope of the alliance-coloured tape strips (1in and 2in variants overlap); loading/alliance polygons extend to the tape ends at the wall"
+  },
+  {
+   "name": "blue loading zone",
+   "kind": "loading_zone",
+   "alliance": "blue",
+   "polygon": [
+    [
+     131.101,
+     25.406
+    ],
+    [
+     142.101,
+     25.406
+    ],
+    [
+     142.101,
+     48.098
+    ],
+    [
+     131.101,
+     48.098
+    ]
+   ],
+   "source": "tape",
+   "size": [
+    11.0,
+    22.69
+   ],
+   "note": "outer envelope of the alliance-coloured tape strips (1in and 2in variants overlap); loading/alliance polygons extend to the tape ends at the wall"
+  },
+  {
+   "name": "red loading zone",
+   "kind": "loading_zone",
+   "alliance": "red",
+   "polygon": [
+    [
+     1.899,
+     95.902
+    ],
+    [
+     12.899,
+     95.902
+    ],
+    [
+     12.899,
+     118.594
+    ],
+    [
+     1.899,
+     118.594
+    ]
+   ],
+   "source": "tape",
+   "size": [
+    11.0,
+    22.69
+   ],
+   "note": "outer envelope of the alliance-coloured tape strips (1in and 2in variants overlap); loading/alliance polygons extend to the tape ends at the wall"
+  },
+  {
+   "name": "tile seam x=25.05",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     25.05,
+     1.42
+    ],
+    [
+     25.05,
+     142.58
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam y=25.05",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     1.42,
+     25.05
+    ],
+    [
+     142.58,
+     25.05
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam x=48.45",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     48.45,
+     1.42
+    ],
+    [
+     48.45,
+     142.58
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam y=48.45",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     1.42,
+     48.45
+    ],
+    [
+     142.58,
+     48.45
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam x=72.00",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     72.0,
+     1.42
+    ],
+    [
+     72.0,
+     142.58
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam y=72.00",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     1.42,
+     72.0
+    ],
+    [
+     142.58,
+     72.0
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam x=95.55",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     95.55,
+     1.42
+    ],
+    [
+     95.55,
+     142.58
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam y=95.55",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     1.42,
+     95.55
+    ],
+    [
+     142.58,
+     95.55
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam x=118.95",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     118.95,
+     1.42
+    ],
+    [
+     118.95,
+     142.58
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "tile seam y=118.95",
+   "kind": "tile_seam",
+   "alliance": null,
+   "polygon": [
+    [
+     1.42,
+     118.95
+    ],
+    [
+     142.58,
+     118.95
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "field tile area",
+   "kind": "other",
+   "alliance": null,
+   "polygon": [
+    [
+     1.42,
+     1.42
+    ],
+    [
+     142.58,
+     1.42
+    ],
+    [
+     142.58,
+     142.58
+    ],
+    [
+     1.42,
+     142.58
+    ]
+   ],
+   "source": "tiles"
+  },
+  {
+   "name": "field nominal interior (manual 144x144)",
+   "kind": "other",
+   "alliance": null,
+   "polygon": [
+    [
+     0,
+     0
+    ],
+    [
+     144,
+     0
+    ],
+    [
+     144,
+     144
+    ],
+    [
+     0,
+     144
+    ]
+   ],
+   "source": "manual"
+  }
+ ]
+}

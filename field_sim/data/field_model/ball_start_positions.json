@@ -1,0 +1,740 @@
+{
+ "schema": 1,
+ "units": "in",
+ "frame": "pedro",
+ "balls": [
+  {
+   "id": "M/FivI0vfCMFo/r5V",
+   "type": "pollen",
+   "position": [
+    3.96,
+    48.6075,
+    1.4
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 3 (layer 1 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "M2+YueKeqLrJP+1xW",
+   "type": "nectar_red",
+   "position": [
+    51.0084,
+    62.506,
+    49.9384
+   ],
+   "diameter": 3.599,
+   "location": "preloaded",
+   "where": "red hive audience cell (upward-facing), hive-mounted (rotates with hive)",
+   "group": "hive_red"
+  },
+  {
+   "id": "M5GVaxGWlruU1mPb7",
+   "type": "pollen",
+   "position": [
+    11.396,
+    2.726,
+    1.3896
+   ],
+   "diameter": 2.774,
+   "location": "field",
+   "where": "red garden (audience-left corner), row along x",
+   "group": "field"
+  },
+  {
+   "id": "M9qfpgRS9+iwotqy2",
+   "type": "pollen",
+   "position": [
+    95.3925,
+    3.96,
+    10.07
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 2 (layer 4 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MBpo/p9JqPmczLThh",
+   "type": "nectar_blue",
+   "position": [
+    145.575,
+    68.38,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "blue artifact tray 2 (blue alliance area, x~148.8)",
+   "group": "field"
+  },
+  {
+   "id": "MEVWGhxUEdb9qzMuq",
+   "type": "pollen",
+   "position": [
+    48.6075,
+    140.04,
+    4.29
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 1 (layer 2 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MHAWVsiUAs2pGK7R8",
+   "type": "pollen",
+   "position": [
+    132.604,
+    141.274,
+    1.3896
+   ],
+   "diameter": 2.774,
+   "location": "field",
+   "where": "blue garden (far-right corner), row along x",
+   "group": "field"
+  },
+  {
+   "id": "MHRzUWGMhMJMsRRhN",
+   "type": "pollen",
+   "position": [
+    95.3925,
+    3.96,
+    7.18
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 2 (layer 3 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MI8NZTSpkfjtyhkVB",
+   "type": "pollen",
+   "position": [
+    3.96,
+    48.6075,
+    10.07
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 3 (layer 4 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MJkroq7EclZ82rlHy",
+   "type": "pollen",
+   "position": [
+    5.616,
+    2.726,
+    1.3896
+   ],
+   "diameter": 2.774,
+   "location": "field",
+   "where": "red garden (audience-left corner), row along x",
+   "group": "field"
+  },
+  {
+   "id": "MQXsNgBJ3uIGlgCjR",
+   "type": "pollen",
+   "position": [
+    135.494,
+    141.274,
+    1.3896
+   ],
+   "diameter": 2.774,
+   "location": "field",
+   "where": "blue garden (far-right corner), row along x",
+   "group": "field"
+  },
+  {
+   "id": "MRMKrQEOuQru9lUc6",
+   "type": "pollen",
+   "position": [
+    3.96,
+    48.6075,
+    7.18
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 3 (layer 3 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MUT6SnRL/xBj58wrB",
+   "type": "pollen",
+   "position": [
+    2.726,
+    2.726,
+    1.3896
+   ],
+   "diameter": 2.774,
+   "location": "field",
+   "where": "red garden (audience-left corner), row along x",
+   "group": "field"
+  },
+  {
+   "id": "MUsNMw3fwtzu43LkM",
+   "type": "pollen",
+   "position": [
+    8.506,
+    2.726,
+    1.3896
+   ],
+   "diameter": 2.774,
+   "location": "field",
+   "where": "red garden (audience-left corner), row along x",
+   "group": "field"
+  },
+  {
+   "id": "MWtSrrHXK0qlCQkeF",
+   "type": "pollen",
+   "position": [
+    145.05,
+    25.99,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the blue/high-x side wall (x=145.1), row along y",
+   "group": "field"
+  },
+  {
+   "id": "MYJh7HY/juEdRAWjv",
+   "type": "pollen",
+   "position": [
+    48.6075,
+    140.04,
+    10.07
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 1 (layer 4 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MYgVr2JfbkZN1eccT",
+   "type": "pollen",
+   "position": [
+    140.04,
+    95.3925,
+    4.29
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 4 (layer 2 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MZnxpRUGoZxS95uKV",
+   "type": "pollen",
+   "position": [
+    95.3925,
+    3.96,
+    4.29
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 2 (layer 2 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MbE/cr3L3QWkhyPJC",
+   "type": "nectar_red",
+   "position": [
+    54.6284,
+    62.506,
+    49.9384
+   ],
+   "diameter": 3.599,
+   "location": "preloaded",
+   "where": "red hive audience cell (upward-facing), hive-mounted (rotates with hive)",
+   "group": "hive_red"
+  },
+  {
+   "id": "McQoDWYiAeoFk/SEI",
+   "type": "nectar_blue",
+   "position": [
+    89.3884,
+    81.4934,
+    49.9271
+   ],
+   "diameter": 3.586,
+   "location": "preloaded",
+   "where": "blue hive far cell (upward-facing), hive-mounted (rotates with hive)",
+   "group": "hive_blue"
+  },
+  {
+   "id": "MeD9dzEOE1CzlOjoN",
+   "type": "pollen",
+   "position": [
+    140.04,
+    95.3925,
+    7.18
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 4 (layer 3 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MhG4J7h8PIKq4AqFc",
+   "type": "pollen",
+   "position": [
+    141.274,
+    141.274,
+    1.3896
+   ],
+   "diameter": 2.774,
+   "location": "field",
+   "where": "blue garden (far-right corner), row along x",
+   "group": "field"
+  },
+  {
+   "id": "MiWrocvfnq89WlguZ",
+   "type": "nectar_red",
+   "position": [
+    58.2484,
+    62.506,
+    49.9384
+   ],
+   "diameter": 3.599,
+   "location": "preloaded",
+   "where": "red hive audience cell (upward-facing), hive-mounted (rotates with hive)",
+   "group": "hive_red"
+  },
+  {
+   "id": "Mj5u3VNIQzG4hGtUT",
+   "type": "pollen",
+   "position": [
+    -1.05,
+    118.01,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the red/low-x side wall (x=-1.0), row along y",
+   "group": "field"
+  },
+  {
+   "id": "MlbuvK7oiwbFzkbNe",
+   "type": "nectar_blue",
+   "position": [
+    148.71,
+    70.19,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "blue artifact tray 2 (blue alliance area, x~148.8)",
+   "group": "field"
+  },
+  {
+   "id": "MmF+iqvtvG2xX3F8y",
+   "type": "pollen",
+   "position": [
+    48.6075,
+    140.04,
+    1.4
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 1 (layer 1 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MnA+tgzN7UONYAz1s",
+   "type": "pollen",
+   "position": [
+    48.6075,
+    140.04,
+    7.18
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 1 (layer 3 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "Mo/FeIs1F45HnloFt",
+   "type": "nectar_blue",
+   "position": [
+    93.0084,
+    81.4934,
+    49.9271
+   ],
+   "diameter": 3.586,
+   "location": "preloaded",
+   "where": "blue hive far cell (upward-facing), hive-mounted (rotates with hive)",
+   "group": "hive_blue"
+  },
+  {
+   "id": "Mql7+ALySEz4wE4xp",
+   "type": "pollen",
+   "position": [
+    140.04,
+    95.3925,
+    1.4
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 4 (layer 1 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MrL2nrMrMQXA//sn2",
+   "type": "nectar_blue",
+   "position": [
+    85.7684,
+    81.4934,
+    49.9271
+   ],
+   "diameter": 3.586,
+   "location": "preloaded",
+   "where": "blue hive far cell (upward-facing), hive-mounted (rotates with hive)",
+   "group": "hive_blue"
+  },
+  {
+   "id": "MsFgvOSQerNon8nqV",
+   "type": "pollen",
+   "position": [
+    95.3925,
+    3.96,
+    1.4
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 2 (layer 1 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MtYEVrN4JHeVFIa7n",
+   "type": "nectar_red",
+   "position": [
+    -4.71,
+    73.81,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "red artifact tray 1 (red alliance area, x~-4.8)",
+   "group": "field"
+  },
+  {
+   "id": "MurecP70t3UlW9pkP",
+   "type": "nectar_red",
+   "position": [
+    -1.575,
+    75.62,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "red artifact tray 1 (red alliance area, x~-4.8)",
+   "group": "field"
+  },
+  {
+   "id": "Mz0GsUZwBYTWpUH/l",
+   "type": "pollen",
+   "position": [
+    3.96,
+    48.6075,
+    4.29
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 3 (layer 2 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "MzlhWvYkkFSdC3gdG",
+   "type": "pollen",
+   "position": [
+    140.04,
+    95.3925,
+    10.07
+   ],
+   "diameter": 2.782,
+   "location": "field",
+   "where": "stack of 4 under/in flower 4 (layer 4 from bottom)",
+   "group": "field"
+  },
+  {
+   "id": "Mzq7ut7UR0pbiGTHM",
+   "type": "pollen",
+   "position": [
+    138.384,
+    141.274,
+    1.3896
+   ],
+   "diameter": 2.774,
+   "location": "field",
+   "where": "blue garden (far-right corner), row along x",
+   "group": "field"
+  },
+  {
+   "id": "I1C2qHDf/ZLXT7SR6",
+   "type": "nectar_blue",
+   "position": [
+    145.575,
+    72.0,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "blue artifact tray 2 (blue alliance area, x~148.8)",
+   "group": "field"
+  },
+  {
+   "id": "IbMNtdVmD8/bVacsR",
+   "type": "nectar_blue",
+   "position": [
+    145.575,
+    75.62,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "blue artifact tray 2 (blue alliance area, x~148.8)",
+   "group": "field"
+  },
+  {
+   "id": "I/xez3i8c9EbdZm3X",
+   "type": "pollen",
+   "position": [
+    -1.05,
+    109.61,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the red/low-x side wall (x=-1.0), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IHZ1ypGNqNFnuKT+2",
+   "type": "pollen",
+   "position": [
+    -1.05,
+    112.41,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the red/low-x side wall (x=-1.0), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IJOkv5UAsL7hDi5yI",
+   "type": "pollen",
+   "position": [
+    -1.05,
+    101.21,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the red/low-x side wall (x=-1.0), row along y",
+   "group": "field"
+  },
+  {
+   "id": "INLqOx8SSbyQW9jhp",
+   "type": "pollen",
+   "position": [
+    -1.05,
+    98.41,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the red/low-x side wall (x=-1.0), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IQyfQHO7cTdWYLDcD",
+   "type": "pollen",
+   "position": [
+    -1.05,
+    106.81,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the red/low-x side wall (x=-1.0), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IWmMayGhwanY6rN4h",
+   "type": "pollen",
+   "position": [
+    -1.05,
+    104.01,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the red/low-x side wall (x=-1.0), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IjzeRI8LqRhRf27+f",
+   "type": "pollen",
+   "position": [
+    -1.05,
+    115.21,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the red/low-x side wall (x=-1.0), row along y",
+   "group": "field"
+  },
+  {
+   "id": "I526WMnwieABP7BKO",
+   "type": "pollen",
+   "position": [
+    145.05,
+    34.39,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the blue/high-x side wall (x=145.1), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IMXaPBj0kfF6mstyt",
+   "type": "pollen",
+   "position": [
+    145.05,
+    45.59,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the blue/high-x side wall (x=145.1), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IQZWCHVzzFQ3W+YQ9",
+   "type": "pollen",
+   "position": [
+    145.05,
+    28.79,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the blue/high-x side wall (x=145.1), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IVFG8JYTbd1mdwwgE",
+   "type": "pollen",
+   "position": [
+    145.05,
+    42.79,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the blue/high-x side wall (x=145.1), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IYUTB7qb9pg9fPIWf",
+   "type": "pollen",
+   "position": [
+    145.05,
+    31.59,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the blue/high-x side wall (x=145.1), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IhLH48ygTT/GYjfOH",
+   "type": "pollen",
+   "position": [
+    145.05,
+    39.99,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the blue/high-x side wall (x=145.1), row along y",
+   "group": "field"
+  },
+  {
+   "id": "Iu8ipfiBRbLC1dwHF",
+   "type": "pollen",
+   "position": [
+    145.05,
+    37.19,
+    0.821
+   ],
+   "diameter": 2.782,
+   "location": "preloaded",
+   "where": "robot pre-load stock staged outside the blue/high-x side wall (x=145.1), row along y",
+   "group": "field"
+  },
+  {
+   "id": "IvHFDMvQrCHICZYW7",
+   "type": "nectar_blue",
+   "position": [
+    148.71,
+    73.81,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "blue artifact tray 2 (blue alliance area, x~148.8)",
+   "group": "field"
+  },
+  {
+   "id": "IgmNXRG8+QijC7tlO",
+   "type": "nectar_red",
+   "position": [
+    -4.71,
+    70.19,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "red artifact tray 1 (red alliance area, x~-4.8)",
+   "group": "field"
+  },
+  {
+   "id": "I71sjA5uLjnw84K3w",
+   "type": "nectar_red",
+   "position": [
+    -1.575,
+    72.0,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "red artifact tray 1 (red alliance area, x~-4.8)",
+   "group": "field"
+  },
+  {
+   "id": "I8+QrZVAarOMuoBNG",
+   "type": "nectar_red",
+   "position": [
+    -1.575,
+    68.38,
+    1.336
+   ],
+   "diameter": 3.592,
+   "location": "tray",
+   "where": "red artifact tray 1 (red alliance area, x~-4.8)",
+   "group": "field"
+  }
+ ],
+ "counts": {
+  "pollen": 40,
+  "nectar_red": 8,
+  "nectar_blue": 8
+ }
+}

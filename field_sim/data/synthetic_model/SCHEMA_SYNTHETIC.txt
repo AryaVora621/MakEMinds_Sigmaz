@@ -1,0 +1,23 @@
+Generate a SYNTHETIC mini field model that follows the field_model data contract.
+
+Purpose: lets the viewer, the Field API and the tests run before the real CAD export
+(field_sim/data/field_model/, written by the extract pipeline) exists.  Geometry is
+deliberately crude (boxes, spheres, cylinders); only the layout logic is meaningful.
+
+Output (never touches data/field_model/):
+    field_sim/data/synthetic_model/
+        model.json, parts.json, field_constants.json, tape_zones.json,
+        ball_start_positions.json, meshes/<partkey>.npz, SCHEMA_SYNTHETIC.txt
+
+Frame: PEDRO inches. Origin audience-left corner, +x right, +y toward far wall, +z up.
+Red alliance at low x, blue at high x.
+
+Hive convention used here (and by sim.hive):
+    group pivot = point on the tilt axis, axis = unit vector (here +x).
+    Angle theta (deg) is a right-hand rotation about `axis` through `pivot`
+    applied to the hive in its LEVEL (theta = 0) pose.  With axis = +x a
+    positive theta raises the far (+y) side.  cad_pose_angle_deg is the angle
+    the exported geometry is already in.  stable_angles_deg = [-30, +30].
+    Red CAD pose: audience cell up  -> -30.  Blue CAD pose: far cell up -> +30.
+
+Usage:  python tools/make_synthetic_model.py [--out DIR]

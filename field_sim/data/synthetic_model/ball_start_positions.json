@@ -1,0 +1,621 @@
+{
+ "schema": 1,
+ "balls": [
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    45,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    51,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    57,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    63,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    69,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    75,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    81,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    87,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    93,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    99,
+    6,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    45,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    51,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    57,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    63,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    69,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    75,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    81,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    87,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    93,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    99,
+    12,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    45,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    51,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    57,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    63,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    69,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    75,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    81,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    87,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    93,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    99,
+    18,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    45,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    51,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    57,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    63,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    69,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    75,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    81,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    87,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    93,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "pollen",
+   "category": "scoring_pollen",
+   "alliance": null,
+   "center": [
+    99,
+    24,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_red",
+   "category": "scoring_nectar_red",
+   "alliance": "red",
+   "center": [
+    6,
+    60,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_blue",
+   "category": "scoring_nectar_blue",
+   "alliance": "blue",
+   "center": [
+    132,
+    60,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_red",
+   "category": "scoring_nectar_red",
+   "alliance": "red",
+   "center": [
+    12,
+    60,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_blue",
+   "category": "scoring_nectar_blue",
+   "alliance": "blue",
+   "center": [
+    138,
+    60,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_red",
+   "category": "scoring_nectar_red",
+   "alliance": "red",
+   "center": [
+    6,
+    66,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_blue",
+   "category": "scoring_nectar_blue",
+   "alliance": "blue",
+   "center": [
+    132,
+    66,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_red",
+   "category": "scoring_nectar_red",
+   "alliance": "red",
+   "center": [
+    12,
+    66,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_blue",
+   "category": "scoring_nectar_blue",
+   "alliance": "blue",
+   "center": [
+    138,
+    66,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_red",
+   "category": "scoring_nectar_red",
+   "alliance": "red",
+   "center": [
+    6,
+    72,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_blue",
+   "category": "scoring_nectar_blue",
+   "alliance": "blue",
+   "center": [
+    132,
+    72,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_red",
+   "category": "scoring_nectar_red",
+   "alliance": "red",
+   "center": [
+    12,
+    72,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_blue",
+   "category": "scoring_nectar_blue",
+   "alliance": "blue",
+   "center": [
+    138,
+    72,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_red",
+   "category": "scoring_nectar_red",
+   "alliance": "red",
+   "center": [
+    6,
+    78,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_blue",
+   "category": "scoring_nectar_blue",
+   "alliance": "blue",
+   "center": [
+    132,
+    78,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_red",
+   "category": "scoring_nectar_red",
+   "alliance": "red",
+   "center": [
+    12,
+    78,
+    2.5
+   ],
+   "diameter_in": 5.0
+  },
+  {
+   "kind": "nectar_blue",
+   "category": "scoring_nectar_blue",
+   "alliance": "blue",
+   "center": [
+    138,
+    78,
+    2.5
+   ],
+   "diameter_in": 5.0
+  }
+ ]
+}

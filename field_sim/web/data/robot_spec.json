@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "name": "MaxBot (team design notes, MODEL numbers, no CAD yet)",
+  "units": "in",
+  "frame": "robot frame: +x forward, +y left, z up, origin at the robot centre on the floor. Shooter/camera x,y,z are relative to the turret pivot with the turret at 0 deg.",
+  "provenance_legend": {
+    "cad": "measured from the CAD",
+    "vault": "from the team's MaxBot design notes (Memory Vault 'MaxBot Design'/'MaxBot Requirements'): MODEL or SAID, no CAD exists yet",
+    "placeholder": "guess for looks, replace from CAD",
+    "repo": "taken from the robot code"
+  },
+  "prov_note": "Each object may carry a 'prov' map {key: tag, '*': default tag}. A number takes the tag of its own key, else '*' of the nearest enclosing prov map.",
+  "chassis": {
+    "footprint": [[-7.5, -7.38], [7.5, -7.38], [7.5, 7.38], [-7.5, 7.38]],
+    "height": 18,
+    "mass_lb": 31.4,
+    "wheelbase": 10.08,
+    "track": 12.7,
+    "bumperHeight": 3,
+    "plateZ": 0.55,
+    "plateThickness": 0.25,
+    "deckZ": 8.82,
+    "deckThickness": 0.25,
+    "cassetteHeight": 8.57,
+    "laneWidth": 3.54,
+    "laneCenterZ": 5.2,
+    "ballDia": 2.8,
+    "prov": {"*": "vault", "bumperHeight": "placeholder", "plateZ": "placeholder", "plateThickness": "placeholder", "deckThickness": "placeholder", "cassetteHeight": "placeholder", "laneCenterZ": "placeholder", "ballDia": "placeholder"}
+  },
+  "wheels": [
+    {"name": "FL", "x": 5.04, "y": 6.35, "radius": 2.047, "width": 1.49, "type": "mecanum", "prov": {"*": "vault", "y": "placeholder"}},
+    {"name": "FR", "x": 5.04, "y": -6.35, "radius": 2.047, "width": 1.49, "type": "mecanum", "prov": {"*": "vault", "y": "placeholder"}},
+    {"name": "BL", "x": -5.04, "y": 6.35, "radius": 2.047, "width": 1.49, "type": "mecanum", "prov": {"*": "vault", "y": "placeholder"}},
+    {"name": "BR", "x": -5.04, "y": -6.35, "radius": 2.047, "width": 1.49, "type": "mecanum", "prov": {"*": "vault", "y": "placeholder"}}
+  ],
+  "intake": {
+    "present": true, "dual": true, "x": 7.5, "y": 0, "z": 0, "width": 14.9, "depth": 4.2,
+    "protrusionFoldedIn": 1.5, "protrusionDeployedIn": 4.2, "foldTimeS": 0.4,
+    "rollerRadius": 0.8, "lowerRollerZ": 3.3, "upperRollerZ": 7.1, "side": "front", "capacity": 4,
+    "prov": {"*": "placeholder", "capacity": "repo", "dual": "vault", "protrusionFoldedIn": "vault", "protrusionDeployedIn": "vault", "width": "vault"}
+  },
+  "transfer": {
+    "present": true, "x": 0, "y": 0, "z": 5.2, "length": 6, "width": 3.3, "height": 3,
+    "prov": {"*": "placeholder"}
+  },
+  "shooter": {
+    "type": "turret_flywheel",
+    "pivot": {"x": 0, "y": 0, "z": 9.5, "prov": {"x": "repo", "y": "repo", "z": "vault"}},
+    "exitPoint": {"x": 3.2, "y": 0, "z": 8.9, "prov": {"*": "placeholder"}},
+    "exitHeightAboveFloor": 18.4,
+    "flywheelRadius": 1.89,
+    "flywheelWidth": 1.4,
+    "flywheelAbove": 3.0,
+    "wheelCount": 1,
+    "compression": 0.3,
+    "hood": {
+      "minDeg": 25, "maxDeg": 65,
+      "pivot": {"x": 1.0, "y": 0, "z": 8.4, "prov": {"*": "placeholder"}},
+      "length": 5, "width": 3.1,
+      "prov": {"*": "placeholder"}
+    },
+    "turret": {
+      "minDeg": -150, "maxDeg": 150, "ringRadius": 2.95, "boreRadius": 2.07, "rateDegS": 487, "kp": 14,
+      "pinionRadius": 1.0, "pinionDistance": 3.78, "pinionAngleDeg": -135,
+      "prov": {"*": "placeholder", "minDeg": "vault", "maxDeg": "vault", "boreRadius": "vault", "rateDegS": "vault", "pinionDistance": "vault"}
+    },
+    "flywheelTauS": 0.35,
+    "rpmDipFrac": 0.06,
+    "maxRpm": 6000,
+    "efficiency": 0.45,
+    "rpmScale": 1,
+    "entryDeg": 50,
+    "fixedElevDeg": 45,
+    "prov": {
+      "*": "placeholder",
+      "exitHeightAboveFloor": "vault", "flywheelRadius": "vault", "maxRpm": "repo", "efficiency": "repo",
+      "rpmScale": "repo", "entryDeg": "repo", "fixedElevDeg": "repo"
+    }
+  },
+  "camera": {
+    "model": "Limelight 3A", "mount": "turret",
+    "x": 4.2, "y": 0, "z": 6.4, "pitchDeg": 25, "hfovDeg": 54.5, "vfovDeg": 42, "rangeIn": 150,
+    "prov": {"*": "placeholder"}
+  },
+  "sensors": [
+    {"name": "intakeColor", "type": "color", "frame": "robot", "x": 6.0, "y": 0, "z": 6.6, "prov": {"*": "placeholder"}},
+    {"name": "shooterColor", "type": "color", "frame": "turret", "x": 1.7, "y": 0, "z": 2.0, "prov": {"*": "placeholder"}}
+  ],
+  "flower": {
+    "present": true, "servos": 2, "servoModel": "Axon", "mechanism": "drop-down arm, see flower_arm.json",
+    "prov": {"*": "placeholder", "servos": "repo"}
+  },
+  "gate": {
+    "present": true, "x": 6.3, "y": 0, "z": 6.7, "width": 3.6, "height": 1.6, "thickness": 0.25,
+    "openMm": 97, "closedMm": 78,
+    "prov": {"*": "placeholder", "openMm": "vault", "closedMm": "vault"}
+  },
+  "battery": {"x": -3.4, "y": 4.1, "z": 6.9, "sx": 5.9, "sy": 1.6, "sz": 2.3, "prov": {"*": "placeholder"}},
+  "odometry": {
+    "pinpoint": {"x": 0, "y": 0, "prov": {"*": "repo"}},
+    "pods": [
+      {"name": "xPod", "x": 0.96, "y": -0.63, "axis": "y", "prov": {"*": "vault"}},
+      {"name": "yPod", "x": -1.2, "y": 0.9, "axis": "x", "prov": {"*": "placeholder"}}
+    ]
+  },
+  "drive": {
+    "maxSpeedInS": 60, "maxAccel": 140, "maxTurnRadS": 3.2,
+    "prov": {"*": "placeholder"}
+  },
+  "cad_todo": [
+    "Everything tagged vault is from the design notes (MODEL), no CAD: replace with measured values when the Onshape CAD exists",
+    "wheels[*].y (cassette wheel centre), chassis.plateZ/plateThickness/cassetteHeight/laneCenterZ",
+    "intake roller radius and z positions, gate x/z/width, transfer x/z/length",
+    "shooter.exitPoint, hood pivot/length/width, hood min/max deg (vault gives only a 19.8 mm hood travel), turret ring radius",
+    "shooter.maxRpm, efficiency (calibrate), rpmScale (calibrate), flywheelTauS, rpmDipFrac, entryDeg, fixedElevDeg",
+    "camera.x/y/z (relative to the turret pivot), pitchDeg, hfovDeg, vfovDeg, rangeIn",
+    "sensors[*] intakeColor and shooterColor positions",
+    "battery position and size; odometry pod positions (vault pod X (24.5, -16.0) read as mm)",
+    "drive.maxSpeedInS/maxAccel/maxTurnRadS (measure on the robot)",
+    "Note: vault exit height 18.4 in is above the 18 in envelope; the head sits above it, check against the real robot"
+  ]
+}

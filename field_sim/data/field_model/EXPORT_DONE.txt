@@ -1,0 +1,42 @@
+BIOBUZZ field model export complete: 2026-11-05T15:08:00Z
+Producer: orchestrator A (EXTRACT & MODEL). Schema: SCHEMA.md (schema 1).
+Java block FieldConstantsCad compiles with javac.
+
+PASS parts.json has 115 parts :: 115
+PASS every part mesh loads, valid dtypes/indices, bbox matches parts.json
+PASS meshes total size :: 3.0 MB, 376678 triangles
+     part sources: {'step': 18, 'synthetic': 11, 'onshape': 86}
+PASS model.json units/frame
+PASS instances + dropped == 1094 occurrences :: 1011 + 83 (stats 1094)
+PASS every occurrence appears exactly once
+PASS every instance resolves to a mesh :: 0 unresolved
+PASS all transforms are rigid 4x4 row-major :: 0 bad
+PASS all instance origins near the field (pedro inches) :: 0 out of range
+PASS categories within the allowed set :: []
+     by category: {'apriltag_sticker': 4, 'artifact_tray': 2, 'decoration': 2, 'flower': 144, 'hardware': 206, 'hive_blue': 171, 'hive_frame': 19, 'hive_red': 171, 'perimeter_pin': 96, 'perimeter_wall': 74, 'scoring_nectar_blue': 8, 'scoring_nectar_red': 8, 'scoring_pollen': 40, 'tape': 30, 'tile': 36}
+PASS 40 pollen instances :: 40
+PASS 16 nectar instances in total :: red 8, blue 8
+PASS 4 AprilTag sticker instances :: 4
+PASS no instance left as 'other' :: 0
+PASS groups.hive_red complete :: {"pivot": [59.25, 72.0, 43.95], "cad_pose_state": "audience_up", "stable_angles_deg": {"audience_up": -30.0, "far_up": 30.0}}
+PASS hive_red stable states 60 deg apart :: {'audience_up': -30.0, 'far_up': 30.0}
+PASS hive_red has member instances :: 176
+PASS groups.hive_blue complete :: {"pivot": [84.75, 72.0, 43.95], "cad_pose_state": "far_up", "stable_angles_deg": {"audience_up": -30.0, "far_up": 30.0}}
+PASS hive_blue stable states 60 deg apart :: {'audience_up': -30.0, 'far_up': 30.0}
+PASS hive_blue has member instances :: 176
+PASS ball_start_positions consistent with model :: {'pollen': 40, 'nectar_red': 8, 'nectar_blue': 8}
+WARN all ball start positions inside the field footprint
+PASS tape_zones tapes == tape instances :: 30 vs 30
+PASS tape_zones has zones :: 18
+PASS AprilTag IDs 30-45 each present exactly once :: []
+PASS 16 tags x 2 tip states: unit normals, 3.25 in square, centred
+PASS every tag centre lies on a sticker of its alliance hive in that tip state (<0.1 in)
+PASS hive cells: 2 hives x 2 states x 2 cells, correct up cell, aim = opening centre
+PASS 4 flowers with opening centres :: 4
+PASS provenance labels valid :: 17 entries
+
+SUMMARY: 30 checks, 0 FAIL, 1 WARN
+
+parts 115  triangles 376678 (original 376678)  meshes 2.99 MB  decimated 0  synthetic 11  negative-volume []
+sources: {'onshape': 86, 'step': 18, 'synthetic': 11}
+OK

@@ -1,0 +1,2996 @@
+{
+ "schema": 1,
+ "units": "in",
+ "parts": {
+  "p000": {
+   "name": "Gaffer Tape, Blue, 1in Wide, 11in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.27940000000000004+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p000.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -5.5,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    5.5,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Blue, 1in Wide, 11in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p001": {
+   "name": "Gaffer Tape, Blue, 1in Wide, 20.69in Long <1>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.5255768000000001+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p001.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -10.346,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    10.346,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Blue, 1in Wide, 20.69in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p002": {
+   "name": "Gaffer Tape, Red, 1in Wide, 22.69in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.5763768+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p002.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -11.346,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    11.346,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Red, 1in Wide, 22.69in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p003": {
+   "name": "Gaffer Tape, Blue, 1in Wide, 22.69in Long <4>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.5763768+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p003.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -11.346,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    11.346,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Blue, 1in Wide, 22.69in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p004": {
+   "name": "Gaffer Tape, Red, 1in Wide, 20.69in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.5255768000000001+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p004.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -10.346,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    10.346,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Red, 1in Wide, 20.69in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p005": {
+   "name": "Gaffer Tape, Red, 1in Wide, 11in Long <4>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.27940000000000004+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p005.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -5.5,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    5.5,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Red, 1in Wide, 11in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p006": {
+   "name": "Gaffer Tape, Red, 1in Wide, 54in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=1.3716000000000002+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p006.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -27.0,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    27.0,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Red, 1in Wide, 54in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p007": {
+   "name": "Gaffer Tape, Red, 1in Wide, 94.82in Long <1>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=2.4084280000000002+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p007.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -47.41,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    47.41,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Red, 1in Wide, 94.82in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p008": {
+   "name": "Gaffer Tape, Blue, 1in Wide, 94.82in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=2.4084280000000002+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p008.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -47.41,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    47.41,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Blue, 1in Wide, 94.82in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p009": {
+   "name": "Gaffer Tape, Blue, 1in Wide, 54in Long <4>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=1.3716000000000002+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.025400000000000002+meter",
+   "source": "step",
+   "mesh": "meshes/p009.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -27.0,
+    -0.5,
+    0.0
+   ],
+   "bbox_max": [
+    27.0,
+    0.5,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); STEP product 'Gaffer Tape, Blue, 1in Wide, 54in Long'; STEP local frame: length=X, width=Z, thickness=Y (0.010 in) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p010": {
+   "name": "Gaffer Tape, Red, 2in Wide, 92.82in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=2.357628+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p010.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -46.41,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    46.41,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 92.820 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p011": {
+   "name": "Gaffer Tape, Red, 2in Wide, 54in Long <4>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=1.3716000000000002+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p011.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -27.0,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    27.0,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 54.000 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p012": {
+   "name": "Gaffer Tape, Blue, 2in Wide, 18.69in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.47477680000000005+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p012.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -9.346,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    9.346,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 18.692 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p013": {
+   "name": "Gaffer Tape, Blue, 2in Wide, 11in Long <4>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.27940000000000004+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p013.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -5.5,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    5.5,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 11.000 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p014": {
+   "name": "Gaffer Tape, Red, 2in Wide, 22.69in Long <3>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.5763768+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p014.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -11.346,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    11.346,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 22.692 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p015": {
+   "name": "Gaffer Tape, Blue, 2in Wide, 22.69in Long <1>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.5763768+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p015.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -11.346,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    11.346,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 22.692 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p016": {
+   "name": "Gaffer Tape, Red, 2in Wide, 18.69in Long <1>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.47477680000000005+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p016.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -9.346,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    9.346,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 18.692 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p017": {
+   "name": "Gaffer Tape, Red, 2in Wide, 11in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=0.27940000000000004+meter;List_Xm5LRXv5hgPUBI=Default;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p017.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -5.5,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    5.5,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    200,
+    20,
+    20,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 11.000 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p018": {
+   "name": "Gaffer Tape, Blue, 2in Wide, 54in Long <2>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=1.3716000000000002+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p018.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -27.0,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    27.0,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 54.000 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p019": {
+   "name": "Gaffer Tape, Blue, 2in Wide, 92.82in Long <1>",
+   "onshape_key": "9375df23e8e43bbaa520fe82|ced39173e6ef13a08189dadb|07f8f0ffe135ab33ba0b2ee1|JHD|Length=2.357628+meter;List_Xm5LRXv5hgPUBI=Copy_of_Gaff_Tape1;Width=0.050800000000000005+meter",
+   "source": "synthetic",
+   "mesh": "meshes/p019.npz",
+   "triangles": 12,
+   "triangles_original": 12,
+   "decimated": false,
+   "bbox_min": [
+    -46.41,
+    -1.0,
+    0.0
+   ],
+   "bbox_max": [
+    46.41,
+    1.0,
+    0.01
+   ],
+   "default_color": [
+    0,
+    60,
+    200,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); no STEP product for this length/width (STEP has only 1in-wide tapes); box from config; axes: X=length 92.820 in, Y=thickness 0.01 in, Z=width 2.000 in (STEP convention, not literal x=0..L/y=0..W) | converted STEP frame -> Onshape-local frame (x,-z,y): length=X, width=Y, thickness=Z (0..0.01 in)."
+  },
+  "p020": {
+   "name": "am-5852: Red Nectar <8>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|JF7|default",
+   "source": "onshape",
+   "mesh": "meshes/p020.npz",
+   "triangles": 2174,
+   "triangles_original": 2174,
+   "decimated": false,
+   "bbox_min": [
+    -1.81,
+    -1.7968,
+    -1.98835
+   ],
+   "bbox_max": [
+    1.81,
+    1.7968,
+    1.57552
+   ],
+   "default_color": [
+    255,
+    0,
+    0,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p021": {
+   "name": "am-5851: Pollen <38>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|JFn|default",
+   "source": "onshape",
+   "mesh": "meshes/p021.npz",
+   "triangles": 2162,
+   "triangles_original": 2162,
+   "decimated": false,
+   "bbox_min": [
+    -1.4,
+    -1.38979,
+    -1.38261
+   ],
+   "bbox_max": [
+    1.4,
+    1.38979,
+    1.38261
+   ],
+   "default_color": [
+    255,
+    239,
+    63,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p022": {
+   "name": "am-5852: Blue Nectar <8>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|JFf|default",
+   "source": "onshape",
+   "mesh": "meshes/p022.npz",
+   "triangles": 2172,
+   "triangles_original": 2172,
+   "decimated": false,
+   "bbox_min": [
+    -1.81,
+    -1.7968,
+    -2.27415
+   ],
+   "bbox_max": [
+    1.81,
+    1.7968,
+    1.28972
+   ],
+   "default_color": [
+    0,
+    0,
+    255,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p023": {
+   "name": "am-5706 Artifact Tray__Fillet1 <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|JFT|default",
+   "source": "onshape",
+   "mesh": "meshes/p023.npz",
+   "triangles": 92,
+   "triangles_original": 92,
+   "decimated": false,
+   "bbox_min": [
+    -7.875,
+    -5.125,
+    0.0
+   ],
+   "bbox_max": [
+    7.875,
+    5.125,
+    3.0
+   ],
+   "default_color": [
+    102,
+    102,
+    102,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p024": {
+   "name": "am-5868: Basket Base Tube <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFLE|default",
+   "source": "onshape",
+   "mesh": "meshes/p024.npz",
+   "triangles": 864,
+   "triangles_original": 864,
+   "decimated": false,
+   "bbox_min": [
+    -16.75,
+    -0.0,
+    0.0
+   ],
+   "bbox_max": [
+    0.0,
+    1.0,
+    1.0
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p025": {
+   "name": "am-5867: 10.5in Churro Lite <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFrD|default",
+   "source": "onshape",
+   "mesh": "meshes/p025.npz",
+   "triangles": 268,
+   "triangles_original": 268,
+   "decimated": false,
+   "bbox_min": [
+    -2.02346,
+    1.5,
+    0.49512
+   ],
+   "bbox_max": [
+    -1.59622,
+    12.0,
+    0.86512
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p026": {
+   "name": "am-5866-red: Red Goal Rib <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF/F|default",
+   "source": "onshape",
+   "mesh": "meshes/p026.npz",
+   "triangles": 66492,
+   "triangles_original": 66492,
+   "decimated": false,
+   "bbox_min": [
+    -10.5,
+    -0.0625,
+    -14.5825
+   ],
+   "bbox_max": [
+    10.5,
+    1.9375,
+    1.47315
+   ],
+   "default_color": [
+    255,
+    0,
+    0,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p027": {
+   "name": "am-5871: Hive Goal Back Skin <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFXE|default",
+   "source": "onshape",
+   "mesh": "meshes/p027.npz",
+   "triangles": 2304,
+   "triangles_original": 2304,
+   "decimated": false,
+   "bbox_min": [
+    -10.46857,
+    -0.0825,
+    -13.46857
+   ],
+   "bbox_max": [
+    10.46857,
+    -0.0625,
+    1.44228
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    51
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p028": {
+   "name": "am-5888: Hive Goal Bottom Skin <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFHE|default",
+   "source": "onshape",
+   "mesh": "meshes/p028.npz",
+   "triangles": 852,
+   "triangles_original": 852,
+   "decimated": false,
+   "bbox_min": [
+    -0.02,
+    -11.75,
+    -0.02
+   ],
+   "bbox_max": [
+    20.178,
+    0.0,
+    7.79642
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    51
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p029": {
+   "name": "am-5888-red1: Red Goal April Tag (Audience) <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFnF|default",
+   "source": "onshape",
+   "mesh": "meshes/p029.npz",
+   "triangles": 172,
+   "triangles_original": 172,
+   "decimated": false,
+   "bbox_min": [
+    0.0,
+    -0.01,
+    0.0
+   ],
+   "bbox_max": [
+    17.0,
+    0.0,
+    5.0
+   ],
+   "default_color": [
+    255,
+    255,
+    255,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p030": {
+   "name": "am-5869: Hive Goal Top Skin <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFzD|default",
+   "source": "onshape",
+   "mesh": "meshes/p030.npz",
+   "triangles": 840,
+   "triangles_original": 840,
+   "decimated": false,
+   "bbox_min": [
+    -11.84254,
+    -11.75,
+    -10.78048
+   ],
+   "bbox_max": [
+    4.8718,
+    0.0,
+    0.0
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    51
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p031": {
+   "name": "am-1767: 1x1 Square Press In Plug (Black) <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFTE|default",
+   "source": "onshape",
+   "mesh": "meshes/p031.npz",
+   "triangles": 844,
+   "triangles_original": 844,
+   "decimated": false,
+   "bbox_min": [
+    -0.5,
+    -0.5,
+    -0.21875
+   ],
+   "bbox_max": [
+    0.5,
+    0.5,
+    0.31875
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p032": {
+   "name": "am-1589 Basket End Skin Cable Tie_Red__Fillet1 <18>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFrF|default",
+   "source": "onshape",
+   "mesh": "meshes/p032.npz",
+   "triangles": 144,
+   "triangles_original": 144,
+   "decimated": false,
+   "bbox_min": [
+    0.0,
+    -0.1,
+    -0.14
+   ],
+   "bbox_max": [
+    0.70883,
+    0.0,
+    0.08456
+   ],
+   "default_color": [
+    221,
+    82,
+    40,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p033": {
+   "name": "am-1589 Rib Top Back Cable Tie_Red__Fillet2 <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFzF|default",
+   "source": "onshape",
+   "mesh": "meshes/p033.npz",
+   "triangles": 300,
+   "triangles_original": 300,
+   "decimated": false,
+   "bbox_min": [
+    -0.035,
+    -1.29,
+    -0.39843
+   ],
+   "bbox_max": [
+    0.135,
+    0.04,
+    0.15575
+   ],
+   "default_color": [
+    221,
+    82,
+    40,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p034": {
+   "name": "am-1589 Basket Joiner Cable Tie_Red__Fillet3 <6>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFvF|default",
+   "source": "onshape",
+   "mesh": "meshes/p034.npz",
+   "triangles": 128,
+   "triangles_original": 128,
+   "decimated": false,
+   "bbox_min": [
+    -1.45524,
+    -0.1,
+    0.0899
+   ],
+   "bbox_max": [
+    -0.74965,
+    0.0,
+    1.06989
+   ],
+   "default_color": [
+    221,
+    82,
+    40,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p035": {
+   "name": "am-1589 Basket End Skin Wing Cable Tie_Red__Fillet1 <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF7F|default",
+   "source": "onshape",
+   "mesh": "meshes/p035.npz",
+   "triangles": 136,
+   "triangles_original": 136,
+   "decimated": false,
+   "bbox_min": [
+    -0.0,
+    -0.1,
+    -0.165
+   ],
+   "bbox_max": [
+    0.70977,
+    0.0,
+    0.08408
+   ],
+   "default_color": [
+    221,
+    82,
+    40,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p036": {
+   "name": "am-1589 Rib Top Front Cable Tie_Red__Fillet2 <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF7D|default",
+   "source": "onshape",
+   "mesh": "meshes/p036.npz",
+   "triangles": 308,
+   "triangles_original": 308,
+   "decimated": false,
+   "bbox_min": [
+    -0.035,
+    -1.14,
+    -0.29
+   ],
+   "bbox_max": [
+    0.135,
+    0.04,
+    0.14018
+   ],
+   "default_color": [
+    221,
+    82,
+    40,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p037": {
+   "name": "Socket head cap screw #10-32 x 1 <4>",
+   "onshape_key": "ea77839b068c59a025dddcb5|9ee3cae24c9b4d56577a8f66|d2ecd262d80c0846c485aa24|JHD|JTQwc2NwPSUyRnZwcTAzekhNMUtHNXJqVGpGNlZkeXIzV3E5N0cxQSUyQk9zWmVOVHJaejlrJTNEO0Jhc2ljRGlhbWV0ZXI9MC4wMDQ4MjYrbWV0ZXI7RHJpbGxIb2xlMj1mYWxzZTtEcmlsbEhvbGU0PWZhbHNlO0RyaWxsSG9sZTY9ZmFsc2U7RmlsbGV0UmFkaXVzPTEuNTI0MDAwMDAwMDAwMDAwMkUtNCttZXRlcjtIZWFkQ2hhbWZlcj00LjU3MkUtNCttZXRlcjtIZWFkRGlhbWV0ZXI9MC4wMDc5MjQ4MDAwMDAwMDAwMDErbWV0ZXI7SGVhZEhlaWdodD0wLjAwNDgyNittZXRlcjtIb2xlQ2VudGVyRGlzdGFuY2U9MC4wMDE2NTEwMDAwMDAwMDAwMDAxK21ldGVyO0hvbGVEaWFtZXRlcj0wLjAwMTE4MTErbWV0ZXI7TGVuZ3RoPTAuMDI1NDAwMDAwMDAwMDAwMDAyK21ldGVyO1BpdGNoPTcuOTI0OEUtNCttZXRlcjtTb2NrZXREZXB0aD0wLjAwMjI4NjAwMDAwMDAwMDAwMDMrbWV0ZXI7U29ja2V0U2l6ZT0wLjAwMzk2MjQwMDAwMDAwMDAwMDUrbWV0ZXI7VGhyZWFkTGVuZ3RoPTAuMDI1NDAwMDAwMDAwMDAwMDAyK21ldGVyO1RyaWFuZ2xlSGVpZ2h0PTYuODYzMDc4MDg5OTIwMDAxRS00K21ldGVy",
+   "source": "step",
+   "mesh": "meshes/p037.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    -0.156,
+    -0.156,
+    -1.0
+   ],
+   "bbox_max": [
+    0.156,
+    0.156,
+    0.19
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). "
+  },
+  "p038": {
+   "name": "Socket head cap screw #10-32 x 1.5 <10>",
+   "onshape_key": "ea77839b068c59a025dddcb5|9ee3cae24c9b4d56577a8f66|d2ecd262d80c0846c485aa24|JHD|JTQwc2NwPU13T2xMbmZNM25xQjZjcjRuSzF5RTNYZTg1SVFuMk1ia2paMkxQSDZHdlUlM0Q7QmFzaWNEaWFtZXRlcj0wLjAwNDgyNittZXRlcjtEcmlsbEhvbGUyPWZhbHNlO0RyaWxsSG9sZTQ9ZmFsc2U7RHJpbGxIb2xlNj1mYWxzZTtGaWxsZXRSYWRpdXM9MS41MjQwMDAwMDAwMDAwMDAyRS00K21ldGVyO0hlYWRDaGFtZmVyPTQuNTcyRS00K21ldGVyO0hlYWREaWFtZXRlcj0wLjAwNzkyNDgwMDAwMDAwMDAwMSttZXRlcjtIZWFkSGVpZ2h0PTAuMDA0ODI2K21ldGVyO0hvbGVDZW50ZXJEaXN0YW5jZT0wLjAwMTY1MTAwMDAwMDAwMDAwMDErbWV0ZXI7SG9sZURpYW1ldGVyPTAuMDAxMTgxMSttZXRlcjtMZW5ndGg9MC4wMzgxK21ldGVyO1BpdGNoPTcuOTI0OEUtNCttZXRlcjtTb2NrZXREZXB0aD0wLjAwMjI4NjAwMDAwMDAwMDAwMDMrbWV0ZXI7U29ja2V0U2l6ZT0wLjAwMzk2MjQwMDAwMDAwMDAwMDUrbWV0ZXI7VGhyZWFkTGVuZ3RoPTAuMDM4MSttZXRlcjtUcmlhbmdsZUhlaWdodD02Ljg2MzA3ODA4OTkyMDAwMUUtNCttZXRlcg",
+   "source": "step",
+   "mesh": "meshes/p038.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    -0.156,
+    -0.156,
+    -1.5
+   ],
+   "bbox_max": [
+    0.156,
+    0.156,
+    0.19
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). "
+  },
+  "p039": {
+   "name": "Socket head cap screw #10-32 x 2 <4>",
+   "onshape_key": "ea77839b068c59a025dddcb5|9ee3cae24c9b4d56577a8f66|d2ecd262d80c0846c485aa24|JHD|JTQwc2NwPTd2QWhjaUU4MTJvUmtCZHRlQzU2UnZDSlRLcGlBWEF3UUNzWjZsYURzUFUlM0Q7QmFzaWNEaWFtZXRlcj0wLjAwNDgyNittZXRlcjtEcmlsbEhvbGUyPWZhbHNlO0RyaWxsSG9sZTQ9ZmFsc2U7RHJpbGxIb2xlNj1mYWxzZTtGaWxsZXRSYWRpdXM9MS41MjQwMDAwMDAwMDAwMDAyRS00K21ldGVyO0hlYWRDaGFtZmVyPTQuNTcyRS00K21ldGVyO0hlYWREaWFtZXRlcj0wLjAwNzkyNDgwMDAwMDAwMDAwMSttZXRlcjtIZWFkSGVpZ2h0PTAuMDA0ODI2K21ldGVyO0hvbGVDZW50ZXJEaXN0YW5jZT0wLjAwMTY1MTAwMDAwMDAwMDAwMDErbWV0ZXI7SG9sZURpYW1ldGVyPTAuMDAxMTgxMSttZXRlcjtMZW5ndGg9MC4wNTA4MDAwMDAwMDAwMDAwMDUrbWV0ZXI7UGl0Y2g9Ny45MjQ4RS00K21ldGVyO1NvY2tldERlcHRoPTAuMDAyMjg2MDAwMDAwMDAwMDAwMyttZXRlcjtTb2NrZXRTaXplPTAuMDAzOTYyNDAwMDAwMDAwMDAwNSttZXRlcjtUaHJlYWRMZW5ndGg9MC4wNTA4MDAwMDAwMDAwMDAwMDUrbWV0ZXI7VHJpYW5nbGVIZWlnaHQ9Ni44NjMwNzgwODk5MjAwMDFFLTQrbWV0ZXI",
+   "source": "step",
+   "mesh": "meshes/p039.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    -0.156,
+    -0.156,
+    -2.0
+   ],
+   "bbox_max": [
+    0.156,
+    0.156,
+    0.19
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). "
+  },
+  "p040": {
+   "name": "am-1523: #10 Fender Washer <8>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFHC|default",
+   "source": "onshape",
+   "mesh": "meshes/p040.npz",
+   "triangles": 104,
+   "triangles_original": 104,
+   "decimated": false,
+   "bbox_min": [
+    -0.37227,
+    -0.3641,
+    0.0
+   ],
+   "bbox_max": [
+    0.37227,
+    0.375,
+    0.0625
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p041": {
+   "name": "Hex lock nut with nylon insert #10-32 <2>",
+   "onshape_key": "58af2b9997611b8091ab8b56|8451582b8b57866403130776|c1a47fec4a4513e2d04c99a8|JHD|JTQwc2NwPWg0aFVrRFptYVBhT1dCViUyRm45JTJCbzBoRlpRbGJFM3VPbzJYOHRWUno3YUYwJTNEO0hlaWdodD0wLjAwNTgxNjYwMDAwMDAwMDAwMSttZXRlcjtNYWpvckRpYW1ldGVyPTAuMDA0ODI2K21ldGVyO01pbm9yRGlhbWV0ZXI9MC4wMDM1NTYwMDAwMDAwMDAwMDA2K21ldGVyO092ZXJhbGxIZWlnaHQ9MC4wMDYzMjQ2MDAwMDAwMDAwMDA1K21ldGVyO1BpdGNoPTcuOTI0OEUtNCttZXRlcjtXaWR0aEFjcm9zc0ZsYXRzPTAuMDA5NTUwNCttZXRlcg",
+   "source": "step",
+   "mesh": "meshes/p041.npz",
+   "triangles": 24,
+   "triangles_original": 24,
+   "decimated": false,
+   "bbox_min": [
+    -0.2171,
+    -0.18801,
+    -0.1145
+   ],
+   "bbox_max": [
+    0.2171,
+    0.18801,
+    0.1345
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). "
+  },
+  "p042": {
+   "name": "am-1483: 10-32 Wing Nut <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFHD|default",
+   "source": "onshape",
+   "mesh": "meshes/p042.npz",
+   "triangles": 5750,
+   "triangles_original": 5750,
+   "decimated": false,
+   "bbox_min": [
+    -0.19547,
+    -0.4048,
+    -0.42248
+   ],
+   "bbox_max": [
+    0.19547,
+    0.0,
+    0.42248
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p043": {
+   "name": "am-2579-Body: FIRST Tech Challenge Field Panel Fastener 1-5/16 in. Quick Release Pin <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|JFz|default",
+   "source": "onshape",
+   "mesh": "meshes/p043.npz",
+   "triangles": 382,
+   "triangles_original": 382,
+   "decimated": false,
+   "bbox_min": [
+    -0.8435,
+    -0.09307,
+    -0.09375
+   ],
+   "bbox_max": [
+    0.8435,
+    0.09307,
+    0.09375
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p044": {
+   "name": "am-2579-Ring: FIRST Tech Challenge Field Panel Fastener 1-5/16 in. Quick Release Pin <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|JFv|default",
+   "source": "onshape",
+   "mesh": "meshes/p044.npz",
+   "triangles": 1634,
+   "triangles_original": 1634,
+   "decimated": false,
+   "bbox_min": [
+    0.66003,
+    -0.08338,
+    -0.52985
+   ],
+   "bbox_max": [
+    1.71867,
+    0.08338,
+    0.52985
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p045": {
+   "name": "am-2579-Detent: FIRST Tech Challenge Field Panel Fastener 1-5/16 in. Quick Release Pin <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|JF3|default",
+   "source": "onshape",
+   "mesh": "meshes/p045.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    -0.69266,
+    -0.02588,
+    0.05988
+   ],
+   "bbox_max": [
+    -0.64257,
+    0.02588,
+    0.1096
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p046": {
+   "name": "am-5873: Goal Pivot Bracket <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFfE|default",
+   "source": "onshape",
+   "mesh": "meshes/p046.npz",
+   "triangles": 1224,
+   "triangles_original": 1224,
+   "decimated": false,
+   "bbox_min": [
+    -6.88957,
+    -0.0,
+    -2.71167
+   ],
+   "bbox_max": [
+    6.88957,
+    0.0747,
+    0.875
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p047": {
+   "name": "am-5864: Pivot Damper Holder <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFnE|default",
+   "source": "onshape",
+   "mesh": "meshes/p047.npz",
+   "triangles": 14224,
+   "triangles_original": 14224,
+   "decimated": false,
+   "bbox_min": [
+    -1.09,
+    -1.05311,
+    -1.69018
+   ],
+   "bbox_max": [
+    0.09,
+    1.03689,
+    0.19018
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p048": {
+   "name": "am-5865: Blumotion 970A Damper <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFjE|default",
+   "source": "onshape",
+   "mesh": "meshes/p048.npz",
+   "triangles": 190,
+   "triangles_original": 190,
+   "decimated": false,
+   "bbox_min": [
+    -0.2345,
+    -0.22936,
+    -0.0
+   ],
+   "bbox_max": [
+    0.2345,
+    0.23622,
+    2.55906
+   ],
+   "default_color": [
+    77,
+    77,
+    77,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p049": {
+   "name": "am-5881: 0.196 ID x 0.43 OD x 1.500 Long Aluminum Stepped Spacer <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFrE|default",
+   "source": "onshape",
+   "mesh": "meshes/p049.npz",
+   "triangles": 376,
+   "triangles_original": 376,
+   "decimated": false,
+   "bbox_min": [
+    -0.21654,
+    -0.75,
+    -0.21496
+   ],
+   "bbox_max": [
+    0.21654,
+    0.75,
+    0.21496
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p050": {
+   "name": "am-1696: Nylon Spacer, 0.194in ID, 0.375in OD, 1.000in Long <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFPB|default",
+   "source": "onshape",
+   "mesh": "meshes/p050.npz",
+   "triangles": 104,
+   "triangles_original": 104,
+   "decimated": false,
+   "bbox_min": [
+    -0.18613,
+    -0.18205,
+    0.0
+   ],
+   "bbox_max": [
+    0.18613,
+    0.1875,
+    1.0
+   ],
+   "default_color": [
+    230,
+    224,
+    207,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p051": {
+   "name": "am-1xxx: Under Tile Washer <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF3B|default",
+   "source": "onshape",
+   "mesh": "meshes/p051.npz",
+   "triangles": 104,
+   "triangles_original": 104,
+   "decimated": false,
+   "bbox_min": [
+    -1.48906,
+    -1.45641,
+    0.0
+   ],
+   "bbox_max": [
+    1.48906,
+    1.5,
+    0.067
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p052": {
+   "name": "am-1454: 10-32 Rivnut <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF7B|default",
+   "source": "onshape",
+   "mesh": "meshes/p052.npz",
+   "triangles": 6308,
+   "triangles_original": 6308,
+   "decimated": false,
+   "bbox_min": [
+    -0.2075,
+    -0.20599,
+    -0.415
+   ],
+   "bbox_max": [
+    0.2075,
+    0.20599,
+    0.0
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p053": {
+   "name": "Corner Hinge Rivet Field <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFnG|default",
+   "source": "onshape",
+   "mesh": "meshes/p053.npz",
+   "triangles": 488,
+   "triangles_original": 488,
+   "decimated": false,
+   "bbox_min": [
+    -0.0,
+    -0.71469,
+    -0.185
+   ],
+   "bbox_max": [
+    4.30668,
+    0.745,
+    0.0
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p054": {
+   "name": "Corner Hinge Rivet Field FLAT <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFjG|default",
+   "source": "onshape",
+   "mesh": "meshes/p054.npz",
+   "triangles": 356,
+   "triangles_original": 356,
+   "decimated": false,
+   "bbox_min": [
+    -0.0,
+    -0.71448,
+    -0.09
+   ],
+   "bbox_max": [
+    4.30668,
+    0.745,
+    0.0
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p055": {
+   "name": "187 pop rivet <6>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFXG|default",
+   "source": "onshape",
+   "mesh": "meshes/p055.npz",
+   "triangles": 416,
+   "triangles_original": 416,
+   "decimated": false,
+   "bbox_min": [
+    -0.18613,
+    -0.18205,
+    0.0
+   ],
+   "bbox_max": [
+    0.18613,
+    0.1875,
+    0.475
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p056": {
+   "name": "am-5866-blue: Blue Goal Rib <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFnD|default",
+   "source": "onshape",
+   "mesh": "meshes/p056.npz",
+   "triangles": 66492,
+   "triangles_original": 66492,
+   "decimated": false,
+   "bbox_min": [
+    -10.5,
+    -0.0625,
+    -14.5825
+   ],
+   "bbox_max": [
+    10.5,
+    1.9375,
+    1.47315
+   ],
+   "default_color": [
+    0,
+    0,
+    255,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p057": {
+   "name": "am-5888-blue1: Blue Goal April Tag (Audience) <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFDG|default",
+   "source": "onshape",
+   "mesh": "meshes/p057.npz",
+   "triangles": 172,
+   "triangles_original": 172,
+   "decimated": false,
+   "bbox_min": [
+    0.0,
+    -0.01,
+    0.0
+   ],
+   "bbox_max": [
+    17.0,
+    0.0,
+    5.0
+   ],
+   "default_color": [
+    255,
+    255,
+    255,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p058": {
+   "name": "am-1589 Basket Joiner Cable Tie_Blue__Fillet4 <6>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFvD|default",
+   "source": "onshape",
+   "mesh": "meshes/p058.npz",
+   "triangles": 268,
+   "triangles_original": 268,
+   "decimated": false,
+   "bbox_min": [
+    -1.45524,
+    -0.1375,
+    0.04868
+   ],
+   "bbox_max": [
+    -0.74965,
+    0.0375,
+    1.06989
+   ],
+   "default_color": [
+    22,
+    81,
+    176,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p059": {
+   "name": "am-1589 Basket End Skin Cable Tie_Blue__Fillet2 <18>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFfD|default",
+   "source": "onshape",
+   "mesh": "meshes/p059.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    0.0,
+    -0.135,
+    -0.205
+   ],
+   "bbox_max": [
+    0.745,
+    0.035,
+    0.08456
+   ],
+   "default_color": [
+    22,
+    81,
+    176,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p060": {
+   "name": "am-1589 Basket End Skin Wing Cable Tie_Blue__Fillet2 <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFDE|default",
+   "source": "onshape",
+   "mesh": "meshes/p060.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    -0.0,
+    -0.135,
+    -0.23
+   ],
+   "bbox_max": [
+    0.745,
+    0.035,
+    0.08408
+   ],
+   "default_color": [
+    22,
+    81,
+    176,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p061": {
+   "name": "am-1589 Rib Top Back Cable Tie_Blue__Fillet2 <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFPE|default",
+   "source": "onshape",
+   "mesh": "meshes/p061.npz",
+   "triangles": 300,
+   "triangles_original": 300,
+   "decimated": false,
+   "bbox_min": [
+    -0.035,
+    -1.29,
+    -0.39843
+   ],
+   "bbox_max": [
+    0.135,
+    0.04,
+    0.15575
+   ],
+   "default_color": [
+    22,
+    81,
+    176,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p062": {
+   "name": "am-1589 Rib Top Front Cable Tie_Blue__Fillet2 <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF3F|default",
+   "source": "onshape",
+   "mesh": "meshes/p062.npz",
+   "triangles": 308,
+   "triangles_original": 308,
+   "decimated": false,
+   "bbox_min": [
+    -0.035,
+    -1.14,
+    -0.29
+   ],
+   "bbox_max": [
+    0.135,
+    0.04,
+    0.14018
+   ],
+   "default_color": [
+    22,
+    81,
+    176,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p063": {
+   "name": "am-2556a: FTC Rail with Rivet Holes <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFbG|default",
+   "source": "onshape",
+   "mesh": "meshes/p063.npz",
+   "triangles": 1972,
+   "triangles_original": 1972,
+   "decimated": false,
+   "bbox_min": [
+    0.0,
+    -0.5,
+    -0.834
+   ],
+   "bbox_max": [
+    46.67,
+    0.565,
+    0.335
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p064": {
+   "name": "FTC Field Side Glass 11in <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFfG|default",
+   "source": "onshape",
+   "mesh": "meshes/p064.npz",
+   "triangles": 444,
+   "triangles_original": 444,
+   "decimated": false,
+   "bbox_min": [
+    -23.335,
+    -0.118,
+    -5.4375
+   ],
+   "bbox_max": [
+    23.335,
+    0.0,
+    5.4375
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    51
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p065": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__Revolve6 <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFvE|default",
+   "source": "onshape",
+   "mesh": "meshes/p065.npz",
+   "triangles": 342,
+   "triangles_original": 342,
+   "decimated": false,
+   "bbox_min": [
+    -0.49213,
+    -0.1378,
+    -0.48854
+   ],
+   "bbox_max": [
+    0.47783,
+    0.1378,
+    0.48854
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p066": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__Revolve5[2] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFzE|default",
+   "source": "onshape",
+   "mesh": "meshes/p066.npz",
+   "triangles": 104,
+   "triangles_original": 104,
+   "decimated": false,
+   "bbox_min": [
+    -0.3119,
+    0.06652,
+    -0.31889
+   ],
+   "bbox_max": [
+    0.32123,
+    0.13091,
+    0.31889
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p067": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__Revolve5[1] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF3E|default",
+   "source": "onshape",
+   "mesh": "meshes/p067.npz",
+   "triangles": 104,
+   "triangles_original": 104,
+   "decimated": false,
+   "bbox_min": [
+    -0.3119,
+    -0.13091,
+    -0.31889
+   ],
+   "bbox_max": [
+    0.32123,
+    -0.06652,
+    0.31889
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p068": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[9] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF7E|default",
+   "source": "onshape",
+   "mesh": "meshes/p068.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    -0.23901,
+    -0.06438,
+    0.17366
+   ],
+   "bbox_max": [
+    -0.1086,
+    0.06438,
+    0.30533
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p069": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[8] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF/E|default",
+   "source": "onshape",
+   "mesh": "meshes/p069.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    -0.34707,
+    -0.06438,
+    0.02559
+   ],
+   "bbox_max": [
+    -0.21637,
+    0.06438,
+    0.15716
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p070": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[7] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFDF|default",
+   "source": "onshape",
+   "mesh": "meshes/p070.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    -0.34707,
+    -0.06438,
+    -0.15716
+   ],
+   "bbox_max": [
+    -0.21637,
+    0.06438,
+    -0.02559
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p071": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[6] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFHF|default",
+   "source": "onshape",
+   "mesh": "meshes/p071.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    -0.23901,
+    -0.06438,
+    -0.30533
+   ],
+   "bbox_max": [
+    -0.1086,
+    0.06438,
+    -0.17366
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p072": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[5] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFLF|default",
+   "source": "onshape",
+   "mesh": "meshes/p072.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    -0.06652,
+    -0.06438,
+    -0.36012
+   ],
+   "bbox_max": [
+    0.06652,
+    0.06438,
+    -0.23231
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p073": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[4] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFPF|default",
+   "source": "onshape",
+   "mesh": "meshes/p073.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    0.1086,
+    -0.06438,
+    -0.30533
+   ],
+   "bbox_max": [
+    0.23901,
+    0.06438,
+    -0.17366
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p074": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[3] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFTF|default",
+   "source": "onshape",
+   "mesh": "meshes/p074.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    0.21637,
+    -0.06438,
+    -0.15716
+   ],
+   "bbox_max": [
+    0.34707,
+    0.06438,
+    -0.02559
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p075": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[2] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFXF|default",
+   "source": "onshape",
+   "mesh": "meshes/p075.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    0.21637,
+    -0.06438,
+    0.02559
+   ],
+   "bbox_max": [
+    0.34707,
+    0.06438,
+    0.15716
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p076": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__CirPattern1[1] <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFbF|default",
+   "source": "onshape",
+   "mesh": "meshes/p076.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    0.1086,
+    -0.06438,
+    0.17366
+   ],
+   "bbox_max": [
+    0.23901,
+    0.06438,
+    0.30533
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p077": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__Revolve4 <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFfF|default",
+   "source": "onshape",
+   "mesh": "meshes/p077.npz",
+   "triangles": 156,
+   "triangles_original": 156,
+   "decimated": false,
+   "bbox_min": [
+    -0.06652,
+    -0.06438,
+    0.23231
+   ],
+   "bbox_max": [
+    0.06652,
+    0.06438,
+    0.36012
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p078": {
+   "name": "am-4457 8 mm ID 22 mm OD Shielded Flanged Bearing F608ZZ_57155K629__Revolve3 <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFjF|default",
+   "source": "onshape",
+   "mesh": "meshes/p078.npz",
+   "triangles": 338,
+   "triangles_original": 338,
+   "decimated": false,
+   "bbox_min": [
+    -0.26149,
+    -0.1378,
+    -0.26735
+   ],
+   "bbox_max": [
+    0.26932,
+    0.1378,
+    0.26735
+   ],
+   "default_color": [
+    153,
+    153,
+    153,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p079": {
+   "name": "am-5888-blue2: Blue Goal April Tag (Scoring) <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFHG|default",
+   "source": "onshape",
+   "mesh": "meshes/p079.npz",
+   "triangles": 172,
+   "triangles_original": 172,
+   "decimated": false,
+   "bbox_min": [
+    0.0,
+    -0.01,
+    0.0
+   ],
+   "bbox_max": [
+    17.0,
+    0.0,
+    5.0
+   ],
+   "default_color": [
+    255,
+    255,
+    255,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p080": {
+   "name": "am-2499-Center: FIRST Tech Challenge Field Soft Tiles <16>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFTD|default",
+   "source": "onshape",
+   "mesh": "meshes/p080.npz",
+   "triangles": 3532,
+   "triangles_original": 3532,
+   "decimated": false,
+   "bbox_min": [
+    -12.15625,
+    -12.15625,
+    -0.27729
+   ],
+   "bbox_max": [
+    12.15625,
+    12.15625,
+    0.31174
+   ],
+   "default_color": [
+    128,
+    128,
+    128,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p081": {
+   "name": "am-2499-Side: FIRST Tech Challenge Field Soft Tiles <16>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFXD|default",
+   "source": "onshape",
+   "mesh": "meshes/p081.npz",
+   "triangles": 3172,
+   "triangles_original": 3172,
+   "decimated": false,
+   "bbox_min": [
+    -12.1565,
+    -12.15625,
+    -0.27729
+   ],
+   "bbox_max": [
+    11.82934,
+    12.15625,
+    0.31174
+   ],
+   "default_color": [
+    128,
+    128,
+    128,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p082": {
+   "name": "am-2499-Corner: FIRST Tech Challenge Field Soft Tiles <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFbD|default",
+   "source": "onshape",
+   "mesh": "meshes/p082.npz",
+   "triangles": 2812,
+   "triangles_original": 2812,
+   "decimated": false,
+   "bbox_min": [
+    -12.15649,
+    -11.82934,
+    -0.27729
+   ],
+   "bbox_max": [
+    11.82935,
+    12.1565,
+    0.31174
+   ],
+   "default_color": [
+    128,
+    128,
+    128,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p083": {
+   "name": "am-5888-red2: Red Goal April Tag (Scoring) <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF/D|default",
+   "source": "onshape",
+   "mesh": "meshes/p083.npz",
+   "triangles": 172,
+   "triangles_original": 172,
+   "decimated": false,
+   "bbox_min": [
+    0.0,
+    -0.01,
+    0.0
+   ],
+   "bbox_max": [
+    17.0,
+    0.0,
+    5.0
+   ],
+   "default_color": [
+    255,
+    255,
+    255,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p084": {
+   "name": "Perimeter Mid-Section Strap <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFLG|default",
+   "source": "onshape",
+   "mesh": "meshes/p084.npz",
+   "triangles": 244,
+   "triangles_original": 244,
+   "decimated": false,
+   "bbox_min": [
+    -0.5,
+    -0.40465,
+    0.0
+   ],
+   "bbox_max": [
+    0.5,
+    139.56035,
+    0.405
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p085": {
+   "name": "NewStrapClip <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFPG|default",
+   "source": "onshape",
+   "mesh": "meshes/p085.npz",
+   "triangles": 404,
+   "triangles_original": 404,
+   "decimated": false,
+   "bbox_min": [
+    -0.75,
+    -0.14136,
+    -0.62125
+   ],
+   "bbox_max": [
+    0.75,
+    2.25,
+    -0.33125
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p086": {
+   "name": "am-5863: Axle Holder <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFjC|default",
+   "source": "onshape",
+   "mesh": "meshes/p086.npz",
+   "triangles": 13634,
+   "triangles_original": 13634,
+   "decimated": false,
+   "bbox_min": [
+    -0.65705,
+    -1.5,
+    -0.1875
+   ],
+   "bbox_max": [
+    0.65705,
+    0.11358,
+    2.36026
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p087": {
+   "name": "am-5874: A-Frame Top Corner <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFDD|default",
+   "source": "onshape",
+   "mesh": "meshes/p087.npz",
+   "triangles": 61814,
+   "triangles_original": 61814,
+   "decimated": false,
+   "bbox_min": [
+    -1.52596,
+    -3.25012,
+    -1.96295
+   ],
+   "bbox_max": [
+    1.52596,
+    0.0,
+    2.7694
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p088": {
+   "name": "am-5875: A-Frame Top Bar <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF7C|default",
+   "source": "onshape",
+   "mesh": "meshes/p088.npz",
+   "triangles": 480,
+   "triangles_original": 480,
+   "decimated": false,
+   "bbox_min": [
+    -0.5,
+    -24.0,
+    -0.5
+   ],
+   "bbox_max": [
+    0.5,
+    0.0,
+    0.5
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p089": {
+   "name": "am-5876: A-Frame Leg <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFTC|default",
+   "source": "onshape",
+   "mesh": "meshes/p089.npz",
+   "triangles": 592,
+   "triangles_original": 592,
+   "decimated": false,
+   "bbox_min": [
+    -0.5,
+    -45.75,
+    -0.5
+   ],
+   "bbox_max": [
+    0.5,
+    0.0,
+    0.5
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p090": {
+   "name": "am-5877: ACM Panel <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFbC|default",
+   "source": "onshape",
+   "mesh": "meshes/p090.npz",
+   "triangles": 292,
+   "triangles_original": 292,
+   "decimated": false,
+   "bbox_min": [
+    -15.06888,
+    -0.11811,
+    -8.01947
+   ],
+   "bbox_max": [
+    15.06888,
+    0.0,
+    -1.56155
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p091": {
+   "name": "am-5878: Sheet Metal Foot Bar <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF/C|default",
+   "source": "onshape",
+   "mesh": "meshes/p091.npz",
+   "triangles": 720,
+   "triangles_original": 720,
+   "decimated": false,
+   "bbox_min": [
+    -19.47232,
+    -0.0,
+    -0.0747
+   ],
+   "bbox_max": [
+    19.47232,
+    1.98343,
+    2.07309
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p092": {
+   "name": "am-5879-A: Frame Foot A <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFPD|default",
+   "source": "onshape",
+   "mesh": "meshes/p092.npz",
+   "triangles": 3440,
+   "triangles_original": 3440,
+   "decimated": false,
+   "bbox_min": [
+    17.19532,
+    -14.14365,
+    -41.37501
+   ],
+   "bbox_max": [
+    19.47597,
+    -12.2819,
+    -39.32258
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p093": {
+   "name": "am-5879-B: Frame Foot B <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFLD|default",
+   "source": "onshape",
+   "mesh": "meshes/p093.npz",
+   "triangles": 3698,
+   "triangles_original": 3698,
+   "decimated": false,
+   "bbox_min": [
+    -19.47597,
+    -14.14365,
+    -41.37501
+   ],
+   "bbox_max": [
+    -17.19532,
+    -12.2819,
+    -39.32258
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p094": {
+   "name": "am-5880: 47.5in CC Under Tile Bar <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFnC|default",
+   "source": "onshape",
+   "mesh": "meshes/p094.npz",
+   "triangles": 228,
+   "triangles_original": 228,
+   "decimated": false,
+   "bbox_min": [
+    -24.4812,
+    -0.75,
+    0.0
+   ],
+   "bbox_max": [
+    24.4812,
+    0.75,
+    0.11811
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    51
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p095": {
+   "name": "am-5883: Panel Sticker <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFzC|default",
+   "source": "onshape",
+   "mesh": "meshes/p095.npz",
+   "triangles": 292,
+   "triangles_original": 292,
+   "decimated": false,
+   "bbox_min": [
+    -15.06888,
+    -0.01,
+    -8.01947
+   ],
+   "bbox_max": [
+    15.06888,
+    0.0,
+    -1.56155
+   ],
+   "default_color": [
+    255,
+    255,
+    255,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p096": {
+   "name": "am-1629: Elevator Bolt, 1/4-20 x 1.25in <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFvC|default",
+   "source": "onshape",
+   "mesh": "meshes/p096.npz",
+   "triangles": 7476,
+   "triangles_original": 7476,
+   "decimated": false,
+   "bbox_min": [
+    -0.48084,
+    -0.625,
+    -0.48438
+   ],
+   "bbox_max": [
+    0.48084,
+    0.625,
+    0.48438
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p097": {
+   "name": "Socket head cap screw #10-32 x 0.875 <8>",
+   "onshape_key": "ea77839b068c59a025dddcb5|9ee3cae24c9b4d56577a8f66|d2ecd262d80c0846c485aa24|JHD|JTQwc2NwPUxub2clMkJhWkR3a2RzMG1pSU02dVpYSU5GMUJVT25nUWIyNVloQzVLRzM2RSUzRDtCYXNpY0RpYW1ldGVyPTAuMDA0ODI2K21ldGVyO0RyaWxsSG9sZTI9ZmFsc2U7RHJpbGxIb2xlND1mYWxzZTtEcmlsbEhvbGU2PWZhbHNlO0ZpbGxldFJhZGl1cz0xLjUyNDAwMDAwMDAwMDAwMDJFLTQrbWV0ZXI7SGVhZENoYW1mZXI9NC41NzJFLTQrbWV0ZXI7SGVhZERpYW1ldGVyPTAuMDA3OTI0ODAwMDAwMDAwMDAxK21ldGVyO0hlYWRIZWlnaHQ9MC4wMDQ4MjYrbWV0ZXI7SG9sZUNlbnRlckRpc3RhbmNlPTAuMDAxNjUxMDAwMDAwMDAwMDAwMSttZXRlcjtIb2xlRGlhbWV0ZXI9MC4wMDExODExK21ldGVyO0xlbmd0aD0wLjAyMjIyNSttZXRlcjtQaXRjaD03LjkyNDhFLTQrbWV0ZXI7U29ja2V0RGVwdGg9MC4wMDIyODYwMDAwMDAwMDAwMDAzK21ldGVyO1NvY2tldFNpemU9MC4wMDM5NjI0MDAwMDAwMDAwMDA1K21ldGVyO1RocmVhZExlbmd0aD0wLjAyMjIyNSttZXRlcjtUcmlhbmdsZUhlaWdodD02Ljg2MzA3ODA4OTkyMDAwMUUtNCttZXRlcg",
+   "source": "step",
+   "mesh": "meshes/p097.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    -0.156,
+    -0.156,
+    -0.875
+   ],
+   "bbox_max": [
+    0.156,
+    0.156,
+    0.19
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). "
+  },
+  "p098": {
+   "name": "Socket head cap screw #10-32 x 1.75 <8>",
+   "onshape_key": "ea77839b068c59a025dddcb5|9ee3cae24c9b4d56577a8f66|d2ecd262d80c0846c485aa24|JHD|JTQwc2NwPThqZUZpWFR4YmY2cmh0THhzaXBkNXFZVjFTeWVackVxYkhHMHR1Y2slMkJVQSUzRDtCYXNpY0RpYW1ldGVyPTAuMDA0ODI2K21ldGVyO0RyaWxsSG9sZTI9ZmFsc2U7RHJpbGxIb2xlND1mYWxzZTtEcmlsbEhvbGU2PWZhbHNlO0ZpbGxldFJhZGl1cz0xLjUyNDAwMDAwMDAwMDAwMDJFLTQrbWV0ZXI7SGVhZENoYW1mZXI9NC41NzJFLTQrbWV0ZXI7SGVhZERpYW1ldGVyPTAuMDA3OTI0ODAwMDAwMDAwMDAxK21ldGVyO0hlYWRIZWlnaHQ9MC4wMDQ4MjYrbWV0ZXI7SG9sZUNlbnRlckRpc3RhbmNlPTAuMDAxNjUxMDAwMDAwMDAwMDAwMSttZXRlcjtIb2xlRGlhbWV0ZXI9MC4wMDExODExK21ldGVyO0xlbmd0aD0wLjA0NDQ1K21ldGVyO1BpdGNoPTcuOTI0OEUtNCttZXRlcjtTb2NrZXREZXB0aD0wLjAwMjI4NjAwMDAwMDAwMDAwMDMrbWV0ZXI7U29ja2V0U2l6ZT0wLjAwMzk2MjQwMDAwMDAwMDAwMDUrbWV0ZXI7VGhyZWFkTGVuZ3RoPTAuMDQ0NDUrbWV0ZXI7VHJpYW5nbGVIZWlnaHQ9Ni44NjMwNzgwODk5MjAwMDFFLTQrbWV0ZXI",
+   "source": "step",
+   "mesh": "meshes/p098.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    -0.156,
+    -0.156,
+    -1.75
+   ],
+   "bbox_max": [
+    0.156,
+    0.156,
+    0.19
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). "
+  },
+  "p099": {
+   "name": "Type A flat washer #10 Narrow <16>",
+   "onshape_key": "59a2c9aa7c88f582d7ce7cb9|a7ecccbd55eeeb084e9adb9f|ee7793f60fb19300c5ea8be9|JHD|JTQwc2NwPW5RbFAxNG1KSWM3cnpQV1c4dzlsamhFOUtVUjYweUxYbHVGWCUyQnNIUUNwZyUzRDtJbnNpZGVEaWFtZXRlcj0wLjAwNTU2MjYwMDAwMDAwMDAwMSttZXRlcjtPdXRzaWRlRGlhbWV0ZXI9MC4wMTI3MDAwMDAwMDAwMDAwMDErbWV0ZXI7VGhpY2tuZXNzPTAuMDAxMjQ0NjAwMDAwMDAwMDAwMittZXRlcg",
+   "source": "step",
+   "mesh": "meshes/p099.npz",
+   "triangles": 384,
+   "triangles_original": 384,
+   "decimated": false,
+   "bbox_min": [
+    -0.25,
+    -0.25,
+    0.0
+   ],
+   "bbox_max": [
+    0.25,
+    0.25,
+    0.049
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). "
+  },
+  "p100": {
+   "name": "am-1705: 1/4-20 Wing Nut <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFfC|default",
+   "source": "onshape",
+   "mesh": "meshes/p100.npz",
+   "triangles": 2240,
+   "triangles_original": 2240,
+   "decimated": false,
+   "bbox_min": [
+    -0.5625,
+    -0.0,
+    -0.23955
+   ],
+   "bbox_max": [
+    0.5625,
+    0.5,
+    0.23955
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p101": {
+   "name": "am-5859: Flower Layer X <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KF/B|default",
+   "source": "onshape",
+   "mesh": "meshes/p101.npz",
+   "triangles": 5608,
+   "triangles_original": 5608,
+   "decimated": false,
+   "bbox_min": [
+    -2.97611,
+    -2.39944,
+    -0.435
+   ],
+   "bbox_max": [
+    2.97418,
+    2.47169,
+    0.11811
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p102": {
+   "name": "am-5861: Flower Under Field Bracket <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFDC|default",
+   "source": "onshape",
+   "mesh": "meshes/p102.npz",
+   "triangles": 678,
+   "triangles_original": 678,
+   "decimated": false,
+   "bbox_min": [
+    -1.11,
+    -6.0,
+    -0.1
+   ],
+   "bbox_max": [
+    1.25,
+    0.0,
+    0.785
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p103": {
+   "name": "am-5892: Flower Peanut Support <2>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFfB|default",
+   "source": "onshape",
+   "mesh": "meshes/p103.npz",
+   "triangles": 568,
+   "triangles_original": 568,
+   "decimated": false,
+   "bbox_min": [
+    -0.1,
+    -3.75,
+    -1.0
+   ],
+   "bbox_max": [
+    0.9,
+    0.0,
+    0.0
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p104": {
+   "name": "am-5857: Flower Layer C <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFDB|default",
+   "source": "onshape",
+   "mesh": "meshes/p104.npz",
+   "triangles": 22384,
+   "triangles_original": 22384,
+   "decimated": false,
+   "bbox_min": [
+    -2.96402,
+    -2.39928,
+    -1.0
+   ],
+   "bbox_max": [
+    2.96402,
+    2.39928,
+    0.15
+   ],
+   "default_color": [
+    255,
+    186,
+    82,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p105": {
+   "name": "am-5862: Flower HIPS Pipe <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFTB|default",
+   "source": "onshape",
+   "mesh": "meshes/p105.npz",
+   "triangles": 104,
+   "triangles_original": 104,
+   "decimated": false,
+   "bbox_min": [
+    -0.52117,
+    -0.50974,
+    0.0
+   ],
+   "bbox_max": [
+    0.52117,
+    0.525,
+    17.0
+   ],
+   "default_color": [
+    95,
+    167,
+    61,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p106": {
+   "name": "am-5884: Flower Backstop <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFrB|default",
+   "source": "onshape",
+   "mesh": "meshes/p106.npz",
+   "triangles": 24980,
+   "triangles_original": 24980,
+   "decimated": false,
+   "bbox_min": [
+    -0.0,
+    -0.125,
+    -0.0
+   ],
+   "bbox_max": [
+    3.99373,
+    0.125,
+    3.99373
+   ],
+   "default_color": [
+    100,
+    28,
+    101,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p107": {
+   "name": "am-5858: Flower Layer B <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFjB|default",
+   "source": "onshape",
+   "mesh": "meshes/p107.npz",
+   "triangles": 20618,
+   "triangles_original": 20618,
+   "decimated": false,
+   "bbox_min": [
+    -2.97625,
+    -2.4115,
+    -1.0
+   ],
+   "bbox_max": [
+    2.97625,
+    2.60124,
+    0.35
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p108": {
+   "name": "am-5860: Flower Field Bracket <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFbB|default",
+   "source": "onshape",
+   "mesh": "meshes/p108.npz",
+   "triangles": 4958,
+   "triangles_original": 4958,
+   "decimated": false,
+   "bbox_min": [
+    -3.33424,
+    -1.27723,
+    -0.25
+   ],
+   "bbox_max": [
+    3.33423,
+    1.51326,
+    0.15
+   ],
+   "default_color": [
+    48,
+    48,
+    48,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p109": {
+   "name": "am-1775: #6 x 1/2in Sheet Metal Screw <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFHB|default",
+   "source": "onshape",
+   "mesh": "meshes/p109.npz",
+   "triangles": 3280,
+   "triangles_original": 3280,
+   "decimated": false,
+   "bbox_min": [
+    -0.135,
+    -0.09333,
+    -0.13402
+   ],
+   "bbox_max": [
+    0.13402,
+    0.49962,
+    0.135
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p110": {
+   "name": "Socket head cap screw #10-32 x 0.75 <1>",
+   "onshape_key": "ea77839b068c59a025dddcb5|9ee3cae24c9b4d56577a8f66|d2ecd262d80c0846c485aa24|JHD|JTQwc2NwPURqSzczT2JNN3YlMkZxVjZpZUl2bWVrYjhubnZnYVJCM0RMeiUyQk9DdmRWVjQ4JTNEO0Jhc2ljRGlhbWV0ZXI9MC4wMDQ4MjYrbWV0ZXI7RHJpbGxIb2xlMj1mYWxzZTtEcmlsbEhvbGU0PWZhbHNlO0RyaWxsSG9sZTY9ZmFsc2U7RmlsbGV0UmFkaXVzPTEuNTI0MDAwMDAwMDAwMDAwMkUtNCttZXRlcjtIZWFkQ2hhbWZlcj00LjU3MkUtNCttZXRlcjtIZWFkRGlhbWV0ZXI9MC4wMDc5MjQ4MDAwMDAwMDAwMDErbWV0ZXI7SGVhZEhlaWdodD0wLjAwNDgyNittZXRlcjtIb2xlQ2VudGVyRGlzdGFuY2U9MC4wMDE2NTEwMDAwMDAwMDAwMDAxK21ldGVyO0hvbGVEaWFtZXRlcj0wLjAwMTE4MTErbWV0ZXI7TGVuZ3RoPTAuMDE5MDUrbWV0ZXI7UGl0Y2g9Ny45MjQ4RS00K21ldGVyO1NvY2tldERlcHRoPTAuMDAyMjg2MDAwMDAwMDAwMDAwMyttZXRlcjtTb2NrZXRTaXplPTAuMDAzOTYyNDAwMDAwMDAwMDAwNSttZXRlcjtUaHJlYWRMZW5ndGg9MC4wMTkwNSttZXRlcjtUcmlhbmdsZUhlaWdodD02Ljg2MzA3ODA4OTkyMDAwMUUtNCttZXRlcg",
+   "source": "step",
+   "mesh": "meshes/p110.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    -0.156,
+    -0.156,
+    -0.75
+   ],
+   "bbox_max": [
+    0.156,
+    0.156,
+    0.19
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). "
+  },
+  "p111": {
+   "name": "Pan head machine screw #10-32 x 1.75 <2>",
+   "onshape_key": "d2f6a6fb25da418b49af56ed|c50f2ea55d6eb58b5ebe6c84|9657bffc617ab1b69d96dcdf|JHD|JTQwc2NwPUJpRm9ib3lwWlNNMFBBM3ljMThlWVFMaWEzb21GTXFXOHQ0M2d4aWlZWHclM0Q7QmFzaWNEaWFtZXRlcj0wLjAwNDgyNittZXRlcjtIZWFkRGlhbWV0ZXI9MC4wMDk0NzQyK21ldGVyO0hlYWRGaWxsZXQ9NS4wODAwMDAwMDAwMDAwMDFFLTQrbWV0ZXI7SGVhZEZpbGxldDI9MC4wMDE1NDk0K21ldGVyO0hlYWRIZWlnaHQ9MC4wMDMzNzgyMDAwMDAwMDAwMDA1K21ldGVyO0hlYWRIZWlnaHQyPTAuMDAyNzk0MDAwMDAwMDAwMDAwNSttZXRlcjtMZW5ndGg9MC4wNDQ0NSttZXRlcjtQaXRjaD03LjkyNDhFLTQrbWV0ZXI7UkNvcmVEaWFUeXBlST0wLjAwMjI4ODU0MDAwMDAwMDAwMDQrbWV0ZXI7UkNvcmVEaWFUeXBlSUE9MC4wMDIzMzkzNCttZXRlcjtSQ29ybmVyRGlzdGFuY2VUeXBlST04LjM4MjAwMDAwMDAwMDAwMUUtNCttZXRlcjtSRGVwdGhUeXBlST0wLjAwMjg3MDIwMDAwMDAwMDAwMDMrbWV0ZXI7UkRlcHRoVHlwZUlBPTAuMDAyNzQzMjAwMDAwMDAwMDAwMyttZXRlcjtSRGVwdGhUeXBlSUlJPTAuMDAxOTA1K21ldGVyO1JEZXB0aFR5cGVWST0wLjAwMjE1OTAwMDAwMDAwMDAwMDMrbWV0ZXI7UkZhY2VEaXN0YW5jZT0wLjAwMTQ2ODEyK21ldGVyO1JGaWxsZXRUeXBlSUE9MS40OTg2RS00K21ldGVyO1JJRGlhVHlwZVZJPTAuMDAzMTg1MTYwMDAwMDAwMDAwNyttZXRlcjtSTGVuZ3RoVHlwZUk9MC4wMDQ4NzY4MDAwMDAwMDAwMDErbWV0ZXI7Ukxlbmd0aFR5cGVJQT0wLjAwNDY5OSttZXRlcjtSTGVuZ3RoVHlwZUlJST0wLjAwMjg0NDgrbWV0ZXI7Uk9EaWFUeXBlVkk9MC4wMDQ1MjEyK21ldGVyO1JUaGlja25lc3NUeXBlST02LjA5NjAwMDAwMDAwMDAwMUUtNCttZXRlcjtSVGhpY2tuZXNzVHlwZUlBPTYuMjIzMDAwMDAwMDAwMDAxRS00K21ldGVyO1JXaWR0aFR5cGVJPTcuMzkxNDAwMDAwMDAwMDAxRS00K21ldGVyO1JXaWR0aFR5cGVJQT0wLjAwMTAyODcwMDAwMDAwMDAwMDIrbWV0ZXI7U2xvdD1mYWxzZTtTbG90QW5nbGU9MC4wOTUxMjA0NDQyMzM2OTA5NytyYWRpYW47U2xvdERlcHRoPTAuMDAxNzI3MjAwMDAwMDAwMDAwMyttZXRlcjtTbG90V2lkdGg9MC4wMDE1MjQwMDAwMDAwMDAwMDAyK21ldGVyO1RocmVhZExlbmd0aD0wLjA0NDQ1K21ldGVyO1RyaWFuZ2xlSGVpZ2h0PTYuODYzMDc4MDg5OTIwMDAxRS00K21ldGVyO1R5cGVJPXRydWU7VHlwZUlBPWZhbHNlO1R5cGVJSUk9ZmFsc2U7VHlwZVZJPWZhbHNl",
+   "source": "synthetic",
+   "mesh": "meshes/p111.npz",
+   "triangles": 256,
+   "triangles_original": 256,
+   "decimated": false,
+   "bbox_min": [
+    -0.1865,
+    -0.1865,
+    -1.884
+   ],
+   "bbox_max": [
+    0.1865,
+    0.1865,
+    -0.001
+   ],
+   "default_color": [
+    180,
+    180,
+    185,
+    255
+   ],
+   "notes": "Onshape tessellation unavailable (403/absent); Primitive approximation (cylinders/hex prism) fitted to STEP B-rep extents; converted STEP frame -> Onshape-local (x,-z,y); screw axis along local z (head at z>0). Pan head: nominal head dims, synthetic."
+  },
+  "p112": {
+   "name": "am-1310: FHTS, 1/4-20 x 3/4in <6>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFLB|default",
+   "source": "onshape",
+   "mesh": "meshes/p112.npz",
+   "triangles": 226,
+   "triangles_original": 226,
+   "decimated": false,
+   "bbox_min": [
+    -0.22,
+    -0.24,
+    -0.23825
+   ],
+   "bbox_max": [
+    0.75,
+    0.23303,
+    0.23825
+   ],
+   "default_color": [
+    179,
+    179,
+    179,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p113": {
+   "name": "Flower Scoring Volume <1>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|d42af5c8b58dcdd39c137805|JFv|default",
+   "source": "onshape",
+   "mesh": "meshes/p113.npz",
+   "triangles": 52,
+   "triangles_original": 52,
+   "decimated": false,
+   "bbox_min": [
+    -1.98542,
+    -16.8,
+    -1.94188
+   ],
+   "bbox_max": [
+    1.98542,
+    0.0,
+    2.0
+   ],
+   "default_color": [
+    195,
+    139,
+    205,
+    128
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  },
+  "p114": {
+   "name": "am-2580a: FIRST Tech Challenge Panel Link <4>",
+   "onshape_key": "a355e772e3d24813de7852ee|69c06aeebd812811c83a5a22|1820ce74ec1b44a20f092a9c|KFTG|default",
+   "source": "onshape",
+   "mesh": "meshes/p114.npz",
+   "triangles": 384,
+   "triangles_original": 384,
+   "decimated": false,
+   "bbox_min": [
+    -0.375,
+    -10.0,
+    -0.25
+   ],
+   "bbox_max": [
+    0.375,
+    0.0,
+    0.25
+   ],
+   "default_color": [
+    230,
+    230,
+    230,
+    255
+   ],
+   "notes": "Onshape tessellation, metres->inches, vertices deduped (1e-5 in), not decimated. Colour from bodies[].appearance (base64 RGB); 1 distinct colour(s)."
+  }
+ }
+}

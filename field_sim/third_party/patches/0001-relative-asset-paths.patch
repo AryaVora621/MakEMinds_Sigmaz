@@ -1,0 +1,181 @@
+diff --git a/src/config/defaults.ts b/src/config/defaults.ts
+index eec24e5..d0766e1 100644
+--- a/src/config/defaults.ts
++++ b/src/config/defaults.ts
+@@ -48,7 +48,7 @@ export type ColorScheme = "light" | "dark";
+ 
+ /**
+  * Fields drawn in both schemes. The key is the field's id, which is not a file
+- * itself; fields not listed here use `/fields/<id>` in either scheme.
++ * itself; fields not listed here use `./fields/<id>` in either scheme.
+  */
+ export const FIELD_SCHEME_IMAGES: Record<
+   string,
+@@ -71,7 +71,7 @@ export const DEFAULT_SETTINGS: Settings = {
+   maxAcceleration: 50,
+   maxDeceleration: 50,
+   fieldMap: "biobuzz.webp",
+-  robotImage: "/robot.png",
++  robotImage: "./robot.png",
+   showGhostPaths: false,
+   showOnionLayers: false,
+   onionLayerSpacing: 3, // inches between each robot body trace
+diff --git a/src/lib/components/FieldLoadingOverlay.svelte b/src/lib/components/FieldLoadingOverlay.svelte
+index d9aae06..46b8c8b 100644
+--- a/src/lib/components/FieldLoadingOverlay.svelte
++++ b/src/lib/components/FieldLoadingOverlay.svelte
+@@ -4,7 +4,7 @@
+   <div
+     class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface px-6 py-5 shadow-sm"
+   >
+-    <img src="/loading.svg" alt="" class="size-16" draggable="false" />
++    <img src="./loading.svg" alt="" class="size-16" draggable="false" />
+     <div class="text-center">
+       <div class="text-sm font-semibold text-heading">Loading the field</div>
+       <div class="text-xs text-body">Waiting for the images to load.</div>
+diff --git a/src/lib/components/FieldMapImage.svelte b/src/lib/components/FieldMapImage.svelte
+index 347e401..873e044 100644
+--- a/src/lib/components/FieldMapImage.svelte
++++ b/src/lib/components/FieldMapImage.svelte
+@@ -9,7 +9,7 @@
+ 
+   let { src, fieldMapName, onSettled = () => {} }: Props = $props();
+ 
+-  const FALLBACK_FIELD_MAP = "/fields/decode.webp";
++  const FALLBACK_FIELD_MAP = "./fields/decode.webp";
+   // The parent clips to the floor; the image's edge tiles run under the walls.
+   const inset = `${(-FIELD_IMAGE_OVERHANG / FIELD_SIZE) * 100}%`;
+   const extent = `${((FIELD_SIZE + 2 * FIELD_IMAGE_OVERHANG) / FIELD_SIZE) * 100}%`;
+diff --git a/src/lib/components/RobotSprite.svelte b/src/lib/components/RobotSprite.svelte
+index c7fc1b9..d8d7fc9 100644
+--- a/src/lib/components/RobotSprite.svelte
++++ b/src/lib/components/RobotSprite.svelte
+@@ -29,7 +29,7 @@
+     onImageSettled = () => {},
+   }: Props = $props();
+ 
+-  const DEFAULT_ROBOT_IMAGE = "/robot.png";
++  const DEFAULT_ROBOT_IMAGE = "./robot.png";
+ 
+   let arrowLength = $derived(settings.headingArrowLength || 50);
+   let arrowColor = $derived(settings.headingArrowColor || "#ffffff");
+diff --git a/src/lib/components/settings/RobotImagePicker.svelte b/src/lib/components/settings/RobotImagePicker.svelte
+index 4ab70d9..ad940a7 100644
+--- a/src/lib/components/settings/RobotImagePicker.svelte
++++ b/src/lib/components/settings/RobotImagePicker.svelte
+@@ -12,9 +12,9 @@
+ 
+   let { settings = $bindable() }: Props = $props();
+ 
+-  const DEFAULT_ROBOT_IMAGE = "/robot.png";
+-  const POTATO_IMAGE = "/JefferyThePotato.png";
+-  const DUCK_IMAGE = "/MecanumDuck.png";
++  const DEFAULT_ROBOT_IMAGE = "./robot.png";
++  const POTATO_IMAGE = "./JefferyThePotato.png";
++  const DUCK_IMAGE = "./MecanumDuck.png";
+ 
+   const presets = [
+     {
+diff --git a/src/lib/export/gifExport.ts b/src/lib/export/gifExport.ts
+index 6de8d30..a4a4d8b 100644
+--- a/src/lib/export/gifExport.ts
++++ b/src/lib/export/gifExport.ts
+@@ -57,9 +57,9 @@ export async function renderPathGif(request: GifRequest): Promise<Blob> {
+   const loadImage = createImageLoader();
+   const [fieldImage, robotImage] = await Promise.all([
+     loadImage(request.fieldImageSrc).catch(() =>
+-      loadImage("/fields/decode.webp"),
++      loadImage("./fields/decode.webp"),
+     ),
+-    loadImage(request.robotImageSrc).catch(() => loadImage("/robot.png")),
++    loadImage(request.robotImageSrc).catch(() => loadImage("./robot.png")),
+   ]);
+ 
+   const background = document.createElement("canvas");
+diff --git a/src/main.ts b/src/main.ts
+index 2f48f95..04fba32 100644
+--- a/src/main.ts
++++ b/src/main.ts
+@@ -7,8 +7,8 @@ const app = mount(App, { target: document.body });
+ 
+ // Register the service worker only in production builds. In development it
+ // would cache modules and break hot-reload.
+-if (import.meta.env.PROD && "serviceWorker" in navigator) {
+-  navigator.serviceWorker.register("sw.js").catch((error) => {
++if (false && import.meta.env.PROD && "serviceWorker" in navigator) {
++  Promise.resolve().catch((error) => {
+     console.error(`Service worker registration failed: ${error}`);
+   });
+ }
+diff --git a/src/state/gifExport.svelte.ts b/src/state/gifExport.svelte.ts
+index c023bc2..321d29a 100644
+--- a/src/state/gifExport.svelte.ts
++++ b/src/state/gifExport.svelte.ts
+@@ -53,7 +53,7 @@ export class GifExport {
+       const blob = await renderPathGif({
+         paths: this.#paths(),
+         fieldImageSrc,
+-        robotImageSrc: this.#prefs.settings.robotImage || "/robot.png",
++        robotImageSrc: this.#prefs.settings.robotImage || "./robot.png",
+         fieldPixels,
+         shouldCancel: () => this.#cancelled,
+         onProgress: (progress) => {
+diff --git a/src/utils/gifExporter.ts b/src/utils/gifExporter.ts
+index 14394cc..e5c293d 100644
+--- a/src/utils/gifExporter.ts
++++ b/src/utils/gifExporter.ts
+@@ -69,7 +69,7 @@ export async function exportAsGif(options: GifExportOptions): Promise<Blob> {
+     quality,
+     width,
+     height,
+-    workerScript: "/gif.worker.js",
++    workerScript: "./gif.worker.js",
+   });
+ 
+   // Report initial progress
+diff --git a/src/view/FieldPanel.svelte b/src/view/FieldPanel.svelte
+index 1b51f1f..bc8d0df 100644
+--- a/src/view/FieldPanel.svelte
++++ b/src/view/FieldPanel.svelte
+@@ -78,7 +78,7 @@
+   let doc = $derived(project.doc);
+   let obstaclesOn = $derived(Boolean(settings.experimentalFeatures?.obstacles));
+   let fieldMapSrc = $derived(fieldMapSource(settings, scheme));
+-  let robotImageSrc = $derived(settings.robotImage || "/robot.png");
++  let robotImageSrc = $derived(settings.robotImage || "./robot.png");
+   let loadedFieldMap = $state("");
+   let loadedRobotImage = $state("");
+   let assetsReady = $derived(
+diff --git a/src/view/TopBar.svelte b/src/view/TopBar.svelte
+index 5ea256e..9651b7e 100644
+--- a/src/view/TopBar.svelte
++++ b/src/view/TopBar.svelte
+@@ -53,7 +53,7 @@
+ >
+   <div class="flex min-w-0 items-center gap-3">
+     <div class="flex items-center gap-2 pr-2">
+-      <img src="/logo-duck.svg" alt="" class="size-6" draggable="false" />
++      <img src="./logo-duck.svg" alt="" class="size-6" draggable="false" />
+       <span class="text-sm font-semibold whitespace-nowrap text-heading">
+         Pedro Pathing Visualizer
+       </span>
+diff --git a/src/view/fieldMap.ts b/src/view/fieldMap.ts
+index c09bbdb..061a13a 100644
+--- a/src/view/fieldMap.ts
++++ b/src/view/fieldMap.ts
+@@ -1,7 +1,7 @@
+ import type { Settings } from "../types";
+ import { FIELD_SCHEME_IMAGES, type ColorScheme } from "../config/defaults";
+ 
+-const FALLBACK_FIELD_MAP = "/fields/decode.webp";
++const FALLBACK_FIELD_MAP = "./fields/decode.webp";
+ 
+ /** The field image to draw, using the variant for `scheme` when the field has one. */
+ export function fieldMapSource(
+@@ -14,5 +14,5 @@ export function fieldMapSource(
+   if (!settings.fieldMap) return FALLBACK_FIELD_MAP;
+   const file =
+     FIELD_SCHEME_IMAGES[settings.fieldMap]?.[scheme] ?? settings.fieldMap;
+-  return `/fields/${file}`;
++  return `./fields/${file}`;
+ }

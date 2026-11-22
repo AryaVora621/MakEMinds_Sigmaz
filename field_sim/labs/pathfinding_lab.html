@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pathfinding Lab - BIOBUZZ auto-park</title>
+<style>
+:root{--bg:#0b0f14;--panel:#121a23;--card:#172330;--line:#2a3a4d;--fg:#e6edf3;--mute:#a9b8c9;--acc:#38bdf8;--good:#34d399;--bad:#f87171;--warn:#fbbf24;--mono:ui-monospace,Consolas,Menlo,monospace}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,"Segoe UI",Roboto,sans-serif}
+body{padding:0 12px 32px;max-width:1280px;margin:0 auto}
+h1{font-size:1.5rem;margin:14px 0 2px}
+h2{font-size:1.2rem;margin:14px 0 8px}
+h3{font-size:1.02rem;margin:10px 0 6px;color:var(--acc)}
+h4{font-size:.95rem;margin:10px 0 4px;color:var(--acc)}
+p{margin:6px 0}
+ul,ol{margin:6px 0 6px 22px;padding:0}
+code,.kbd{font-family:var(--mono);font-size:.9em}
+code{background:var(--card);padding:0 4px;border-radius:4px}
+.kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--card)}
+.sub{color:var(--mute);margin:0 0 10px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:10px}
+.tab{background:none;border:1px solid transparent;border-bottom:0;color:var(--mute);padding:8px 12px;border-radius:8px 8px 0 0}
+.tab[aria-selected=true]{color:var(--fg);background:var(--card);border-color:var(--line)}
+button,select,input{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+button{cursor:pointer}
+button:hover:not(:disabled){border-color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+button.pri{background:#0c4a6e;border-color:var(--acc)}
+input[type=range]{padding:0;width:110px;accent-color:var(--acc);vertical-align:middle}
+input[type=checkbox]{accent-color:var(--acc);padding:0}
+:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+label{display:inline-flex;align-items:center;gap:4px;color:var(--mute);font-size:.9rem}
+.bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px}
+.note{color:var(--mute);font-size:.9rem;background:var(--panel);border-left:3px solid var(--acc);padding:6px 10px;border-radius:4px}
+.warn{border-left-color:var(--warn)}
+.good{color:var(--good)}
+.bad{color:var(--bad)}
+.coord{font-family:var(--mono);font-size:.85rem;color:var(--mute);min-height:1.5em;margin:6px 0}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.85rem;color:var(--mute);margin:6px 0}
+.lg{display:inline-flex;align-items:center;gap:4px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #0008}
+.panels{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px}
+@media (min-width:900px){.panels{grid-template-columns:1fr 1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.panel canvas{display:block;width:100%;aspect-ratio:1/1;background:#05080c;border-radius:6px;touch-action:none}
+canvas.paint{cursor:crosshair}
+.pset{display:flex;flex-wrap:wrap;gap:6px 12px;margin:8px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin:8px 0}
+.stats>div{background:var(--card);border-radius:6px;padding:4px 8px}
+.stats dt{font-size:.75rem;color:var(--mute)}
+.stats dd{margin:0;font-family:var(--mono);font-size:.95rem}
+.stats dd.best::after{content:" (better)";color:var(--good);font-family:system-ui;font-size:.75rem}
+.status{font-size:.9rem;color:var(--mute);margin:4px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:8px}
+.grid2 input{width:90px}
+.eq{font-family:var(--mono);background:var(--card);padding:8px 10px;border-radius:6px;overflow-x:auto;white-space:pre-wrap}
+.tbl{border-collapse:collapse;width:100%;margin:8px 0;font-size:.92rem}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left}
+.tbl th{color:var(--acc);font-weight:600}
+.tag{display:inline-block;font-size:.75rem;padding:1px 6px;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
+.tests li{font-family:var(--mono);font-size:.88rem;margin:4px 0}
+.tests li.pass{color:var(--good)}
+.tests li.fail{color:var(--bad)}
+
+</style></head><body>
+<header class="top">
+ <h1>Pathfinding Lab</h1>
+ <p class="sub">FTC field, 144 x 144 in, Pedro frame (x right, y up). Set a start, paint walls, and compare searches. Works offline.</p>
+</header>
+<nav class="tabs" role="tablist" aria-label="Lab sections">
+ <button type="button" role="tab" id="tabb-lab" aria-controls="tab-lab" aria-selected="true">Lab</button>
+ <button type="button" role="tab" id="tabb-heap" aria-controls="tab-heap" aria-selected="false" tabindex="-1">Heap lab</button>
+ <button type="button" role="tab" id="tabb-learn" aria-controls="tab-learn" aria-selected="false" tabindex="-1">Learn</button>
+ <button type="button" role="tab" id="tabb-time" aria-controls="tab-time" aria-selected="false" tabindex="-1">Time budget</button>
+ <button type="button" role="tab" id="tabb-tests" aria-controls="tab-tests" aria-selected="false" tabindex="-1">Tests</button>
+</nav>
+<div id="tab-lab" role="tabpanel" aria-labelledby="tabb-lab" class="pane">
+ <div class="bar" role="toolbar" aria-label="Lab controls">
+  <label>Alliance <select id="g-alliance"><option value="red">Red</option><option value="blue">Blue</option></select></label>
+  <label>Cell <select id="g-cell"><option value="1">1 in</option><option value="2" selected>2 in</option><option value="3">3 in</option><option value="4">4 in</option></select></label>
+  <label>Mode <select id="g-mode"><option value="compare">Compare</option><option value="flow">Flow field</option></select></label>
+  <button type="button" id="g-play" class="pri" aria-pressed="false">Play</button>
+  <button type="button" id="g-step">Step</button>
+  <button type="button" id="g-step10">Step x10</button>
+  <button type="button" id="g-reset">Reset</button>
+  <label>Speed <input type="range" id="g-speed" min="0" max="100" value="40" aria-label="Expansions per frame"> <output id="g-speedv" for="g-speed"></output></label>
+  <label><input type="checkbox" id="g-paint"> Paint walls</label>
+  <button type="button" id="g-clearwalls">Clear walls</button>
+  <label><input type="checkbox" id="g-foot"> Show footprint</label>
+  <span id="g-flowopts" hidden>
+   <label>Contours <select id="g-fint"><option value="10">10 in</option><option value="20" selected>20 in</option><option value="30">30 in</option></select></label>
+   <label>Panel B view <select id="g-fview"><option value="arrows" selected>Arrows</option><option value="heat">Heat</option></select></label>
+  </span>
+  <label>Start x <input type="number" id="g-sx" min="0" max="144" step="0.5" value="24"></label>
+  <label>y <input type="number" id="g-sy" min="0" max="144" step="0.5" value="24"></label>
+  <button type="button" id="g-setstart">Set start</button>
+ </div>
+ <p class="note" id="g-flownote" hidden>Flow field: one search runs outward from the goal zone and stores the best move in every cell. A robot anywhere just looks up the arrow (table lookup, O(1)). Click sets the start; the path follows the arrows.</p>
+ <p class="note" id="g-note" role="status"></p>
+ <p class="coord" id="g-coord" aria-live="off">Move the pointer over the field to read coordinates.</p>
+ <div class="legend" id="g-legend"></div>
+ <div class="panels">
+  <section class="panel" id="panelA" aria-label="Panel A"></section>
+  <section class="panel" id="panelB" aria-label="Panel B"></section>
+ </div>
+</div>
+<div id="tab-heap" role="tabpanel" aria-labelledby="tabb-heap" class="pane" hidden>
+ <div id="heaplab-root"></div>
+</div>
+<div id="tab-learn" role="tabpanel" aria-labelledby="tabb-learn" class="pane" hidden>
+<div class="card">
+<h2 id="graph-grid">1. The map as a graph and a grid</h2>
+<p>A <b>graph</b> is a set of dots (<b>nodes</b>) joined by lines (<b>edges</b>). Think of a subway map: stations are nodes, tracks are edges.</p>
+<p>Our field is 144 x 144 inches. We chop it into square <b>cells</b>. Each free cell is a node, and two neighbouring free cells are joined by an edge. In the lab, the cell size is 1, 2, 3 or 4 inches. With 2-inch cells the field has 72 x 72 = 5,184 cells.</p>
+<p>The <b>cost</b> of an edge is how far the robot travels along it: 1 for a straight step, and sqrt(2), about 1.414, for a diagonal step. A <b>path</b> is a list of cells, each one next to the one before it, that never touches a blocked cell. The <b>shortest path</b> is the one with the smallest total cost.</p>
+<p>Walls, the hive and the flowers are <b>obstacles</b>. A cell is <b>hard</b> (blocked) if the robot centre would come closer than 9 inches to an obstacle. Section 9 explains why 9.</p>
+</div>
+
+<div class="card">
+<h2 id="dijkstra">2. Dijkstra: the cheapest way to every cell</h2>
+<p>Dijkstra's algorithm finds the cheapest cost from one starting cell to every other cell. The trick is simple: always finish the cell that is currently closest to the start. Keep the unfinished cells in a <b>priority queue</b> (a line where the smallest number comes out first).</p>
+<pre><code>dist[all] = infinity;  dist[start] = 0
+push (0, start) into the queue
+while the queue is not empty:
+    (d, u) = pop the smallest entry
+    if d is bigger than dist[u]: skip it     # old copy, already beaten
+    for each free neighbour v of u:
+        nd = d + cost(u, v)
+        if nd is less than dist[v]:
+            dist[v] = nd;  parent[v] = u;  push (nd, v)</code></pre>
+<p><b>Why it is correct.</b> Suppose u has the smallest distance among all unfinished cells. Any other route to u has to leave the finished cells through some unfinished cell w. That cell is already at least as far as u, and every step adds a non-negative cost. So no other route can beat dist[u]. Dijkstra needs costs that are never negative. <span class="tag">VERIFIED</span> (Wikipedia, Dijkstra's algorithm)</p>
+<div class="card">
+<h4>Worked example: a 3 x 3 grid with no walls</h4>
+<p>To prepare for the flow field (section 10), start at the <b>goal</b> (cell 2,2) and spread outward. Only straight steps are used here, so every cost is 1.</p>
+<table class="tbl">
+<tr><th>Step</th><th>Pop (cell, dist)</th><th>Neighbours updated</th></tr>
+<tr><td>1</td><td>(2,2), 0</td><td>(1,2) becomes 1; (2,1) becomes 1</td></tr>
+<tr><td>2</td><td>(1,2), 1</td><td>(0,2) becomes 2; (1,1) becomes 2</td></tr>
+<tr><td>3</td><td>(2,1), 1</td><td>(2,0) becomes 2; (1,1) stays 2</td></tr>
+<tr><td>4</td><td>(0,2), 2</td><td>(0,1) becomes 3</td></tr>
+<tr><td>5</td><td>(1,1), 2</td><td>(1,0) becomes 3; (0,1) stays 3</td></tr>
+<tr><td>6</td><td>(2,0), 2</td><td>nothing new</td></tr>
+<tr><td>7</td><td>(0,1), 3</td><td>(0,0) becomes 4</td></tr>
+<tr><td>8</td><td>(1,0), 3</td><td>nothing new</td></tr>
+<tr><td>9</td><td>(0,0), 4</td><td>queue empty, done</td></tr>
+</table>
+<p>Final distances (row y = 2 at the top):</p>
+<pre><code>y=2:  2  1  0
+y=1:  3  2  1
+y=0:  4  3  2</code></pre>
+<p>The start cell (0,0) is 4 steps from the goal, which matches the Manhattan count of 2 + 2.</p>
+</div>
+<p><b>Early exit.</b> If you only need one target, stop as soon as the target is popped (not when it is first pushed). Then its cost is final.</p>
+</div>
+
+<div class="card">
+<h2 id="astar">3. A*: Dijkstra with a compass</h2>
+<p>A* works like Dijkstra, but it adds a guess of the distance still left to go. Each cell gets a score:</p>
+<div class="eq">f = g + h</div>
+<ul>
+<li><b>g</b> = cost from the start to this cell (the same as Dijkstra's dist).</li>
+<li><b>h</b> = a guess of the cost from this cell to the goal. This is the <b>heuristic</b>.</li>
+<li><b>f</b> = the score. The queue always pops the smallest f.</li>
+</ul>
+<p>If h is 0, A* is exactly Dijkstra. A good h points the search toward the goal and skips many useless cells.</p>
+<p><b>Admissible</b> means h never overestimates the true remaining cost. If h is admissible, the first time A* pops the goal, the path is optimal. <span class="tag">VERIFIED</span> (Wikipedia, A* search)</p>
+<p><b>Consistent</b> means h(u) is at most cost(u,v) + h(v) for every edge. A consistent h also means each cell is finished the first time it is popped, so the closed set can be trusted. <span class="tag">VERIFIED</span> (Wikipedia, A* search)</p>
+<p><b>Tie-breaking.</b> When two cells have the same f, our code prefers the one with the larger g, which has already travelled further. The idea is common practice and is meant to reduce work; its exact effect in our lab is <span class="tag">UNVERIFIED</span> until measured.</p>
+</div>
+
+<div class="card">
+<h2 id="heuristics">4. Choosing a heuristic for 4-way or 8-way moves</h2>
+<p>Let dx and dy be how far the cell is from the goal box along each axis (0 if it is already inside the box). Each guess is then multiplied by the cell size.</p>
+<table class="tbl">
+<tr><th>Name</th><th>Formula</th><th>Admissible for 8-way moves?</th><th>Notes</th></tr>
+<tr><td>zero</td><td>0</td><td class="good">Yes</td><td>Same as Dijkstra. Safe but slow.</td></tr>
+<tr><td>manhattan</td><td>dx + dy</td><td class="bad">No</td><td>Counts a diagonal as 2 steps, but it costs 1.414. Fine only for 4-way moves.</td></tr>
+<tr><td>euclid</td><td>sqrt(dx^2 + dy^2)</td><td class="good">Yes</td><td>Safe, but weaker than octile.</td></tr>
+<tr><td>chebyshev</td><td>max(dx, dy)</td><td class="good">Yes</td><td>Treats a diagonal as cost 1. Safe, but too low.</td></tr>
+<tr><td>octile</td><td>max(dx,dy) + (sqrt(2) - 1) x min(dx,dy)</td><td class="good">Yes</td><td>Exact on an empty 8-way grid. The strongest of these. Our default.</td></tr>
+</table>
+<div class="card">
+<h4>Why Manhattan fails with diagonals</h4>
+<p>Suppose the goal is one step right and one step up (dx = 1, dy = 1). Manhattan says 1 + 1 = 2. The true cost is one diagonal step, sqrt(2) = 1.414. Manhattan says 2, which is more than the truth, so it overestimates. An overestimate can make A* return a non-optimal path.</p>
+</div>
+</div>
+
+<div class="card">
+<h2 id="diagonal-cost">5. Why a diagonal costs sqrt(2)</h2>
+<p>A diagonal step crosses the corner of a 1 x 1 square. Pythagoras says that distance is sqrt(1 x 1 + 1 x 1) = sqrt(2), about 1.414. It is cheaper than two straight steps (cost 2), but more expensive than one (cost 1). Using real distances means the costs match the real world in inches.</p>
+<p>Our rule also stops the robot from cutting a corner. A diagonal is allowed only if both cells beside it are free, so the path never squeezes between two blocked cells touching at a corner.</p>
+</div>
+
+<div class="card">
+<h2 id="weighted-astar">6. Weighted A*: faster, with a promise</h2>
+<p>Weighted A* multiplies the guess by a number w, which is at least 1:</p>
+<div class="eq">f = g + w x h      (w = 1 + epsilon)</div>
+<p>A bigger w makes the search pull harder toward the goal. It expands fewer cells and finishes sooner. The price is a promise that is weaker than optimal:</p>
+<div class="note">If h is admissible, the path found has cost at most w times the best cost. With w = 2, the path is at most twice the shortest. <span class="tag">VERIFIED</span> (secondary sources; the exact wording differs between sources)</div>
+<p>In the lab, the weight slider goes from 1 to 5. Weight 1 is plain A*. Our test suite checks the promise for w = 1.2, 1.5, 2 and 3. How much faster it is on our maps is <span class="tag">UNVERIFIED</span> until measured.</p>
+</div>
+
+<div class="card">
+<h2 id="theta-star">7. Theta*: paths that are not stuck to the grid</h2>
+<p>Grid paths zig-zag, because every move goes straight or diagonally. Theta* is a change to A*. When a cell's parent has a clear straight line of sight to a neighbour, Theta* connects them directly and skips the cells in between. The path can then cut across at any angle.</p>
+<ul>
+<li><b>Pro:</b> shorter and smoother paths.</li>
+<li><b>Con:</b> every step needs a line-of-sight check, so each expansion costs more.</li>
+<li><b>Not guaranteed optimal.</b> Basic Theta* can miss the true shortest path in continuous space. <span class="tag">VERIFIED</span> (research summary)</li>
+</ul>
+<p>The lab's Theta* uses 8-way neighbours and the Euclidean guess. Our tests check that its paths are valid, not that they are the same length as A*.</p>
+</div>
+
+<div class="card">
+<h2 id="cost-bands">8. Cost bands: near walls is expensive, not forbidden</h2>
+<p>Each cell has a <b>soft multiplier</b> of at least 1. It multiplies the cost of every edge that touches the cell.</p>
+<ul>
+<li>Far from obstacles (distance 14 in or more): multiplier 1.</li>
+<li>Between 9 and 14 in from an obstacle: the multiplier rises smoothly, up to 4 right at 9 in.</li>
+<li>Closer than 9 in: the cell is hard and cannot be used.</li>
+</ul>
+<p>The robot stays away from walls when it has a choice, but it can still pass through a narrow gap if there is no other way.</p>
+<div class="note"><b>Why the heuristics stay admissible.</b> Every multiplier is at least 1, so the real cost of a path is never less than its plain length in inches. The guesses in section 4 measure plain length, so they never overestimate. Our tests check this.</div>
+</div>
+
+<div class="card">
+<h2 id="inflation">9. Growing the obstacles by the robot's size</h2>
+<p>The cleanest way to plan is to treat the robot as a single <b>point</b> (its centre) and make every obstacle bigger by the robot's radius. Then the planner only has to keep one point clear of the grown shapes.</p>
+<p>Our robot is assumed to be an 18 x 18 inch square. <span class="tag">UNVERIFIED</span> (real size not yet measured)</p>
+<ul>
+<li><b>Inscribed radius, 9 in.</b> Half of 18. A square that always faces the same way needs 9 in of room from a wall on each side.</li>
+<li><b>Circumscribed radius, 12.73 in.</b> The distance from the centre to a corner is 9 x sqrt(2), about 12.73 in.</li>
+</ul>
+<p>If the robot turns while it moves, the room it needs from a wall changes between 9 and 12.73 in. A plan that uses 9 in is safe only while the heading is locked. Our assist keeps the heading locked while parking, so the 9 in rule applies. <span class="tag">UNVERIFIED</span> (heading lock is a design choice, not built yet)</p>
+<p><b>Hard cells</b> have their centre within 9 in of an obstacle. <b>Soft cells</b> (9 to 14 in) are allowed but cost more (section 8).</p>
+<div class="warn"><b>Goal cells.</b> Parking needs only that the robot be <i>at least partly</i> in the loading zone (manual rule 10.5.4). So a goal cell is any non-hard cell whose centre lies inside the zone grown by 9 in on every side. The robot body then overlaps the zone.</div>
+<p>Zone sizes come from the team's measured field data (about 11 x 22.7 in for red). Some old constants in <code>FieldConstants.java</code> are off by about 1.9 in. Aim for the middle of the zone, not its edge. <span class="tag">VERIFIED</span> (research worker, overseer spot-check)</p>
+</div>
+
+<div class="card">
+<h2 id="flow-field">10. The flow field: one Dijkstra, then a lookup</h2>
+<p>Our robot's goal never moves. So instead of searching for each start, run Dijkstra once from the zone outward. Every cell then stores its <b>distance to the goal</b>. This is the same table as the worked example in section 2.</p>
+<p>To drive, the robot looks at its current cell and its neighbours, and steps to the neighbour with the smallest distance. That is the whole rule. For example, from cell (0,0) in the 3 x 3 example, both neighbours have distance 3, so either is a best move. Each step lowers the distance by 1, so the robot always arrives.</p>
+<ul>
+<li><b>Fast in the loop.</b> Each control cycle reads about 8 array values. The expensive work is done once, before driving.</li>
+<li><b>Forgiving.</b> If the driver pushes the robot somewhere else, the table already knows the best move from there. No new search is needed.</li>
+<li><b>Shared.</b> Every starting position uses the same table.</li>
+<li><b>Limits.</b> It is static: if a new obstacle appears, the whole table must be rebuilt. Its paths are still grid-shaped, so the robot should follow a smoothed line, not single cells.</li>
+</ul>
+<p>Research recommends this as the main planner for the assist. <span class="tag">UNVERIFIED</span> for our robot until tested on the real field.</p>
+</div>
+
+<div class="card">
+<h2 id="complexity">11. Speed and memory</h2>
+<p>V is the number of cells and E is the number of edges. On a grid, E is about 8 x V.</p>
+<table class="tbl">
+<tr><th>Method</th><th>Work (big-O)</th><th>Notes</th></tr>
+<tr><td>Dijkstra, one start to one goal</td><td>O((V + E) log V) with a binary heap</td><td>Can stop early at the goal. <span class="tag">VERIFIED</span> (Wikipedia)</td></tr>
+<tr><td>A*</td><td>Same worst case</td><td>Usually expands far fewer cells, depending on h.</td></tr>
+<tr><td>Weighted A*</td><td>Same worst case</td><td>Often faster; cost at most w x best.</td></tr>
+<tr><td>Theta*</td><td>Like A* plus line-of-sight checks</td><td>Shorter paths; more work per step.</td></tr>
+<tr><td>BFS</td><td>O(V + E)</td><td>Only when every step costs 1. Our diagonals cost sqrt(2), so BFS is not enough here.</td></tr>
+<tr><td>Flow field, build</td><td>O((V + E) log V), once</td><td>One table per obstacle state.</td></tr>
+<tr><td>Flow field, lookup</td><td>O(1), about 8 reads</td><td>Done every control cycle.</td></tr>
+</table>
+<div class="grid2">
+<div class="card">
+<h4>Memory</h4>
+<p>At 2-inch cells, one distance number (8 bytes) per cell is 5,184 x 8 = 41,472 bytes, about 41 KB. A direction byte per cell adds about 5 KB. At 1-inch cells there are 20,736 cells, about 166 KB for the distances alone. <span class="tag">VERIFIED</span> (arithmetic)</p>
+</div>
+<div class="card">
+<h4>Heaps</h4>
+<p>A binary heap is a tree stored in an array, where each parent is no bigger than its children. Push and pop take O(log n) time. Some heaps are faster in theory, such as Fibonacci heaps, but have bigger constant costs. In one study of Dijkstra on a road map, a 4-ary heap was fastest and a Fibonacci heap about 3 times slower. <span class="tag">VERIFIED</span> (that study, on a different computer, not our robot)</p>
+</div>
+</div>
+<p><b>Lazy deletion.</b> Instead of changing an entry's priority, push a new copy with the better value and skip the old copy when it comes out. This is simpler and was found to be fast in practice. <span class="tag">VERIFIED</span> (research summary)</p>
+</div>
+
+<div class="card">
+<h2 id="auto-park-choice">12. Which planner to use for the auto-park assist</h2>
+<p>These are the planned settings for the robot code. They are not written yet.</p>
+<ul>
+<li><b>OFF</b>: no assist. The driver drives alone.</li>
+<li><b>FLOW_FIELD</b>: the main planner. Built once when the program starts.</li>
+<li><b>DIJKSTRA</b>: a one-time search, used to check the flow field.</li>
+<li><b>ASTAR</b>: the fallback if an opponent blocks the field's route. It searches again from the robot's current cell.</li>
+<li><b>WEIGHTED_ASTAR</b>: a faster fallback with a cost promise.</li>
+<li><b>THETA_STAR</b>: smoother paths when the robot has time to spare.</li>
+</ul>
+</div>
+
+<div class="card">
+<h2 id="time-budget">13. The time budget: when to start</h2>
+<p>The robot cannot wait until the last second. It has to accelerate, cruise, and slow down. The lab uses a trapezoid model with a top speed of 60 in/s and an acceleration of 90 in/s^2. <span class="tag">UNVERIFIED</span> (limits taken from the team's code; not re-measured on the robot)</p>
+<div class="eq">if d &lt; 40 in:  T = 2 x sqrt(d / 90)
+else:          T = d / 60 + 0.667 s</div>
+<p>The 40 in threshold is where the robot reaches top speed. Short trips never get there, so they are a triangle shape.</p>
+<table class="tbl">
+<tr><th>Distance d (in)</th><th>Travel time T (s)</th></tr>
+<tr><td>24</td><td>1.03</td></tr>
+<tr><td>48</td><td>1.47</td></tr>
+<tr><td>96</td><td>2.27</td></tr>
+<tr><td>144</td><td>3.07</td></tr>
+<tr><td>200</td><td>4.00</td></tr>
+</table>
+<p>These values are arithmetic from the formula. <span class="tag">VERIFIED</span> (arithmetic)</p>
+<p><b>Start rule.</b> Begin the assist when the time left is at most k x T + turn time + margin. The lab's assumed values are k = 1.25 (a detour allowance), a turn of about 1.35 s, and a margin of 0.5 s. <span class="tag">UNVERIFIED</span> (all three are assumptions)</p>
+<div class="warn">With those assumed values, a far corner works out to about 7 s before the end. The lab's planning range is 9 to 11 s, which leaves room for the unknowns. Both numbers are <span class="tag">UNVERIFIED</span> until measured on the robot. Target: arrive with about 3 s left. <span class="tag">UNVERIFIED</span></div>
+<ul>
+<li><b>Stop all powered motion at 0:00.</b> Robots must be motionless at the end of TeleOp (rule G404). <span class="tag">VERIFIED</span> (manual, via research worker)</li>
+<li><b>Partial contact is enough</b> to park (rule 10.5.4). <span class="tag">VERIFIED</span> (manual, via research worker)</li>
+<li><b>Automated driving in TeleOp</b> is not banned by any rule the research found, but the team must confirm with the Q&amp;A or the referees. <span class="tag">UNVERIFIED</span></li>
+</ul>
+</div>
+
+<div class="card">
+<h2 id="simplifications">14. Known simplifications</h2>
+<p>The lab is a teaching model, not a full simulation of the robot. These are the shortcuts we took:</p>
+<ul>
+<li>The robot is a <b>point</b> with a locked heading, and its size is assumed (18 in).</li>
+<li>The <b>hive</b> is treated as solid. The planner never drives under it.</li>
+<li><b>Opponents and game pieces</b> are not modelled.</li>
+<li><b>Pose error</b> (where the robot thinks it is) is not modelled. The localisation offsets are still placeholders.</li>
+<li>The time model ignores wheel slip, turning time, and the robot's real acceleration.</li>
+<li>Zone sizes come from the measured field data, which may differ from the official field by a small amount.</li>
+</ul>
+</div>
+
+</div>
+<div id="tab-time" role="tabpanel" aria-labelledby="tabb-time" class="pane" hidden>
+ <div class="card">
+  <h2>Start-assist timing</h2>
+  <div class="grid2">
+   <label>Time left (s) <input type="number" id="tb-left" min="0" step="0.1" value="9"></label>
+   <label>Path length (in) <input type="number" id="tb-d" min="0" step="1" value="96" data-auto="1"></label>
+   <label>Margin M (s) <input type="number" id="tb-m" step="0.1" value="0.5"></label>
+   <label>Factor k <input type="number" id="tb-k" step="0.05" value="1.25"></label>
+   <label>Turn time (s) <input type="number" id="tb-turn" step="0.1" value="0.3"></label>
+  </div>
+  <p class="eq" id="tb-eq"></p>
+  <p id="tb-verdict" role="status"></p>
+  <p class="note">Rule of thumb: start about 9-11 s left from far away, arrive with about 3 s left. Path length follows panel A's path until you type a value.</p>
+ </div>
+ <div class="card">
+  <h3>Start-by table</h3>
+  <table class="tbl">
+   <thead><tr><th scope="col">Distance (in)</th><th scope="col">T trapezoid (s)</th><th scope="col">S-curve alt (s)</th><th scope="col">Start-by time left (s)</th></tr></thead>
+   <tbody id="tb-body"></tbody>
+  </table>
+ </div>
+</div>
+<div id="tab-tests" role="tabpanel" aria-labelledby="tabb-tests" class="pane" hidden>
+ <div class="card">
+  <h2>Self-tests</h2>
+  <p><button type="button" id="t-run" class="pri">Run tests</button> <span id="t-sum" role="status"></span></p>
+  <ul class="tests" id="t-list"></ul>
+ </div>
+</div>
+
+<script id="algo-grid">
+(function(root){ 'use strict';
+  var Lab = root.Lab = root.Lab || {};
+  Lab.SQRT2 = Math.SQRT2;
+  var DIRS = Lab.DIRS = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
+
+  // Raw solid rects [x0,y0,x1,y1] in inches (Pedro frame)
+  var HIVE = [47.27,47.12,96.73,96.88];
+  var FLOWERS = [[45.27,136.43,51.94,143.79],[92.06,0.21,98.73,7.57],[0.21,44.9,7.57,52.3],[136.43,91.7,143.79,99.1]];
+  var RAW = [[-50,-50,1.41,194],[142.59,-50,194,194],[-50,-50,194,1.41],[-50,142.59,194,194],HIVE].concat(FLOWERS);
+  var ZONES = {red:[1.899,95.902,12.899,118.594], blue:[131.101,25.406,142.101,48.098]};
+  var TRAYS = [[-9.9,64.1,0.35,79.9],[143.65,64.1,153.9,79.9]];
+
+  function zoneRect(a){ return ZONES[a==='blue'?'blue':'red']; }
+
+  function build(opts){
+    opts = opts || {};
+    var cell = opts.cell || 2, n = Math.round(144/cell), N = n*n;
+    var alliance = opts.alliance==='blue' ? 'blue' : 'red';
+    var R = opts.R==null ? 9 : opts.R, band = opts.band==null ? 5 : opts.band;
+    var rects = RAW.concat(opts.userRects || []);
+    var raw = new Uint8Array(N), dist = new Float32Array(N), hard = new Uint8Array(N),
+        soft = new Float32Array(N), goal = new Uint8Array(N);
+    var z = zoneRect(alliance), zx0 = z[0]-R, zy0 = z[1]-R, zx1 = z[2]+R, zy1 = z[3]+R;
+    var goalBox = {i0:n, i1:-1, j0:n, j1:-1}, gl = [];
+    var i, j, k, r, cx, cy, dx, dy, d, best, id;
+    for (j=0; j<n; j++) for (i=0; i<n; i++) {
+      id = j*n+i; cx = (i+.5)*cell; cy = (j+.5)*cell; best = Infinity;
+      for (k=0; k<rects.length; k++) {
+        r = rects[k];
+        dx = Math.max(r[0]-cx, 0, cx-r[2]); dy = Math.max(r[1]-cy, 0, cy-r[3]);
+        d = Math.sqrt(dx*dx+dy*dy); if (d < best) best = d;
+      }
+      if (best === 0) raw[id] = 1;
+      dist[id] = best; hard[id] = best < R ? 1 : 0;
+      soft[id] = (hard[id] || best >= R+band) ? 1 : 1 + 3*Math.pow((R+band-best)/band, 2);
+      if (!hard[id] && cx>=zx0 && cx<=zx1 && cy>=zy0 && cy<=zy1) {
+        goal[id] = 1; gl.push(id);
+        if (i<goalBox.i0) goalBox.i0 = i; if (i>goalBox.i1) goalBox.i1 = i;
+        if (j<goalBox.j0) goalBox.j0 = j; if (j>goalBox.j1) goalBox.j1 = j;
+      }
+    }
+    if (!gl.length) goalBox = {i0:0, i1:n-1, j0:0, j1:n-1};
+
+    var g = {n:n, N:N, cell:cell, alliance:alliance, R:R, band:band, raw:raw, dist:dist,
+             hard:hard, soft:soft, goal:goal, goalBox:goalBox, goalIdx:new Int32Array(gl)};
+
+    g.cellOf = function(x, y){
+      var ci = Math.floor(x/cell), cj = Math.floor(y/cell);
+      ci = ci<0 ? 0 : ci>=n ? n-1 : ci; cj = cj<0 ? 0 : cj>=n ? n-1 : cj;
+      return cj*n+ci;
+    };
+    g.center = function(u){ var ci = u%n; return [(ci+.5)*cell, ((u-ci)/n+.5)*cell]; };
+    g.ij = function(u){ var ci = u%n; return [ci, (u-ci)/n]; };
+    g.idxOf = function(ci, cj){ return (ci<0||cj<0||ci>=n||cj>=n) ? -1 : cj*n+ci; };
+    g.mirror = function(u){ var ci = u%n, cj = (u-ci)/n; return (n-1-cj)*n + (n-1-ci); };
+
+    g.nearestFree = function(u){
+      if (!hard[u]) return u;
+      var ci = u%n, cj = (u-ci)/n, best = -1, bd = Infinity, rr, dj, di, step, ii, jj, s, d2;
+      for (rr=1; rr<=n; rr++) {
+        for (dj=-rr; dj<=rr; dj++) {
+          step = (dj===-rr || dj===rr) ? 1 : 2*rr;
+          for (di=-rr; di<=rr; di+=step) {
+            ii = ci+di; jj = cj+dj;
+            if (ii<0||jj<0||ii>=n||jj>=n) continue;
+            s = jj*n+ii;
+            if (hard[s]) continue;
+            d2 = di*di+dj*dj;
+            if (d2 < bd) { bd = d2; best = s; }
+          }
+        }
+        // cells outside ring rr are at least (rr+1) cells away
+        if (best >= 0 && bd <= (rr+1)*(rr+1)) return best;
+      }
+      return best;
+    };
+
+    g.neighbours = function(u, conn, out){
+      var ci = u%n, cj = (u-ci)/n, c = 0, k, di, dj, ii, jj, s;
+      for (k=0; k<8; k++) {
+        if (conn===4 && (k&1)) continue;
+        di = DIRS[k][0]; dj = DIRS[k][1]; ii = ci+di; jj = cj+dj;
+        if (ii<0||jj<0||ii>=n||jj>=n) continue;
+        s = jj*n+ii;
+        if (hard[s]) continue;
+        // corner cut: diagonal only if both orthogonal neighbours are free
+        if (di && dj && (hard[cj*n+ii] || hard[jj*n+ci])) continue;
+        out[c++] = s;
+      }
+      return c;
+    };
+
+    g.edgeCost = function(u, v){
+      var di = Math.abs(u%n - v%n), dj = Math.abs(Math.floor(u/n) - Math.floor(v/n));
+      return (di && dj ? Math.SQRT2 : 1) * cell * (soft[u]+soft[v]) / 2;
+    };
+
+    // Samples segment every cell/4. Returns soft-weighted length, or -1 if a hard cell is touched.
+    function walk(a, b){
+      var pa = g.center(a), pb = g.center(b), x0 = pa[0], y0 = pa[1];
+      var dxs = g.center(b)[0]-x0, dys = g.center(b)[1]-y0;
+      var L = Math.sqrt(dxs*dxs+dys*dys), steps = Math.max(1, Math.ceil(L/(cell/4))), h = L/steps, sum = 0, s, c;
+      for (s=0; s<=steps; s++) {
+        c = g.cellOf(x0+dxs*s/steps, y0+dys*s/steps);
+        if (hard[c]) return -1;
+        sum += (s===0 || s===steps) ? soft[c]/2 : soft[c];
+      }
+      return sum*h;
+    }
+    g.los = function(a, b){ return walk(a, b) >= 0; };
+    g.lineCost = function(a, b){ var w = walk(a, b); return w < 0 ? Infinity : w; };
+
+    return g;
+  }
+
+  Lab.Grid = {RAW:RAW, HIVE:HIVE, FLOWERS:FLOWERS, ZONES:ZONES, TRAYS:TRAYS, zoneRect:zoneRect, build:build};
+
+  Lab.Drive = {
+    time: function(d, vmax, a){
+      vmax = vmax==null ? 60 : vmax; a = a==null ? 90 : a;
+      if (d <= 0) return 0;
+      return d < vmax*vmax/a ? 2*Math.sqrt(d/a) : d/vmax + vmax/a;
+    }
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="algo-heap">
+(function(root){ 'use strict';
+  var Lab = root.Lab = root.Lab || {};
+
+  // Binary min-heap ordered by (key, key2). Plain arrays K, K2, V hold the heap.
+  function lt(ka, ka2, kb, kb2) { return ka < kb || (ka === kb && ka2 < kb2); }
+
+  function create(opts) {
+    opts = opts || {};
+    var K = [], K2 = [], V = [];
+    var logCap = opts.logCap || 400;
+    var h = {
+      log: !!opts.log, logCap: logCap, events: [],
+      maxSize: 0, lastKey: 0,
+      ops: { push: 0, pop: 0, cmp: 0, swap: 0 },
+      get size() { return K.length; },
+      push: push, pop: pop, peekKey: peekKey,
+      toArray: toArray, toArrayAll: toArrayAll, valsArray: valsArray,
+      validate: validate, reset: reset, clearEvents: clearEvents
+    };
+
+    function ev(t, i, j, key) {
+      h.events.push({ t: t, i: i, j: j, key: key, size: K.length });
+      if (h.events.length > h.logCap) h.events.shift();
+    }
+    function less(i, j) { h.ops.cmp++; return lt(K[i], K2[i], K[j], K2[j]); }
+    function swap(i, j) {
+      var t = K[i]; K[i] = K[j]; K[j] = t;
+      t = K2[i]; K2[i] = K2[j]; K2[j] = t;
+      t = V[i]; V[i] = V[j]; V[j] = t;
+      h.ops.swap++;
+      if (h.log) ev('swap', i, j, K[Math.min(i, j)]); // key of element now at the smaller index
+    }
+
+    function push(key, val, key2) {
+      if (key2 === undefined) key2 = 0;
+      h.ops.push++;
+      K.push(key); K2.push(key2); V.push(val);
+      var i = K.length - 1;
+      if (K.length > h.maxSize) h.maxSize = K.length;
+      if (h.log) ev('push', i, -1, key);
+      while (i > 0) {
+        var p = (i - 1) >> 1;
+        if (!less(i, p)) break;
+        swap(i, p); i = p;
+      }
+    }
+
+    function pop() {
+      var n = K.length;
+      if (n === 0) return -1;
+      h.ops.pop++;
+      var top = V[0];
+      h.lastKey = K[0];
+      var last = n - 1;
+      if (last > 0) { K[0] = K[last]; K2[0] = K2[last]; V[0] = V[last]; }
+      K.pop(); K2.pop(); V.pop();
+      n = last;
+      if (h.log) ev('pop', 0, -1, h.lastKey);
+      var i = 0;
+      while (true) {
+        var l = 2 * i + 1;
+        if (l >= n) break;
+        var c = l, r = l + 1;
+        if (r < n && less(r, l)) c = r;
+        if (!less(c, i)) break;
+        swap(i, c); i = c;
+      }
+      return top;
+    }
+
+    function peekKey() { return K.length ? K[0] : Infinity; }
+    function toArray() { return K.slice(0, Math.min(K.length, 63)); }
+    function toArrayAll() { return K.slice(); }
+    function valsArray(max) {
+      return V.slice(0, max === undefined ? V.length : Math.min(max, V.length));
+    }
+    function validate() {
+      // uncounted check of the heap property
+      for (var i = 1; i < K.length; i++) {
+        var p = (i - 1) >> 1;
+        if (lt(K[i], K2[i], K[p], K2[p])) return false;
+      }
+      return true;
+    }
+    function clearEvents() { h.events.length = 0; }
+    function reset() {
+      K.length = 0; K2.length = 0; V.length = 0;
+      h.maxSize = 0; h.lastKey = 0;
+      h.ops.push = 0; h.ops.pop = 0; h.ops.cmp = 0; h.ops.swap = 0;
+      h.events.length = 0;
+      return h;
+    }
+    return h;
+  }
+
+  Lab.Heap = {
+    create: create,
+    scanCost: function(size) { return size - 1; }
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="algo-search">
+(function(root){ 'use strict';
+  var Lab = root.Lab = root.Lab || {};
+  var now = function(){ return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); };
+  var ZERO = function(){ return 0; };
+  var S1 = Math.SQRT2 - 1;
+  var KIND = {
+    manhattan: function(dx, dy){ return dx + dy; },
+    euclid: function(dx, dy){ return Math.sqrt(dx * dx + dy * dy); },
+    chebyshev: function(dx, dy){ return dx > dy ? dx : dy; },
+    octile: function(dx, dy){ return dx > dy ? dx + S1 * dy : dy + S1 * dx; }
+  };
+
+  function norm(opts){
+    opts = opts || {};
+    return {
+      algo: opts.algo || 'astar',
+      heuristic: opts.heuristic || 'octile',
+      eps: opts.eps == null ? 1 : opts.eps,
+      tieBreak: opts.tieBreak !== false,
+      conn: opts.conn || 8,
+      logHeap: !!opts.logHeap
+    };
+  }
+
+  // Heuristic to the goal SET (grid.goalBox). Returns h(idx) in inches.
+  Lab.Heur = {
+    fn: function(name, grid){
+      if (name === 'zero') return ZERO;
+      var f = KIND[name] || KIND.octile, gb = grid.goalBox, n = grid.n, cell = grid.cell;
+      var i0 = gb.i0, i1 = gb.i1, j0 = gb.j0, j1 = gb.j1;
+      return function(idx){
+        var i = idx % n, j = (idx - i) / n;
+        var dx = Math.max(i0 - i, 0, i - i1), dy = Math.max(j0 - j, 0, j - j1);
+        return f(dx, dy) * cell;
+      };
+    }
+  };
+
+  // Dijkstra (h = 0), A* (w = 1), weighted A* (f = g + eps*h). Lazy deletion, closed set.
+  Lab.Search = {
+    create: function(grid, startIdx, opts){
+      var o = norm(opts), N = grid.N, s = { grid: grid, opts: o };
+      var dij = o.algo === 'dijkstra', tb = o.tieBreak, conn = o.conn;
+      var w = o.algo === 'wastar' ? o.eps : 1;
+      var hf = dij ? ZERO : Lab.Heur.fn(o.heuristic, grid);
+      var buf = new Int32Array(8);
+      s.state = new Uint8Array(N);
+      s.g = new Float64Array(N).fill(Infinity);
+      s.parent = new Int32Array(N).fill(-1);
+      s.heap = Lab.Heap.create({ log: o.logHeap, logCap: 400 });
+      s.current = -1; s.done = false; s.found = false; s.goalIdx = -1;
+      s.counters = { expanded: 0, pushed: 0, stale: 0, elapsedMs: 0 };
+      s.lastChanged = [];
+      if (startIdx >= 0) {
+        s.g[startIdx] = 0; s.state[startIdx] = 1; s.lastChanged.push(startIdx);
+        s.heap.push(w * hf(startIdx), startIdx, 0);
+      }
+
+      s.step = function(){
+        if (s.done) return false;
+        var t0 = now(), heap = s.heap, cur, gc, k, m, nb, ng;
+        s.lastChanged = [];
+        if (heap.size === 0) { s.done = true; s.found = false; }
+        else {
+          cur = heap.pop();
+          if (cur < 0) { s.done = true; s.found = false; }
+          else if (s.state[cur] === 2) { s.counters.stale++; }
+          else {
+            s.state[cur] = 2; s.current = cur; s.counters.expanded++; s.lastChanged.push(cur);
+            if (grid.goal[cur]) { s.found = true; s.done = true; s.goalIdx = cur; }
+            else {
+              gc = s.g[cur];
+              k = grid.neighbours(cur, conn, buf);
+              for (m = 0; m < k; m++) {
+                nb = buf[m];
+                if (s.state[nb] === 2) continue;
+                ng = gc + grid.edgeCost(cur, nb);
+                if (ng < s.g[nb]) {
+                  if (s.state[nb] === 0) { s.state[nb] = 1; s.lastChanged.push(nb); }
+                  s.g[nb] = ng; s.parent[nb] = cur;
+                  heap.push(ng + w * hf(nb), nb, tb ? -ng : 0);
+                  s.counters.pushed++;
+                }
+              }
+            }
+          }
+        }
+        s.counters.elapsedMs += now() - t0;
+        return !s.done;
+      };
+
+      s.run = function(){ while (s.step()) {} return s; };
+
+      s.path = function(){
+        if (!s.found) return [];
+        var p = [], c = s.goalIdx;
+        while (c >= 0) { p.push(c); c = s.parent[c]; }
+        return p.reverse();
+      };
+
+      s.pathLengthIn = function(){
+        var p = s.path(), L = 0, a, b, i;
+        for (i = 1; i < p.length; i++) {
+          a = grid.center(p[i - 1]); b = grid.center(p[i]);
+          L += Math.hypot(b[0] - a[0], b[1] - a[1]);
+        }
+        return L;
+      };
+
+      s.pathCost = function(){ return s.found ? s.g[s.goalIdx] : Infinity; };
+
+      return s;
+    }
+  };
+
+  Lab.makeSearcher = function(grid, startIdx, opts){
+    var o = norm(opts);
+    return o.algo === 'theta' ? Lab.Theta.create(grid, startIdx, o) : Lab.Search.create(grid, startIdx, o);
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="algo-theta">
+(function(root){ 'use strict';
+  var Lab = root.Lab = root.Lab || {};
+  var now = function(){ return typeof performance !== 'undefined' ? performance.now() : Date.now(); };
+
+  // Theta* (any-angle A*): 8-connected neighbours, Euclid heuristic to goal box.
+  // Parent-based line-of-sight shortcut: if los(parent[s], s2) use parent[s] as parent of s2.
+  Lab.Theta = {
+    create: function(grid, startIdx, opts){
+      opts = opts || {};
+      var N = grid.N, n = grid.n, cell = grid.cell, gb = grid.goalBox;
+      var tie = opts.tieBreak !== false;
+      var s = {
+        grid: grid, opts: opts,
+        state: new Uint8Array(N),
+        g: new Float64Array(N),
+        parent: new Int32Array(N),
+        heap: Lab.Heap.create({log: !!opts.logHeap, logCap: 400}),
+        current: -1, done: false, found: false, goalIdx: -1,
+        counters: {expanded: 0, pushed: 0, stale: 0, elapsedMs: 0},
+        lastChanged: [],
+        nb: new Int32Array(8),
+        hf: function(idx){
+          var i = idx % n, j = (idx - i) / n;
+          var dx = Math.max(gb.i0 - i, 0, i - gb.i1), dy = Math.max(gb.j0 - j, 0, j - gb.j1);
+          return Math.sqrt(dx * dx + dy * dy) * cell;
+        },
+        push: function(idx, gv){
+          s.heap.push(gv + s.hf(idx), idx, tie ? -gv : 0);
+          s.counters.pushed++;
+        },
+        step: function(){
+          if (s.done) return false;
+          var t0 = now();
+          if (s.heap.size === 0) { s.done = true; s.found = false; s.lastChanged = []; return false; }
+          var cur = s.heap.pop();
+          if (cur < 0) { s.done = true; s.found = false; return false; }
+          if (s.state[cur] === 2) {
+            s.counters.stale++;
+            s.lastChanged = [];
+          } else {
+            s.state[cur] = 2; s.current = cur; s.counters.expanded++;
+            var ch = [cur];
+            s.lastChanged = ch;
+            if (grid.goal[cur]) {
+              s.found = true; s.done = true; s.goalIdx = cur;
+              s.counters.elapsedMs += now() - t0;
+              return false;
+            }
+            var k = grid.neighbours(cur, 8, s.nb), p = s.parent[cur];
+            for (var m = 0; m < k; m++) {
+              var t = s.nb[m];
+              if (s.state[t] === 2) continue;
+              var gc, par;
+              if (p >= 0 && grid.los(p, t)) { gc = s.g[p] + grid.lineCost(p, t); par = p; }
+              else { gc = s.g[cur] + grid.edgeCost(cur, t); par = cur; }
+              if (gc < s.g[t]) {
+                if (s.state[t] === 0) { s.state[t] = 1; ch.push(t); }
+                s.g[t] = gc; s.parent[t] = par; s.push(t, gc);
+              }
+            }
+          }
+          s.counters.elapsedMs += now() - t0;
+          return !s.done;
+        },
+        run: function(){ while (s.step()) {} return s; },
+        path: function(){
+          if (!s.found) return [];
+          var out = [];
+          for (var c = s.goalIdx; c >= 0; c = s.parent[c]) out.push(c);
+          return out.reverse();
+        },
+        pathLengthIn: function(){
+          var p = s.path(), L = 0;
+          for (var q = 1; q < p.length; q++) {
+            var a = grid.center(p[q - 1]), b = grid.center(p[q]);
+            L += Math.hypot(b[0] - a[0], b[1] - a[1]);
+          }
+          return L;
+        },
+        pathCost: function(){ return s.found ? s.g[s.goalIdx] : Infinity; }
+      };
+      s.g.fill(Infinity);
+      s.parent.fill(-1);
+      s.state[startIdx] = 1;
+      s.g[startIdx] = 0;
+      s.push(startIdx, 0);
+      return s;
+    }
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="algo-flow">
+(function(root){ 'use strict';
+  var Lab = root.Lab = root.Lab || {};
+  var now = function(){ return typeof performance !== 'undefined' ? performance.now() : Date.now(); };
+
+  Lab.Flow = {
+    create: function(grid, opts){
+      opts = opts || {};
+      var conn = opts.conn || 8, n = grid.n, N = grid.N, DIRS = Lab.DIRS;
+      var dist = new Float64Array(N).fill(Infinity), state = new Uint8Array(N);
+      var dir = new Int8Array(N).fill(-1), buf = new Int32Array(8);
+      var heap = Lab.Heap.create({log: !!opts.logHeap, logCap: 400});
+      var f = {
+        grid: grid, state: state, dist: dist, dir: dir, heap: heap, current: -1, done: false,
+        counters: {expanded: 0, pushed: 0, stale: 0, elapsedMs: 0},
+        lastChanged: [], order: [], maxDist: 0
+      };
+      var C = f.counters, goals = grid.goalIdx;
+      for (var q = 0; q < goals.length; q++){
+        var s = goals[q]; dist[s] = 0; state[s] = 1; heap.push(0, s, 0); C.pushed++;
+      }
+
+      function finish(){
+        var i, k, q2, mx = 0;
+        for (i = 0; i < N; i++) if (dist[i] < Infinity && dist[i] > mx) mx = dist[i];
+        f.maxDist = mx;
+        for (i = 0; i < N; i++){
+          if (dist[i] === Infinity || grid.goal[i]) continue;
+          var m = grid.neighbours(i, conn, buf), best = -1, bv = Infinity;
+          for (q2 = 0; q2 < m; q2++){
+            var v = buf[q2];
+            if (dist[v] === Infinity) continue;
+            var c = dist[v] + grid.edgeCost(i, v);
+            if (c < bv){ bv = c; best = v; }
+          }
+          if (best < 0) continue;
+          for (k = 0; k < 8; k++){
+            if (best - i === DIRS[k][1] * n + DIRS[k][0]){ dir[i] = k; break; }
+          }
+        }
+      }
+
+      f.step = function(){
+        if (f.done) return false;
+        var t0 = now();
+        f.lastChanged = [];
+        if (heap.size === 0){ finish(); f.done = true; C.elapsedMs += now() - t0; return false; }
+        var u = heap.pop(), key = heap.lastKey;
+        if (state[u] === 2 || key > dist[u]) C.stale++;
+        else {
+          state[u] = 2; f.current = u; f.order.push(u); C.expanded++; f.lastChanged.push(u);
+          var m = grid.neighbours(u, conn, buf), du = dist[u];
+          for (var q2 = 0; q2 < m; q2++){
+            var v = buf[q2];
+            if (state[v] === 2) continue;
+            var nd = du + grid.edgeCost(u, v);
+            if (nd < dist[v]){
+              dist[v] = nd; state[v] = 1; heap.push(nd, v, 0); C.pushed++; f.lastChanged.push(v);
+            }
+          }
+        }
+        C.elapsedMs += now() - t0;
+        return true;
+      };
+
+      f.run = function(){ while (f.step()){} return f; };
+
+      f.next = function(idx){
+        if (idx < 0 || idx >= N || dir[idx] < 0) return -1;
+        var k = dir[idx];
+        return idx + DIRS[k][1] * n + DIRS[k][0];
+      };
+
+      f.pathFrom = function(idx){
+        var out = [];
+        if (idx < 0 || idx >= N || dist[idx] === Infinity) return out;
+        var c = idx;
+        out.push(c);
+        for (var s = 0; s < N && dir[c] >= 0; s++){ c = f.next(c); out.push(c); }
+        return out;
+      };
+
+      f.costFrom = function(idx){ return (idx >= 0 && idx < N) ? dist[idx] : Infinity; };
+
+      // Marching squares on the cell-centre lattice; levels k*interval (k>=1).
+      var PX = [0,0,0,0], PY = [0,0,0,0], V = [0,0,0,0], P = [null,null,null,null];
+      var EA = [0,1,2,3], EB = [1,2,3,0];
+      function seg(a, b, out){ out.push(a[0], a[1], b[0], b[1]); }
+      f.contours = function(interval){
+        var iv = interval || 20, out = [], n1 = n - 1, cell = grid.cell;
+        for (var j = 0; j < n1; j++) for (var i = 0; i < n1; i++){
+          var a = j * n + i, ids = [a, a + 1, a + n + 1, a + n];
+          var x0 = (i + 0.5) * cell, y0 = (j + 0.5) * cell, lo = Infinity, hi = -Infinity, ok = true;
+          PX[0] = x0; PX[1] = x0 + cell; PX[2] = x0 + cell; PX[3] = x0;
+          PY[0] = y0; PY[1] = y0; PY[2] = y0 + cell; PY[3] = y0 + cell;
+          for (var c = 0; c < 4; c++){
+            V[c] = dist[ids[c]];
+            if (V[c] === Infinity){ ok = false; break; }
+            if (V[c] < lo) lo = V[c];
+            if (V[c] > hi) hi = V[c];
+          }
+          if (!ok) continue;
+          for (var k = Math.max(1, Math.ceil(lo / iv)); k * iv <= hi; k++){
+            var L = k * iv, cnt = 0, e, p, q;
+            for (e = 0; e < 4; e++){
+              p = EA[e]; q = EB[e]; P[e] = null;
+              if ((V[p] >= L) !== (V[q] >= L)){
+                var t = (L - V[p]) / (V[q] - V[p]);
+                P[e] = [PX[p] + t * (PX[q] - PX[p]), PY[p] + t * (PY[q] - PY[p])];
+                cnt++;
+              }
+            }
+            if (cnt === 2){
+              var es = [];
+              for (e = 0; e < 4; e++) if (P[e]) es.push(e);
+              seg(P[es[0]], P[es[1]], out);
+            } else if (cnt === 4){
+              var centreHigh = (V[0] + V[1] + V[2] + V[3]) / 4 >= L;
+              var target = centreHigh ? 0 : 1;
+              if ((V[0] >= L ? 1 : 0) === target){ seg(P[3], P[0], out); seg(P[1], P[2], out); }
+              else { seg(P[0], P[1], out); seg(P[2], P[3], out); }
+            }
+          }
+        }
+        return new Float32Array(out);
+      };
+
+      return f;
+    }
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="algo-render">
+(function(root){ 'use strict';
+  var Lab = root.Lab = root.Lab || {};
+  var C = {
+    bg:'#0b1120', unseen:'#1e293b', open:'#22d3ee', closed:'#a855f7', current:'#fde047',
+    path:'#4ade80', pathEdge:'#052e16', hard:'#991b1b', soft:'#f59e0b', goal:'#ef4444',
+    obstacle:'#64748b', redZone:'#ef4444', blueZone:'#3b82f6', start:'#ffffff',
+    hover:'#e2e8f0', contour:'#f8fafc', arrow:'#f8fafc'
+  };
+  function rgb(h){ return [parseInt(h.substr(1,2),16), parseInt(h.substr(3,2),16), parseInt(h.substr(5,2),16)]; }
+  var RGB = {}, k;
+  for (k in C) RGB[k] = rgb(C[k]);
+  var VIR = [[68,1,84],[59,82,139],[33,145,140],[94,201,98],[253,231,37]];
+  function mix(a, b, t){ return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+  function viridis(t){ var x = Math.max(0, Math.min(1, t))*4, q = Math.min(3, Math.floor(x)); return mix(VIR[q], VIR[q+1], x-q); }
+  // write one cell pixel; row 0 of the image is the TOP (highest y), so row = n-1-j
+  function put(img, n, idx, c, a){
+    var i = idx % n, r = n-1-(idx-i)/n, o = (r*n+i)*4, d = img.data;
+    d[o] = c[0]; d[o+1] = c[1]; d[o+2] = c[2]; d[o+3] = a;
+  }
+  function layer(w, h){ var c = Lab.Render.makeCanvas(w, h), x = c.getContext('2d'); x.imageSmoothingEnabled = false; return {c:c, x:x}; }
+  function nlayer(n){ var L = layer(n, n); L.img = L.x.createImageData(n, n); return L; }
+
+  function create(canvas){
+    var ctx = canvas.getContext('2d');
+    var R = {canvas:canvas, ctx:ctx, size:0, pxPerIn:0, grid:null, search:null, field:null, fOpts:null,
+             pathIdx:null, start:-1, hover:null, foot:false, cur:-1, L:{}};
+
+    function cross(x, y, r){ ctx.beginPath(); ctx.moveTo(x-r, y); ctx.lineTo(x+r, y); ctx.moveTo(x, y-r); ctx.lineTo(x, y+r); ctx.stroke(); }
+
+    function buildStatic(){
+      var S = R.size, s = R.pxPerIn, g = R.grid, n = g.n, cell = g.cell;
+      var F = layer(S, S), x = F.x, T = nlayer(n), q, idx;
+      var goalC = g.alliance === 'blue' ? RGB.blueZone : RGB.redZone, isGoal = new Uint8Array(g.N);
+      for (q = 0; q < g.goalIdx.length; q++) isGoal[g.goalIdx[q]] = 1;
+      for (idx = 0; idx < g.N; idx++){
+        var c = RGB.unseen;
+        if (g.soft[idx] > 1) c = mix(c, RGB.soft, Math.min(0.55, 0.1 + 0.15*(g.soft[idx]-1)));
+        if (isGoal[idx]) c = mix(c, goalC, 0.3);
+        if (g.hard[idx]) c = RGB.hard;
+        if (g.raw[idx]) c = RGB.obstacle;
+        put(T.img, n, idx, c, 255);
+      }
+      T.x.putImageData(T.img, 0, 0);
+      x.drawImage(T.c, 0, 0, S, S);
+      // full-resolution obstacle rectangles (inches, y-up)
+      function fillR(r, col, a){ x.globalAlpha = a; x.fillStyle = col; x.fillRect(r[0]*s, (144-r[3])*s, (r[2]-r[0])*s, (r[3]-r[1])*s); x.globalAlpha = 1; }
+      (Lab.Grid.RAW || []).forEach(function(r){ fillR(r, C.obstacle, 1); });
+      ['red','blue'].forEach(function(a){
+        var z = Lab.Grid.ZONES[a], col = a === 'red' ? C.redZone : C.blueZone;
+        fillR(z, col, 0.35);
+        x.strokeStyle = col; x.lineWidth = 2;
+        x.strokeRect(z[0]*s, (144-z[3])*s, (z[2]-z[0])*s, (z[3]-z[1])*s);
+      });
+      if (cell*s >= 4){
+        x.strokeStyle = 'rgba(255,255,255,0.07)'; x.lineWidth = 1; x.beginPath();
+        for (q = 0; q <= n; q++){ var p = q*cell*s; x.moveTo(p, 0); x.lineTo(p, S); x.moveTo(0, p); x.lineTo(S, p); }
+        x.stroke();
+      }
+      R.L.static = F;
+    }
+
+    function sPaint(idx, img, n){
+      var sr = R.search, st = sr.state[idx];
+      if (idx === sr.current) put(img, n, idx, RGB.current, 255);
+      else if (st === 1) put(img, n, idx, RGB.open, 230);
+      else if (st === 2) put(img, n, idx, RGB.closed, 190);
+      else put(img, n, idx, RGB.open, 0);
+    }
+
+    function drawPath(){
+      var p = R.pathIdx, S = R.size, s = R.pxPerIn;
+      R.L.path = null;
+      if (!p || !p.length || !R.grid) return;
+      var g = R.grid, P = layer(S, S), x = P.x, w = Math.max(2, s*0.7), q, c;
+      x.lineJoin = 'round'; x.lineCap = 'round'; x.beginPath();
+      for (q = 0; q < p.length; q++){ c = g.center(p[q]); x[q ? 'lineTo' : 'moveTo'](c[0]*s, (144-c[1])*s); }
+      x.strokeStyle = C.pathEdge; x.lineWidth = w + 2.5; x.stroke();
+      x.strokeStyle = C.path; x.lineWidth = w; x.stroke();
+      if (p.length <= 300){
+        x.fillStyle = C.path;
+        for (q = 0; q < p.length; q++){
+          c = g.center(p[q]); x.beginPath(); x.arc(c[0]*s, (144-c[1])*s, Math.max(1.5, w*0.6), 0, 6.2832); x.fill();
+        }
+      }
+      R.L.path = P;
+    }
+
+    R.resize = function(){
+      var cw = canvas.clientWidth || canvas.width || 600;
+      var dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+      var sz = Math.max(144, Math.min(900, Math.round(cw*dpr)));
+      canvas.width = sz; canvas.height = sz; R.size = sz; R.pxPerIn = sz/144;
+      ctx.imageSmoothingEnabled = false;
+      if (R.grid){
+        buildStatic();
+        if (R.field) R.setFlow(R.field, R.fOpts);
+        if (R.pathIdx) drawPath();
+      }
+    };
+
+    R.setGrid = function(g){
+      R.grid = g; R.search = null; R.field = null; R.fOpts = null; R.pathIdx = null;
+      R.start = -1; R.cur = -1;
+      R.L = {search: nlayer(g.n)};
+      buildStatic();
+    };
+
+    R.setSearch = function(sr){
+      var g = R.grid, L = R.L.search, idx;
+      R.search = sr || null; R.cur = -1;
+      if (!sr || !g) return;
+      for (idx = 0; idx < g.N; idx++) sPaint(idx, L.img, g.n);
+      L.x.putImageData(L.img, 0, 0);
+      R.cur = sr.current;
+    };
+
+    // incremental: repaint listed cells plus previous and new current cell; one dirty-rect put
+    R.updateCells = function(list){
+      var sr = R.search;
+      if (!sr || !list || !R.grid) return;
+      var n = R.grid.n, L = R.L.search, x0 = n, x1 = -1, y0 = n, y1 = -1, q;
+      function touch(idx){
+        var i = idx % n, r = n-1-(idx-i)/n;
+        sPaint(idx, L.img, n);
+        if (i < x0) x0 = i; if (i > x1) x1 = i;
+        if (r < y0) y0 = r; if (r > y1) y1 = r;
+      }
+      for (q = 0; q < list.length; q++) touch(list[q]);
+      if (R.cur >= 0) touch(R.cur);
+      if (sr.current >= 0) touch(sr.current);
+      R.cur = sr.current;
+      if (x1 >= 0) L.x.putImageData(L.img, 0, 0, x0, y0, x1-x0+1, y1-y0+1);
+    };
+
+    R.setFlow = function(f, opts){
+      var o = opts || {}, g = R.grid, S = R.size, s = R.pxPerIn;
+      R.field = f || null; R.fOpts = o; R.L.heat = R.L.contour = R.L.arrow = null;
+      if (!f || !g) return;
+      var n = g.n, cell = g.cell, q;
+      if (o.heat !== false){
+        var H = nlayer(n), m = f.maxDist;
+        if (!(m > 0)){ m = 0; for (q = 0; q < g.N; q++){ var d = f.dist[q]; if (isFinite(d) && d > m) m = d; } }
+        for (q = 0; q < g.N; q++){ var dq = f.dist[q]; if (isFinite(dq)) put(H.img, n, q, viridis(dq/(m || 1)), 200); }
+        H.x.putImageData(H.img, 0, 0); R.L.heat = H;
+      }
+      if (o.contours !== false){
+        var K = layer(S, S), kx = K.x, seg = f.contours(o.interval || 20);
+        kx.strokeStyle = C.contour; kx.globalAlpha = 0.6; kx.lineWidth = 1; kx.beginPath();
+        for (q = 0; q+3 < seg.length; q += 4){ kx.moveTo(seg[q]*s, (144-seg[q+1])*s); kx.lineTo(seg[q+2]*s, (144-seg[q+3])*s); }
+        kx.stroke(); R.L.contour = K;
+      }
+      if (o.arrows !== false && f.done && cell*s >= 6){
+        var A = layer(S, S), ax = A.x, st = cell === 1 ? 3 : 1, D = Lab.DIRS, i, j, dv;
+        ax.strokeStyle = C.arrow; ax.globalAlpha = 0.85; ax.lineWidth = 1.2; ax.beginPath();
+        for (j = 0; j < n; j += st) for (i = 0; i < n; i += st){
+          dv = f.dir[j*n+i]; if (dv < 0) continue;
+          var dd = D[dv], mm = Math.hypot(dd[0], dd[1]), ux = dd[0]/mm, uy = -dd[1]/mm,
+              px = (i+0.5)*cell*s, py = S-(j+0.5)*cell*s, Ln = st*cell*s*0.4,
+              ex = px+ux*Ln, ey = py+uy*Ln, bx = ex-ux*Ln*0.45, by = ey-uy*Ln*0.45,
+              hx = -uy*Ln*0.25, hy = ux*Ln*0.25;
+          ax.moveTo(px, py); ax.lineTo(ex, ey);
+          ax.moveTo(bx+hx, by+hy); ax.lineTo(ex, ey); ax.lineTo(bx-hx, by-hy);
+        }
+        ax.stroke(); R.L.arrow = A;
+      }
+    };
+
+    R.setPath = function(sr, extra){
+      R.pathIdx = extra || (sr && sr.done && sr.found ? sr.path() : null);
+      drawPath();
+    };
+
+    R.setStart = function(idx){ R.start = idx; };
+    R.setHover = function(x, y){ R.hover = (x == null || y == null) ? null : [x, y]; };
+    R.showFootprint = function(b){ R.foot = !!b; };
+
+    R.render = function(){
+      var S = R.size, L = R.L, s = R.pxPerIn, g = R.grid, c, px, py, hx, hy;
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.fillStyle = C.bg; ctx.fillRect(0, 0, S, S);
+      if (!g) return;
+      if (L.static) ctx.drawImage(L.static.c, 0, 0);
+      if (L.heat) ctx.drawImage(L.heat.c, 0, 0, S, S);
+      if (R.search && L.search) ctx.drawImage(L.search.c, 0, 0, S, S);
+      if (L.contour) ctx.drawImage(L.contour.c, 0, 0);
+      if (L.arrow) ctx.drawImage(L.arrow.c, 0, 0);
+      if (L.path) ctx.drawImage(L.path.c, 0, 0);
+      ctx.lineWidth = 2;
+      if (R.foot && R.hover){
+        hx = R.hover[0]; hy = R.hover[1];
+        ctx.globalAlpha = 0.18; ctx.fillStyle = C.hover; ctx.fillRect((hx-9)*s, (144-hy-9)*s, 18*s, 18*s);
+        ctx.globalAlpha = 0.9; ctx.strokeStyle = C.hover; ctx.strokeRect((hx-9)*s, (144-hy-9)*s, 18*s, 18*s);
+        cross(hx*s, (144-hy)*s, 3*s);
+      }
+      if (R.start >= 0){
+        c = g.center(R.start); px = c[0]*s; py = (144-c[1])*s;
+        ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(px, py, Math.max(4, s), 0, 6.2832);
+        ctx.fillStyle = C.bg; ctx.fill(); ctx.strokeStyle = C.start; ctx.stroke();
+        if (R.foot){ ctx.globalAlpha = 0.9; cross(px, py, Math.max(4, 2*s)); }
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    R.pointerToField = function(cx, cy){
+      var b = canvas.getBoundingClientRect ? canvas.getBoundingClientRect() : {left:0, top:0, width:R.size, height:R.size};
+      var px = (cx-b.left)*R.size/(b.width || R.size), py = (cy-b.top)*R.size/(b.height || R.size);
+      return [px/R.pxPerIn, 144-py/R.pxPerIn];
+    };
+
+    R.resize();
+    return R;
+  }
+
+  Lab.Render = {
+    COLORS: C,
+    LEGEND: [
+      ['Unseen', C.unseen], ['Open (frontier)', C.open], ['Closed (expanded)', C.closed],
+      ['Current cell', C.current], ['Path', C.path], ['Hard: robot cannot fit', C.hard],
+      ['Soft band: higher cost', C.soft], ['Obstacle', C.obstacle],
+      ['Red goal zone', C.redZone], ['Blue goal zone', C.blueZone], ['Flow distance (low to high)', '#21918c']
+    ],
+    makeCanvas: function(w, h){ var c = document.createElement('canvas'); c.width = w; c.height = h; return c; },
+    create: create
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="algo-heaplab">
+(function(root){ 'use strict';
+  var Lab = root.Lab = root.Lab || {};
+  var CSS = '.hl-wrap{color:#e6edf3;font:14px/1.45 system-ui,sans-serif}' +
+    '.hl-btns{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0}' +
+    '.hl-btns button,.hl-wrap select{background:#161b22;color:#e6edf3;border:1px solid #3d4b5c;border-radius:6px;padding:5px 9px;font:inherit}' +
+    '.hl-wrap :focus-visible{outline:2px solid #58a6ff;outline-offset:2px}' +
+    '.hl-cv{display:block;width:100%;background:transparent;margin:6px 0}' +
+    '.hl-stats{font:13px/1.6 ui-monospace,Consolas,monospace;white-space:pre-line}' +
+    '.hl-note,.hl-lnote{color:#8b98a5;font-size:13px}' +
+    '';
+  var TXT = '<h3>How a binary min-heap works</h3>' +
+    '<p>A heap is a complete binary tree in an array; children of <code>i</code> are <code>2i+1</code> and <code>2i+2</code>, and the smallest key is at 0. <b>Push</b> <b>sifts up</b>, <b>pop</b> <b>sifts down</b>, one path of at most log2 n steps: <b>O(log n)</b>. Highlighted = last sift path.</p>' +
+    '<h3>Other queues</h3><ul>' +
+    '<li><b>4-ary heap</b>: fewer levels, four children per sift-down.</li>' +
+    '<li><b>Pairing</b>, <b>Fibonacci</b>: pointer-based; Fibonacci: O(1) amortised decrease-key, big constants.</li>' +
+    '<li><b>Bucket (Dial)</b>, <b>radix</b>: small or monotone integer keys.</li></ul>' +
+    '<h3>Lazy deletion</h3>' +
+    '<p>Decrease-key moves a node inside the heap. Searches instead push a second copy and skip the stale one on pop; no position index is needed, so grid searches usually use a lazy binary or 4-ary heap.</p>';
+
+  function lb(a, k) { var lo = 0, hi = a.length, m; while (lo < hi) { m = (lo + hi) >> 1; if (a[m] < k) lo = m + 1; else hi = m; } return lo; }
+  // Trailing swap events = latest op's sift path (its marker is logged first).
+  function hiOf(h) {
+    var ev = h.events || [], s = {}, k = ev.length - 1;
+    while (k >= 0 && ev[k].t === 'swap') { s[ev[k].i] = 1; s[ev[k].j] = 1; k--; }
+    return s;
+  }
+  function paint(cv, H, fn) {
+    var dpr = root.devicePixelRatio || 1, W = cv.clientWidth || 600, c;
+    cv.style.height = H + 'px'; cv.width = W * dpr; cv.height = H * dpr;
+    c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); fn(c, W, H);
+  }
+  function drawArr(c, W, H, h, hi) {
+    var keys = h.toArray(), n = keys.length, cw, i, x;
+    c.clearRect(0, 0, W, H); c.textBaseline = 'middle'; c.font = '12px system-ui,sans-serif';
+    if (!n) { c.fillStyle = '#8b98a5'; c.textAlign = 'center'; c.fillText('empty heap', W / 2, H / 2); return; }
+    cw = Math.min(48, (W - 8) / n);
+    for (i = 0; i < n; i++) {
+      x = 4 + i * cw;
+      c.fillStyle = hi[i] ? '#4a3f12' : '#1f2a37'; c.strokeStyle = hi[i] ? '#f2cc60' : '#3d4b5c';
+      c.fillRect(x + 1, 6, cw - 2, 34); c.strokeRect(x + 1.5, 6.5, cw - 3, 33);
+      c.textAlign = 'center';
+      if (cw >= 16) { c.fillStyle = '#e6edf3'; c.fillText(String(keys[i]), x + cw / 2, 23); }
+      if (cw >= 22) { c.fillStyle = '#8b98a5'; c.font = '10px system-ui,sans-serif'; c.fillText(String(i), x + cw / 2, 55); c.font = '12px system-ui,sans-serif'; }
+    }
+  }
+  function drawTree(c, W, H, h, hi) {
+    var keys = h.toArray(), n = Math.min(keys.length, 31), lh = H / 5, r = Math.max(9, Math.min(18, W / 44)), i;
+    function lv(i) { return Math.floor(Math.log(i + 1) / Math.LN2 + 1e-9); }
+    function px(i) { var l = lv(i), cnt = 1 << l; return (i + 1 - cnt + 0.5) * W / cnt; }
+    function py(i) { return (lv(i) + 0.5) * lh; }
+    c.clearRect(0, 0, W, H); c.textBaseline = 'middle'; c.textAlign = 'center';
+    if (!n) { c.fillStyle = '#8b98a5'; c.fillText('empty heap', W / 2, H / 2); return; }
+    c.strokeStyle = '#3d4b5c'; c.lineWidth = 1.5;
+    for (i = 1; i < n; i++) { c.beginPath(); c.moveTo(px(i), py(i)); c.lineTo(px((i - 1) >> 1), py((i - 1) >> 1)); c.stroke(); }
+    c.font = '12px system-ui,sans-serif';
+    for (i = 0; i < n; i++) {
+      c.beginPath(); c.arc(px(i), py(i), r, 0, 6.2832);
+      c.fillStyle = hi[i] ? '#4a3f12' : '#1f2a37'; c.fill();
+      c.strokeStyle = hi[i] ? '#f2cc60' : '#58a6ff'; c.lineWidth = hi[i] ? 2.5 : 1.2; c.stroke();
+      c.fillStyle = '#e6edf3'; c.fillText(String(keys[i]), px(i), py(i));
+    }
+  }
+
+  Lab.HeapLab = {
+    mount: function(el) {
+      if (!el) return null;
+      if (typeof document !== 'undefined' && !document.getElementById('hl-style')) {
+        var sty = document.createElement('style'); sty.id = 'hl-style'; sty.textContent = CSS; document.head.appendChild(sty);
+      }
+      el.innerHTML = '<div class="hl-wrap"><div class="hl-btns" role="group" aria-label="Heap demo controls">' +
+        '<button type="button" data-a="rnd">Push random</button><button type="button" data-a="p10">Push 10</button>' +
+        '<button type="button" data-a="pop">Pop</button><button type="button" data-a="clr">Clear</button>' +
+        '<button type="button" data-a="fill">Fill 200 and pop all</button>' +
+        '<label>Show <select class="hl-src"><option value="demo">demo heap</option><option value="live">live heap (panel A)</option></select></label></div>' +
+        '<canvas class="hl-cv" data-k="arr"></canvas><canvas class="hl-cv" data-k="tree"></canvas>' +
+        '<div class="hl-stats"></div><div class="hl-note"></div><div class="hl-lnote"></div>' +
+        '<div class="hl-txt">' + TXT + '</div></div>';
+
+      function $(q) { return el.querySelector(q); }
+      var cvA = $('[data-k=arr]'), cvT = $('[data-k=tree]'), stEl = $('.hl-stats'), noteEl = $('.hl-note'),
+        lnoteEl = $('.hl-lnote'), src = $('.hl-src');
+      var demo = Lab.Heap.create({ log: true, logCap: 400 });
+      var st, live = null, timer = 0, last = 0, seq = 0, msg = 'Pick an action to start.';
+      function fresh() { st = { scan: 0, moves: 0, shadow: [] }; }
+      fresh();
+
+      // Shadow array: ascending sorted array, to count its element moves.
+      function doPush(k) { var p = lb(st.shadow, k); st.moves += st.shadow.length - p; st.shadow.splice(p, 0, k); demo.push(k, ++seq, 0); }
+      function doPop() {
+        var n = demo.size;
+        if (!n) return null;
+        st.scan += n - 1; st.moves += n - 1; st.shadow.shift(); demo.pop();
+        return demo.lastKey;
+      }
+      function rnd() { return 1 + Math.floor(Math.random() * 999); }
+
+      function draw() {
+        var useLive = src.value === 'live' && live, h = useLive ? live : demo, hi = hiOf(h);
+        paint(cvA, 70, function(c, W, H) { drawArr(c, W, H, h, hi); });
+        paint(cvT, 230, function(c, W, H) { drawTree(c, W, H, h, hi); });
+        stEl.textContent = useLive
+          ? 'Live heap (A): size ' + h.size + ', max ' + h.maxSize + '\nOps (push+pop) ' + (h.ops.push + h.ops.pop) + ', comparisons ' + h.ops.cmp + ', swaps ' + h.ops.swap
+          : 'Demo heap: size ' + demo.size + ', max ' + demo.maxSize + '\n' +
+            'Ops (push+pop) ' + (demo.ops.push + demo.ops.pop) + ', comparisons ' + demo.ops.cmp + ', swaps ' + demo.ops.swap + '\n' +
+            'Unsorted array (scan per pop): comparisons ' + st.scan + '\n' +
+            'Sorted array (ascending): element moves ' + st.moves;
+        noteEl.textContent = useLive ? 'Showing the live heap (Lab tab).' : msg;
+      }
+
+      function act(a) {
+        var k, i, c = 0, prev = -Infinity, ok = true;
+        if (a === 'rnd') { k = rnd(); doPush(k); msg = 'Pushed key ' + k + '. Highlight: sift-up path.'; }
+        else if (a === 'p10') { for (i = 0; i < 10; i++) doPush(rnd()); msg = 'Pushed 10 random keys.'; }
+        else if (a === 'pop') {
+          k = doPop();
+          msg = k === null ? 'Heap is empty.' : 'Popped smallest key ' + k + '. Highlight: sift-down path.';
+        }
+        else if (a === 'clr') { demo.reset(); fresh(); msg = 'Cleared.'; }
+        else if (a === 'fill') {
+          for (i = 0; i < 200; i++) doPush(rnd());
+          while (demo.size) { k = doPop(); if (k < prev) ok = false; prev = k; c++; }
+          msg = 'Pushed 200 keys and popped ' + c + ' in order. Order check: ' + (ok ? 'OK' : 'FAILED') + '.';
+        }
+        draw();
+      }
+
+      var view = {
+        demoHeap: demo,
+        update: function(h) {
+          if (!h) return;
+          live = h;
+          if (src.value !== 'live') return;
+          var now = Date.now();
+          if (now - last >= 100) { last = now; draw(); }
+          else if (!timer) { timer = setTimeout(function() { timer = 0; last = Date.now(); draw(); }, 100 - (now - last)); }
+        },
+        liveHeapNote: function(t) { lnoteEl.textContent = t || ''; }
+      };
+      el.querySelector('.hl-btns').addEventListener('click', function(e) {
+        var a = e.target && e.target.getAttribute ? e.target.getAttribute('data-a') : null;
+        if (a) act(a);
+      });
+      src.addEventListener('change', draw);
+      if (root.addEventListener) root.addEventListener('resize', draw);
+      draw();
+      return view;
+    }
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="algo-tests">
+(function(root){ 'use strict';
+ var Lab = root.Lab = root.Lab || {};
+ var SEED = 20260, TOL = 1e-9, gc = {};
+ function grid(al){ return gc[al] || (gc[al] = Lab.Grid.build({cell:2, alliance:al, userRects:[], R:9, band:5})); }
+ function rng32(a){ return function(){ a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ a >>> 15, a | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+ function near(a, b){ if (a === b) return true; if (!isFinite(a) || !isFinite(b)) return false; return Math.abs(a - b) <= TOL * Math.max(1, Math.abs(b)); }
+ function run(g, s, o){ var z = Lab.makeSearcher(g, s, o); z.run(); return z; }
+ function starts(g, k){ var r = rng32(SEED), out = []; while (out.length < k){ var i = Math.floor(r() * g.N); if (!g.hard[i]) out.push(i); } return out; }
+ function res(p, d){ return {pass: !!p, detail: d}; }
+ function clear(g, p){ for (var q = 0; q < p.length; q++) if (g.hard[p[q]]) return false; return true; }
+ var DJ = {algo:'dijkstra', conn:8}, OC = {algo:'astar', heuristic:'octile', conn:8, tieBreak:true};
+ var TH = {algo:'theta', heuristic:'euclid', conn:8}, WA = {algo:'wastar', eps:2, heuristic:'octile', conn:8};
+ function t1(){
+  var g = grid('red'), S = starts(g, 300), H = ['octile','euclid','chebyshev','zero'], maxd = 0, bad = 0;
+  for (var k = 0; k < S.length; k++){
+   var d = run(g, S[k], DJ);
+   for (var h = 0; h < H.length; h++){
+    var a = run(g, S[k], {algo:'astar', heuristic:H[h], conn:8, tieBreak:true});
+    if (a.found !== d.found) { bad++; continue; }
+    if (a.found){ maxd = Math.max(maxd, Math.abs(a.pathCost() - d.pathCost())); if (!near(a.pathCost(), d.pathCost())) bad++; }
+   }
+  }
+  return res(bad === 0, 'max abs diff ' + maxd.toExponential(2) + ' over ' + S.length + ' starts x 4 heuristics; mismatches ' + bad);
+ }
+ function t2(){
+  var g = grid('red'), f = Lab.Flow.create(g, {conn:8}), S = starts(g, 300), maxd = 0, bad = 0;
+  f.run();
+  for (var k = 0; k < S.length; k++){
+   var a = run(g, S[k], OC), fd = f.dist[S[k]];
+   if (isFinite(fd) !== a.found) { bad++; continue; }
+   if (a.found){ maxd = Math.max(maxd, Math.abs(fd - a.pathCost())); if (!near(fd, a.pathCost())) bad++; }
+  }
+  return res(bad === 0, 'max abs diff ' + maxd.toExponential(2) + ' over ' + S.length + ' starts; mismatches ' + bad);
+ }
+ function t3(){
+  var rg = grid('red'), bg = grid('blue'), fr = Lab.Flow.create(rg, {conn:8}), fb = Lab.Flow.create(bg, {conn:8}), dbad = 0, hbad = 0, maxd = 0;
+  fr.run(); fb.run();
+  for (var i = 0; i < rg.N; i++){
+   var m = rg.mirror(i), x = fr.dist[i], y = fb.dist[m];
+   if (rg.hard[i] !== bg.hard[m]) hbad++;
+   if (isFinite(x) !== isFinite(y)) { dbad++; continue; }
+   if (isFinite(x)){ maxd = Math.max(maxd, Math.abs(x - y)); if (Math.abs(x - y) > 1e-6) dbad++; }
+  }
+  return res(dbad === 0 && hbad === 0, 'dist mismatches ' + dbad + ', hard-mask mismatches ' + hbad + ', max abs diff ' + maxd.toExponential(2));
+ }
+ function t4(){
+  var g = grid('red'), f = Lab.Flow.create(g, {conn:8}), S = starts(g, 100), bad = 0, n = 0;
+  f.run();
+  for (var k = 0; k < S.length; k++){
+   var s = S[k], z = run(g, s, DJ), p = z.path();
+   if (z.found && (p[0] !== s || !clear(g, p))) bad++;
+   z = run(g, s, OC); p = z.path();
+   if (z.found && (p[0] !== s || !clear(g, p))) bad++;
+   z = run(g, s, WA); p = z.path();
+   if (z.found && (p[0] !== s || !clear(g, p))) bad++;
+   if (k < 30){ z = run(g, s, TH); p = z.path(); if (z.found){ if (p[0] !== s) bad++; for (var q = 0; q + 1 < p.length; q++) if (!g.los(p[q], p[q + 1])) bad++; } }
+   if (isFinite(f.dist[s])){ var fp = f.pathFrom(s); if (!fp.length || fp[0] !== s || !g.goal[fp[fp.length - 1]] || !clear(g, fp)) bad++; n++; }
+  }
+  return res(bad === 0, 'checked 100 starts (A*, Dijkstra, wA* w=2, flow: ' + n + ' paths) and 30 theta; violations ' + bad);
+ }
+ function t5(){
+  var h = Lab.Heap.create({log:false}), r = rng32(SEED), model = [], k2of = [], nv = 0, pu = 0, po = 0, maxObs = 0, bad = [];
+  function cmp(a, b){ return (a[0] - b[0]) || (a[1] - b[1]); }
+  function popOne(op){
+   var mi = 0, j, want, got, gi = -1;
+   for (j = 1; j < model.length; j++) if (cmp(model[j], model[mi]) < 0) mi = j;
+   want = model[mi]; got = h.pop(); po++;
+   for (j = 0; j < model.length; j++) if (model[j][2] === got) gi = j;
+   if (gi < 0 || cmp(model[gi], want) !== 0 || h.lastKey !== want[0]) bad.push('pop@' + op);
+   if (gi >= 0) model.splice(gi, 1);
+  }
+  for (var op = 0; op < 5000; op++){
+   if (model.length === 0 || r() < 0.6){
+    var k = Math.floor(r() * 50), k2 = Math.floor(r() * 4), v = nv++;
+    k2of[v] = k2; model.push([k, k2, v]); h.push(k, v, k2); pu++;
+   } else popOne(op);
+   maxObs = Math.max(maxObs, h.size);
+   if (op % 50 === 0 && !h.validate()) bad.push('validate@' + op);
+  }
+  if (!h.validate()) bad.push('validate-end');
+  while (model.length) popOne('drain');
+  var cnt = h.ops.push === pu && h.ops.pop === po && h.maxSize >= maxObs && h.ops.cmp >= 0 && h.ops.swap >= 0 && h.size === 0;
+  var empty = h.pop() === -1;
+  return res(bad.length === 0 && cnt && empty, 'pushes ' + pu + ', pops ' + po + ', maxSize ' + h.maxSize + ', order/validate bad ' + bad.length + ', counters ' + (cnt ? 'ok' : 'BAD'));
+ }
+ function t6(){
+  var g = grid('red'), S = starts(g, 100), W = [1.2, 1.5, 2, 3], opt = [], bad = 0, worst = [];
+  for (var k = 0; k < S.length; k++) opt[k] = run(g, S[k], DJ);
+  for (var w = 0; w < W.length; w++){
+   var mx = 1;
+   for (k = 0; k < S.length; k++){
+    var o = opt[k], z = run(g, S[k], {algo:'wastar', eps:W[w], heuristic:'octile', conn:8});
+    if (z.found !== o.found) { bad++; continue; }
+    if (o.found){ var c = z.pathCost(), oc = o.pathCost(); if (c > W[w] * oc + TOL * Math.max(1, oc)) bad++; if (oc > 0) mx = Math.max(mx, c / oc); }
+   }
+   worst.push(W[w] + ':' + mx.toFixed(3));
+  }
+  return res(bad === 0, 'max cost/optimal per w: ' + worst.join(' ') + '; violations ' + bad);
+ }
+ function t7(){
+  var g = grid('red'), S = starts(g, 30), bad = 0, sum = 0, cnt = 0;
+  for (var k = 0; k < S.length; k++){
+   var a = run(g, S[k], OC), t = run(g, S[k], TH);
+   if (t.found !== a.found) { bad++; continue; }
+   if (!a.found) continue;
+   var p = t.path();
+   if (p[0] !== S[k]) bad++;
+   for (var i = 0; i + 1 < p.length; i++) if (!g.los(p[i], p[i + 1])) bad++;
+   var la = a.pathLengthIn();
+   if (la > 0){ sum += t.pathLengthIn() / la; cnt++; }
+  }
+  return res(bad === 0, 'avg theta/astar length ratio ' + (cnt ? (sum / cnt).toFixed(4) : 'n/a') + ' over ' + cnt + ' starts; violations ' + bad);
+ }
+ function t8(){
+  var g = grid('red'), f = Lab.Flow.create(g, {conn:8}), soft = 0, bad = 0, cnt = 0, NM = ['octile','euclid'];
+  f.run();
+  for (var i = 0; i < g.N; i++) if (g.soft[i] < 1) soft++;
+  for (var q = 0; q < NM.length; q++){
+   var h = Lab.Heur.fn(NM[q], g);
+   for (i = 0; i < g.N; i++){ var d = f.dist[i]; if (!isFinite(d)) continue; cnt++; if (h(i) > d + TOL * Math.max(1, d)) bad++; }
+  }
+  return res(bad === 0 && soft === 0, 'soft<1 cells ' + soft + '; heuristic > true cost violations ' + bad + ' over ' + cnt + ' checks');
+ }
+ function t9(){
+  var out = [], bad = 0, AL = ['red','blue'];
+  for (var a = 0; a < AL.length; a++){
+   var g = grid(AL[a]), z = Lab.Grid.ZONES[AL[a]], Rr = g.R, cnt = 0;
+   for (var i = 0; i < g.N; i++){
+    var c = g.center(i), ins = c[0] >= z[0] - Rr && c[0] <= z[2] + Rr && c[1] >= z[1] - Rr && c[1] <= z[3] + Rr;
+    if ((g.goal[i] === 1) !== (!g.hard[i] && ins)) bad++;
+    if (g.goal[i] === 1) cnt++;
+   }
+   if (g.goalIdx.length !== cnt) bad++;
+   out.push(AL[a] + ' goal cells ' + cnt);
+  }
+  var rg = grid('red'), bg = grid('blue'), s = function(p, q){ return p - q; };
+  var ma = Array.from(rg.goalIdx, function(x){ return rg.mirror(x); }).sort(s), mb = Array.from(bg.goalIdx).sort(s);
+  var mm = ma.length === mb.length && ma.every(function(x, q){ return x === mb[q]; });
+  return res(bad === 0 && mm, out.join(', ') + '; blue goals = mirror(red goals): ' + mm + '; zone/goal violations ' + bad);
+ }
+ var TESTS = [
+  ['Dijkstra == A* (octile) on 300 random starts', t1],
+  ['Flow field == A* cost', t2],
+  ['Red field mirrors blue field about centre', t3],
+  ['Paths never enter hard-blocked cells', t4],
+  ['Heap invariants', t5],
+  ['Weighted A* cost <= w*optimal', t6],
+  ['Theta* valid (not tested for equality)', t7],
+  ['Soft cells cost >= 1x (heuristics admissible)', t8],
+  ['Goal cells valid', t9]
+ ];
+ function runAll(opts){
+  var log = (opts && typeof opts.log === 'function') ? opts.log : function(){}, out = [];
+  for (var i = 0; i < TESTS.length; i++){
+   var r;
+   try { var d = TESTS[i][1](); r = {name: TESTS[i][0], pass: d.pass, detail: d.detail}; }
+   catch (e) { r = {name: TESTS[i][0], pass: false, detail: 'threw: ' + (e && e.message ? e.message : e)}; }
+   out.push(r);
+   log((r.pass ? 'PASS ' : 'FAIL ') + r.name + ' | ' + r.detail);
+  }
+  return out;
+ }
+ function summary(rs){
+  var f = rs.filter(function(r){ return !r.pass; });
+  return (rs.length - f.length) + '/' + rs.length + ' passed' + (f.length ? '; failed: ' + f.map(function(r){ return r.name; }).join('; ') : '');
+ }
+ Lab.Tests = {runAll: runAll, summary: summary};
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="algo-ui">
+(function(root){ 'use strict';
+  var Lab = root.Lab = root.Lab || {};
+  var doc = typeof document !== 'undefined' ? document : null;
+  var TABS = ['lab','heap','learn','time','tests'];
+  var ALGO = [['dijkstra','Dijkstra'],['astar','A*'],['wastar','Weighted A*'],['theta','Theta*']];
+  var HEUR = [['octile','Octile'],['euclid','Euclid'],['manhattan','Manhattan'],['chebyshev','Chebyshev'],['zero','Zero (= Dijkstra)']];
+  var STATS = [['exp','Expanded'],['push','Pushed'],['stale','Stale pops'],['hops','Heap ops'],['cmp','Heap cmp'],['maxh','Max heap'],['plen','Path in'],['pcost','Path cost'],['drive','Drive s'],['ms','Algo ms']];
+  var BETTER = ['exp','hops','cmp','plen','pcost','drive','ms'];
+  var FMT = {plen:1, pcost:1, drive:2, ms:1};
+  var SNAMES = ['unseen','open','closed'];
+  var DRIVE_SET = [24,48,72,96,120,144,200];
+  var S = {tab:'lab', alliance:'red', cell:2, mode:'compare', playing:false, grid:null, sx:24, sy:24, startIdx:-1,
+           rects:[], paintOn:false, dragging:false, erase:false, lastPt:null, gridDirty:false, dirty:true,
+           field:null, finfo:null, fpath:null, heapView:null, rt:0};
+  var P = {};
+
+  function $(id){ return doc ? doc.getElementById(id) : null; }
+  function on(el, ev, fn){ if(el && el.addEventListener) el.addEventListener(ev, fn); }
+  function val(id, d){ var e = $(id); return e ? e.value : d; }
+  function num(v, d){ var x = parseFloat(v); return isFinite(x) ? x : d; }
+  function txt(id, t){ var e = $(id); if(e) e.textContent = t; }
+  function note(m){ txt('g-note', m || ''); }
+  function fx(v, d){ return (typeof v === 'number' && isFinite(v)) ? v.toFixed(d) : '-'; }
+  function fmtv(k, v){ return (typeof v === 'number' && isFinite(v)) ? v.toFixed(FMT[k] || 0) : '-'; }
+  function opts(list, sel){ return list.map(function(p){ return '<option value="'+p[0]+'"'+(p[0]===sel?' selected':'')+'>'+p[1]+'</option>'; }).join(''); }
+  function ready(){ return !!(Lab.Grid && Lab.Render && Lab.makeSearcher && Lab.Flow); }
+  function perFrame(){ return Math.max(1, Math.round(Math.pow(2000, num(val('g-speed', 40), 40) / 100))); }
+  function sched(f){ if(typeof requestAnimationFrame === 'function') requestAnimationFrame(f); else setTimeout(f, 16); }
+  function mk(X){ return {X:X, cv:$('cv'+X), r:null, s:null, pinfo:null, vals:{}}; }
+
+  function buildPanel(X, algo){
+    var el = $('panel'+X); if(!el) return;
+    var k = function(s){ return X+'-'+s; };
+    el.innerHTML = '<h3>Panel '+X+'</h3>'
+      + '<canvas id="cv'+X+'" role="img" aria-label="Panel '+X+' field map"></canvas>'
+      + '<div class="pset">'
+      + '<label>Algorithm <select id="'+k('algo')+'">'+opts(ALGO, algo)+'</select></label>'
+      + '<label>Heuristic <select id="'+k('heur')+'">'+opts(HEUR, 'octile')+'</select></label>'
+      + '<label>Weight <input type="range" id="'+k('w')+'" min="1" max="5" step="0.1" value="2"> <output id="'+k('wv')+'">2.0</output></label>'
+      + '<label><input type="checkbox" id="'+k('tie')+'" checked> Tie-break (prefer larger g)</label>'
+      + '<label>Connectivity <select id="'+k('conn')+'">'+opts([['8','8-connected'],['4','4-connected']], '8')+'</select></label>'
+      + '</div>'
+      + '<p class="note" id="'+k('wn')+'" hidden>weighted A* guarantees cost &lt;= w x optimal (w = 1+epsilon)</p>'
+      + '<dl class="stats">' + STATS.map(function(s){ return '<div><dt>'+s[1]+'</dt><dd id="'+k(s[0])+'">-</dd></div>'; }).join('') + '</dl>'
+      + '<p class="status" id="'+k('status')+'" role="status"></p>';
+  }
+
+  function pset(X){
+    var g = function(k){ return $(X+'-'+k); }, a = g('algo') ? g('algo').value : 'astar';
+    return {algo:a, heuristic:g('heur') ? g('heur').value : 'octile', eps: a==='wastar' ? num(g('w') && g('w').value, 2) : 1,
+            tieBreak: g('tie') ? g('tie').checked : true, conn: parseInt(g('conn') ? g('conn').value : 8, 10) || 8};
+  }
+
+  function panelUI(X){
+    var g = function(k){ return $(X+'-'+k); }, f = S.mode === 'flow', a = g('algo') ? g('algo').value : 'astar';
+    if(g('algo')) g('algo').disabled = f;
+    if(g('tie')) g('tie').disabled = f;
+    if(g('heur')) g('heur').disabled = f || !(a==='astar' || a==='wastar');
+    if(g('w')) g('w').disabled = f || a !== 'wastar';
+    if(g('wn')) g('wn').hidden = a !== 'wastar';
+    txt(X+'-wv', num(val(X+'-w', 2), 2).toFixed(1));
+  }
+
+  function markStart(){ ['A','B'].forEach(function(X){ if(P[X] && P[X].r) P[X].r.setStart(S.startIdx); }); }
+
+  function snap(){
+    var g = S.grid, msg = '', idx = -1;
+    if(g){
+      idx = g.cellOf(S.sx, S.sy);
+      if(g.hard[idx]){
+        var f = g.nearestFree(idx);
+        if(f >= 0){ var c = g.center(f); msg = 'Start was inside an obstacle; snapped to ('+c[0].toFixed(1)+', '+c[1].toFixed(1)+').'; S.sx = c[0]; S.sy = c[1]; }
+        else msg = 'No free cell near that start point.';
+        idx = f;
+      }
+    }
+    S.startIdx = idx;
+    if($('g-sx')) $('g-sx').value = S.sx.toFixed(1);
+    if($('g-sy')) $('g-sy').value = S.sy.toFixed(1);
+    note(msg); markStart();
+  }
+
+  function polyLen(path){
+    var g = S.grid, L = 0, i;
+    if(!g || !path) return 0;
+    for(i = 1; i < path.length; i++){ var a = g.center(path[i-1]), b = g.center(path[i]); L += Math.hypot(b[0]-a[0], b[1]-a[1]); }
+    return L;
+  }
+
+  function buildSearcher(X){
+    var o = pset(X); o.logHeap = (X === 'A');
+    P[X].s = Lab.makeSearcher(S.grid, S.startIdx, o);
+  }
+
+  function updateFlowPath(){
+    var f = S.field, info = null, path = null;
+    if(f && f.done && S.startIdx >= 0){
+      var c = f.costFrom(S.startIdx);
+      if(isFinite(c)){ path = f.pathFrom(S.startIdx); info = {cost:c, plen:polyLen(path)}; }
+      else info = {unreach:true};
+    }
+    S.finfo = info; S.fpath = path;
+    ['A','B'].forEach(function(X){ if(P[X].r) P[X].r.setPath(null, path); });
+    S.dirty = true;
+  }
+
+  function applyFlow(){
+    var f = S.field;
+    if(!f || !f.done){ updateFlowPath(); return; }
+    var iv = num(val('g-fint', 20), 20), fv = val('g-fview', 'arrows');
+    if(P.A.r) P.A.r.setFlow(f, {heat:true, contours:true, arrows:true, interval:iv});
+    if(P.B.r) P.B.r.setFlow(f, {heat:fv==='heat', contours:false, arrows:fv!=='heat', interval:iv});
+    updateFlowPath();
+  }
+
+  function reapply(withGrid){
+    ['A','B'].forEach(function(X){
+      var p = P[X], r = p && p.r; if(!r) return;
+      if(withGrid && S.grid) r.setGrid(S.grid);
+      r.setStart(S.startIdx);
+      r.showFootprint(!!($('g-foot') && $('g-foot').checked));
+      if(S.mode === 'flow'){ r.setSearch(S.field); }
+      else { r.setSearch(p.s); if(p.s && p.s.done && p.s.found) r.setPath(p.s, null); }
+    });
+    if(S.mode === 'flow') applyFlow();
+    S.dirty = true;
+  }
+
+  function reset(withGrid){
+    S.playing = false; setPlayBtn();
+    S.field = null; S.fpath = null; S.finfo = null;
+    ['A','B'].forEach(function(X){
+      var p = P[X]; if(!p) return;
+      p.s = null; p.pinfo = null; p.vals = {};
+      if(p.r){ p.r.setPath(null, null); p.r.setFlow(null); p.r.setSearch(null); }
+    });
+    if(ready() && S.grid && S.startIdx >= 0){
+      if(S.mode === 'flow') S.field = Lab.Flow.create(S.grid, {conn:(parseInt(val('A-conn', 8), 10) || 8), logHeap:false});
+      else { buildSearcher('A'); buildSearcher('B'); }
+    }
+    reapply(withGrid);
+  }
+
+  function rebuild(){
+    S.gridDirty = false;
+    if(!ready()){ note('Lab engine not loaded.'); return; }
+    S.grid = Lab.Grid.build({cell:S.cell, alliance:S.alliance, userRects:S.rects, R:9, band:5});
+    snap();
+    reset(true);
+  }
+
+  function placeStart(x, y){
+    if(!ready() || !S.grid) return;
+    S.sx = Math.min(144, Math.max(0, x)); S.sy = Math.min(144, Math.max(0, y));
+    snap();
+    if(S.mode === 'flow' && S.field) updateFlowPath(); else reset(false);
+  }
+
+  function finished(){
+    if(S.mode === 'flow') return !S.field || !!S.field.done;
+    return !!(P.A.s && P.B.s && P.A.s.done && P.B.s.done);
+  }
+
+  function autoDistance(){
+    var d = $('tb-d'), p = P.A.pinfo;
+    if(d && d.dataset && d.dataset.auto === '1' && p && typeof p.plen === 'number'){ d.value = p.plen.toFixed(0); updateBudget(); }
+  }
+
+  function advanceCompare(k){
+    var names = ['A','B'], ch = {A:[], B:[]}, i, j, s, lc, q, any, p;
+    for(i = 0; i < k; i++){
+      any = false;
+      for(j = 0; j < 2; j++){
+        s = P[names[j]].s; if(!s || s.done) continue;
+        any = true; s.step();
+        lc = s.lastChanged || [];
+        for(q = 0; q < lc.length; q++) ch[names[j]].push(lc[q]);
+      }
+      if(!any) break;
+    }
+    for(j = 0; j < 2; j++){
+      p = P[names[j]];
+      if(p.r && ch[names[j]].length) p.r.updateCells(ch[names[j]]);
+      if(p.s && p.s.done && !p.pinfo){
+        p.pinfo = p.s.found ? {plen:p.s.pathLengthIn(), cost:p.s.pathCost()} : {none:true};
+        if(p.s.found && p.r) p.r.setPath(p.s, null);
+        if(names[j] === 'A') autoDistance();
+      }
+    }
+    if(finished()){ S.playing = false; setPlayBtn(); }
+  }
+
+  function advanceFlow(k){
+    var f = S.field, ch = [], i, lc, q;
+    if(!f || f.done) return;
+    for(i = 0; i < k && !f.done; i++){
+      f.step();
+      lc = f.lastChanged || [];
+      for(q = 0; q < lc.length; q++) ch.push(lc[q]);
+    }
+    if(ch.length){ if(P.A.r) P.A.r.updateCells(ch); if(P.B.r) P.B.r.updateCells(ch); }
+    if(f.done){ S.playing = false; setPlayBtn(); applyFlow(); }
+  }
+
+  function advance(k){
+    if(!ready() || !S.grid || S.startIdx < 0) return;
+    if(S.mode === 'flow') advanceFlow(k); else advanceCompare(k);
+    S.dirty = true;
+  }
+
+  function stepN(n){ S.playing = false; setPlayBtn(); advance(n); }
+
+  function togglePlay(){
+    if(!ready() || !S.grid || S.startIdx < 0) return;
+    if(S.playing) S.playing = false;
+    else { if(finished()) reset(false); S.playing = true; }
+    setPlayBtn(); S.dirty = true;
+  }
+
+  function setPlayBtn(){
+    var b = $('g-play'); if(!b) return;
+    b.textContent = S.playing ? 'Pause' : 'Play';
+    b.setAttribute('aria-pressed', S.playing ? 'true' : 'false');
+  }
+
+  function fill(X, src, info, status){
+    var has = !!(src && src.counters), c = has ? src.counters : {}, h = has ? src.heap : null, o = (h && h.ops) || {};
+    var ok = !!(info && typeof info.plen === 'number');
+    var v = {
+      exp: has ? c.expanded : undefined, push: has ? c.pushed : undefined, stale: has ? c.stale : undefined,
+      hops: has ? (o.push || 0) + (o.pop || 0) : undefined, cmp: has ? o.cmp : undefined,
+      maxh: (has && h) ? h.maxSize : undefined,
+      plen: ok ? info.plen : undefined, pcost: ok ? info.cost : undefined,
+      drive: (ok && Lab.Drive) ? Lab.Drive.time(info.plen, 60, 90) : undefined,
+      ms: has ? c.elapsedMs : undefined
+    };
+    P[X].vals = v;
+    STATS.forEach(function(s){ txt(X+'-'+s[0], fmtv(s[0], v[s[0]])); });
+    txt(X+'-status', status);
+  }
+
+  function updateStats(){
+    if(!S.grid) return;
+    var f, info, st;
+    if(S.mode === 'flow'){
+      f = S.field;
+      info = (S.fpath && S.finfo && typeof S.finfo.plen === 'number') ? S.finfo : null;
+      if(!f) st = 'Flow field not built.';
+      else if(!f.done) st = 'Building flow field: ' + (f.counters ? f.counters.expanded : 0) + ' of ' + S.grid.N + ' cells.';
+      else if(S.startIdx < 0) st = 'Set a start point.';
+      else if(S.finfo && S.finfo.unreach) st = 'Start cannot reach the goal.';
+      else st = 'Path follows the arrows to the goal.';
+      ['A','B'].forEach(function(X){ fill(X, f || {}, info, st); });
+      return;
+    }
+    ['A','B'].forEach(function(X){
+      var p = P[X], s = p.s;
+      if(!s){ fill(X, {}, null, 'Set a start point.'); return; }
+      fill(X, s, p.pinfo, s.done ? (s.found ? 'Done: path found.' : 'Done: no path.') : 'Searching...');
+    });
+  }
+
+  function markBest(){
+    var both = S.mode === 'compare' && P.A.s && P.B.s && P.A.s.done && P.B.s.done;
+    BETTER.forEach(function(k){
+      var a = P.A.vals[k], b = P.B.vals[k], ea = $('A-'+k), eb = $('B-'+k);
+      var ok = !!(both && typeof a === 'number' && typeof b === 'number');
+      if(ea && ea.classList) ea.classList.toggle('best', ok && a < b);
+      if(eb && eb.classList) eb.classList.toggle('best', ok && b < a);
+    });
+  }
+
+  function drawAll(){ ['A','B'].forEach(function(X){ if(P[X] && P[X].r) P[X].r.render(); }); }
+
+  function frame(){
+    try {
+      if(S.gridDirty) rebuild();
+      if(S.playing) advance(perFrame());
+      if(S.dirty){ S.dirty = false; drawAll(); updateStats(); markBest(); }
+      if(S.tab === 'heap' && S.heapView && P.A.s && P.A.s.heap && S.heapView.update) S.heapView.update(P.A.s.heap);
+    } catch(e){
+      S.playing = false; setPlayBtn(); note('Lab error: ' + (e && e.message));
+    }
+    sched(frame);
+  }
+
+  function refresh(){
+    if(!ready()) return;
+    ['A','B'].forEach(function(X){ if(P[X] && P[X].r) P[X].r.resize(); });
+    reapply(true);
+  }
+
+  function showTab(t){
+    S.tab = t;
+    if(t !== 'lab' && S.playing){ S.playing = false; setPlayBtn(); }
+    TABS.forEach(function(k){
+      var b = $('tabb-'+k), p = $('tab-'+k), sel = (k === t);
+      if(b){ b.setAttribute('aria-selected', sel ? 'true' : 'false'); b.tabIndex = sel ? 0 : -1; }
+      if(p) p.hidden = !sel;
+    });
+    if(t === 'lab') refresh();
+    if(t === 'time') updateBudget();
+    if(t === 'heap' && S.heapView && P.A.s && P.A.s.heap && S.heapView.update) S.heapView.update(P.A.s.heap);
+  }
+
+  function flowUI(){
+    var f = S.mode === 'flow';
+    if($('g-flowopts')) $('g-flowopts').hidden = !f;
+    if($('g-flownote')) $('g-flownote').hidden = !f;
+    panelUI('A'); panelUI('B');
+  }
+
+  function hover(pt){
+    var g = S.grid; if(!g) return;
+    var idx = g.cellOf(pt[0], pt[1]), ij = g.ij(idx);
+    var src = S.mode === 'flow' ? S.field : P.A.s;
+    var st = (src && src.state) ? (SNAMES[src.state[idx]] || 'unseen') : 'unseen';
+    var where = g.raw[idx] ? 'solid' : (g.hard[idx] ? 'blocked (within 9 in of a solid)' : 'clear');
+    txt('g-coord', 'x ' + pt[0].toFixed(1) + ' in, y ' + pt[1].toFixed(1) + ' in | cell i=' + ij[0] + ', j=' + ij[1] +
+      ' | ' + where + ' | cost x' + g.soft[idx].toFixed(2) + ' | search: ' + st);
+    ['A','B'].forEach(function(X){ if(P[X].r) P[X].r.setHover(pt[0], pt[1]); });
+  }
+
+  function cellPt(X, e){
+    var r = P[X] && P[X].r; if(!r || !S.grid) return null;
+    var pt = r.pointerToField(e.clientX, e.clientY);
+    return (pt && isFinite(pt[0]) && isFinite(pt[1])) ? pt : null;
+  }
+
+  function paintAt(pt){
+    var x = pt[0], y = pt[1], changed = false, n;
+    if(S.erase){
+      n = S.rects.length;
+      S.rects = S.rects.filter(function(r){ return Math.abs((r[0]+r[2])/2 - x) >= 4 || Math.abs((r[1]+r[3])/2 - y) >= 4; });
+      changed = S.rects.length !== n;
+    } else if(!S.lastPt || Math.abs(S.lastPt[0]-x) + Math.abs(S.lastPt[1]-y) >= 1){
+      S.rects.push([x-2, y-2, x+2, y+2]); S.lastPt = [x, y]; changed = true;
+    }
+    if(changed) S.gridDirty = true;
+  }
+
+  function wireCanvas(X){
+    var cv = P[X].cv; if(!cv) return;
+    on(cv, 'pointermove', function(e){
+      var pt = cellPt(X, e); if(!pt) return;
+      hover(pt);
+      if(S.dragging) paintAt(pt);
+    });
+    on(cv, 'pointerleave', function(){
+      S.dragging = false; S.lastPt = null;
+      ['A','B'].forEach(function(Y){ if(P[Y].r) P[Y].r.setHover(null); });
+      txt('g-coord', 'Move the pointer over the field to read coordinates.');
+    });
+    on(cv, 'pointerdown', function(e){
+      if(!S.paintOn || (e.button !== 0 && e.button !== 2)) return;
+      var pt = cellPt(X, e); if(!pt) return;
+      e.preventDefault();
+      S.dragging = true; S.erase = (e.button === 2 || e.shiftKey); S.lastPt = null;
+      if(cv.setPointerCapture){ try { cv.setPointerCapture(e.pointerId); } catch(err){} }
+      paintAt(pt);
+    });
+    on(cv, 'pointerup', function(){ S.dragging = false; S.lastPt = null; });
+    on(cv, 'click', function(e){
+      if(S.paintOn || e.button !== 0) return;
+      var pt = cellPt(X, e); if(pt) placeStart(pt[0], pt[1]);
+    });
+    on(cv, 'contextmenu', function(e){ e.preventDefault(); });
+  }
+
+  function wireControls(){
+    on($('g-alliance'), 'change', function(){ S.alliance = this.value; rebuild(); });
+    on($('g-cell'), 'change', function(){ S.cell = parseInt(this.value, 10) || 2; rebuild(); });
+    on($('g-mode'), 'change', function(){ S.mode = this.value; S.playing = false; flowUI(); reset(false); });
+    on($('g-play'), 'click', togglePlay);
+    on($('g-step'), 'click', function(){ stepN(1); });
+    on($('g-step10'), 'click', function(){ stepN(10); });
+    on($('g-reset'), 'click', function(){ reset(false); });
+    on($('g-speed'), 'input', function(){ txt('g-speedv', perFrame() + ' per frame'); });
+    on($('g-paint'), 'change', function(){
+      S.paintOn = this.checked;
+      ['A','B'].forEach(function(X){ if(P[X].cv && P[X].cv.classList) P[X].cv.classList.toggle('paint', S.paintOn); });
+    });
+    on($('g-clearwalls'), 'click', function(){ S.rects = []; rebuild(); });
+    on($('g-foot'), 'change', function(){ reapply(false); });
+    on($('g-fint'), 'change', function(){ if(S.mode === 'flow') applyFlow(); });
+    on($('g-fview'), 'change', function(){ if(S.mode === 'flow') applyFlow(); });
+    on($('g-setstart'), 'click', function(){ placeStart(num(val('g-sx', S.sx), S.sx), num(val('g-sy', S.sy), S.sy)); });
+    ['A','B'].forEach(function(X){
+      ['algo','heur','tie','conn','w'].forEach(function(k){
+        on($(X+'-'+k), 'change', function(){ panelUI(X); S.playing = false; reset(false); });
+      });
+      on($(X+'-w'), 'input', function(){ txt(X+'-wv', num(this.value, 2).toFixed(1)); });
+    });
+  }
+
+  function wireTabs(){
+    TABS.forEach(function(t){ on($('tabb-'+t), 'click', function(){ showTab(t); }); });
+    var nav = doc ? doc.querySelector('[role="tablist"]') : null;
+    on(nav, 'keydown', function(e){
+      var i = TABS.indexOf(S.tab), n = -1;
+      if(e.key === 'ArrowRight') n = (i + 1) % TABS.length;
+      else if(e.key === 'ArrowLeft') n = (i + TABS.length - 1) % TABS.length;
+      else if(e.key === 'Home') n = 0;
+      else if(e.key === 'End') n = TABS.length - 1;
+      if(n < 0) return;
+      e.preventDefault(); showTab(TABS[n]);
+      if($('tabb-'+TABS[n])) $('tabb-'+TABS[n]).focus();
+    });
+  }
+
+  function updateBudget(){
+    var D = Lab.Drive, body = $('tb-body');
+    var d = num(val('tb-d', 96), 0), M = num(val('tb-m', 0.5), 0.5), k = num(val('tb-k', 1.25), 1.25),
+        turn = num(val('tb-turn', 0.3), 0.3), left = num(val('tb-left', 9), 9);
+    var T = (D && D.time) ? D.time(d, 60, 90) : NaN, by = k*T + turn + M, v;
+    txt('tb-eq', 'start-by = k x T + turn + M = ' + k + ' x ' + fx(T, 2) + ' + ' + turn + ' + ' + M + ' = ' + fx(by, 2) + ' s');
+    if(!isFinite(by)) v = 'Drive model not loaded.';
+    else if(left > by) v = 'Wait about ' + fx(left - by, 1) + ' s, then start the assist.';
+    else if(left - T - turn < 0) v = 'Not enough time left for this drive; the assist cannot finish.';
+    else v = 'Start the assist now. Projected time left at arrival: about ' + fx(left - T - turn, 1) + ' s.';
+    txt('tb-verdict', v);
+    if(body && D && doc){
+      body.innerHTML = '';
+      DRIVE_SET.forEach(function(dd){
+        var t = D.time(dd, 60, 90), tr = doc.createElement('tr');
+        [dd, fx(t, 2), fx(dd/60 + 0.767, 2), fx(k*t + turn + M, 2)].forEach(function(c){
+          var td = doc.createElement('td'); td.textContent = String(c); tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+    }
+  }
+
+  function wireBudget(){
+    ['tb-left','tb-d','tb-m','tb-k','tb-turn'].forEach(function(id){
+      on($(id), 'input', function(){ if(id === 'tb-d' && $(id)) $(id).dataset.auto = '0'; updateBudget(); });
+    });
+  }
+
+  function wireTests(){
+    on($('t-run'), 'click', function(){
+      var b = this; b.disabled = true;
+      txt('t-sum', 'Running tests, this can take a few seconds...');
+      setTimeout(function(){
+        var sum;
+        try {
+          if(!Lab.Tests) throw new Error('Lab.Tests not loaded');
+          var res = Lab.Tests.runAll({log:function(){}}), list = $('t-list');
+          if(list && doc){
+            list.innerHTML = '';
+            res.forEach(function(r){
+              var li = doc.createElement('li');
+              li.className = r.pass ? 'pass' : 'fail';
+              li.textContent = (r.pass ? 'PASS  ' : 'FAIL  ') + r.name + ' : ' + (r.detail || '');
+              list.appendChild(li);
+            });
+          }
+          sum = Lab.Tests.summary(res);
+        } catch(e){ sum = 'Tests could not run: ' + (e && e.message); }
+        txt('t-sum', sum); b.disabled = false;
+      }, 30);
+    });
+  }
+
+  function buildLegend(){
+    var L = $('g-legend'), R = Lab.Render;
+    if(!L || !R || !R.LEGEND || !doc) return;
+    L.innerHTML = '';
+    R.LEGEND.forEach(function(p){
+      var s = doc.createElement('span'), sw = doc.createElement('i');
+      s.className = 'lg'; sw.className = 'sw'; sw.style.background = p[1];
+      s.appendChild(sw); s.appendChild(doc.createTextNode(' ' + p[0]));
+      L.appendChild(s);
+    });
+  }
+
+  function setupRenderers(){
+    if(!ready()) return;
+    P.A.r = Lab.Render.create(P.A.cv);
+    P.B.r = Lab.Render.create(P.B.cv);
+  }
+
+  function init(){
+    if(!doc) return;
+    buildPanel('A', 'astar'); buildPanel('B', 'dijkstra');
+    P.A = mk('A'); P.B = mk('B');
+    setupRenderers();
+    buildLegend();
+    if(Lab.HeapLab && $('heaplab-root')) S.heapView = Lab.HeapLab.mount($('heaplab-root'));
+    S.alliance = val('g-alliance', 'red');
+    S.cell = parseInt(val('g-cell', 2), 10) || 2;
+    S.mode = val('g-mode', 'compare');
+    S.paintOn = !!($('g-paint') && $('g-paint').checked);
+    wireCanvas('A'); wireCanvas('B');
+    wireControls(); wireTabs(); wireBudget(); wireTests();
+    on(root, 'resize', function(){ clearTimeout(S.rt); S.rt = setTimeout(function(){ if(S.tab === 'lab') refresh(); }, 150); });
+    flowUI();
+    showTab('lab');
+    rebuild();
+    updateBudget();
+    txt('g-speedv', perFrame() + ' per frame');
+    setPlayBtn();
+    sched(frame);
+  }
+
+  Lab.UI = {init: init};
+  if(doc){
+    if(doc.readyState === 'loading') on(doc, 'DOMContentLoaded', init);
+    else init();
+  }
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+</body></html>

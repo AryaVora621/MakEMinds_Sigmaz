@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "name": "Flower arm (VEX Push Back style drop-down loader arm) - placeholder until CAD",
+  "units": "in / deg / s",
+  "frame": "robot frame +x forward, +y left, z up. Arm angle 0 = pointing forward, 90 = straight up (stowed: folded upright at the front arch, inside the 18 in envelope, paddle hanging against the arm), negative = dropped down in front of the robot (deployed, paddle hanging over a flower). Tip = bottom edge of the paddle, which always hangs straight down.",
+  "side": "front",
+  "hinge": {"x": 8.0, "y": 0, "z": 9.2, "prov": {"*": "placeholder"}},
+  "arm": {"length": 8.2, "width": 9, "linkSpacing": 10.8, "linkThickness": 0.5, "linkDepth": 1.2, "prov": {"*": "placeholder"}},
+  "angles": {"stowedDeg": 90, "deployedDeg": -35, "prov": {"*": "placeholder"}},
+  "timing": {"deployS": 0.45, "stowS": 0.45, "ease": "smoothstep", "prov": {"deployS": "repo", "stowS": "repo", "ease": "placeholder"}},
+  "paddle": {"width": 8, "height": 3.2, "thickness": 0.35, "rubberThickness": 0.25, "prov": {"*": "placeholder"}},
+  "reach": {"minTipZ": 1, "maxTipZ": 19, "prov": {"*": "placeholder"}},
+  "feed": {
+    "feedIntervalS": 0.25, "maxBallsPerDeploy": 4, "alignTolDeg": 20, "alignTolIn": 4, "minProgress": 0.9,
+    "flightS": 0.3, "volumeMarginIn": 1.5, "pendingTimeoutS": 1.5,
+    "intakeMouth": {"x": 10.5, "y": 0, "z": 3, "halfX": 4, "halfY": 8.5},
+    "prov": {"*": "placeholder", "feedIntervalS": "placeholder", "maxBallsPerDeploy": "repo"}
+  },
+  "servos": {"count": 2, "model": "Axon", "prov": {"*": "repo"}},
+  "cad_todo": [
+    "Measure hinge position, arm length, paddle width from the Onshape CAD",
+    "Read stowed/deployed servo positions from FlowerMech.java and map to degrees",
+    "Confirm real deploy/stow times and whether the paddle pushes balls or a pocket pulls them",
+    "Confirm the feed interval (ball release cadence) on hardware",
+    "MaxBot notes: the real design may use sprung hook fingers on each intake with this stowing arm only as fallback (test T11)"
+  ]
+}
