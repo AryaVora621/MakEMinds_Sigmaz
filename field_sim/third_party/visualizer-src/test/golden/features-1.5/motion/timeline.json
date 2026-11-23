@@ -1,0 +1,86 @@
+{
+  "totalTime": 13.131165188515615,
+  "segmentTimes": [
+    1.469693845669907,
+    1.765385074438929,
+    1.7702180602583175,
+    2.4800925421998885,
+    2.9135610245503596
+  ],
+  "totalDistance": 287.9632149659248,
+  "timeline": [
+    {
+      "type": "travel",
+      "duration": 1.469693845669907,
+      "startTime": 0,
+      "endTime": 1.469693845669907,
+      "lineId": "line-straight"
+    },
+    {
+      "type": "wait",
+      "name": "Path visualization wait",
+      "duration": 0.75,
+      "startTime": 1.469693845669907,
+      "endTime": 2.219693845669907,
+      "startHeading": 0,
+      "targetHeading": 0,
+      "atPoint": {
+        "x": 36,
+        "y": 60
+      }
+    },
+    {
+      "type": "wait",
+      "name": "Spin up",
+      "duration": 1,
+      "startTime": 2.219693845669907,
+      "endTime": 3.219693845669907,
+      "startHeading": 0,
+      "targetHeading": 0,
+      "atPoint": {
+        "x": 36,
+        "y": 60
+      }
+    },
+    {
+      "type": "travel",
+      "duration": 1.765385074438929,
+      "startTime": 3.219693845669907,
+      "endTime": 4.985078920108836,
+      "lineId": "line-quadratic"
+    },
+    {
+      "type": "travel",
+      "duration": 1.7702180602583175,
+      "startTime": 4.985078920108836,
+      "endTime": 6.755296980367153,
+      "lineId": "line-cubic"
+    },
+    {
+      "type": "travel",
+      "duration": 2.4800925421998885,
+      "startTime": 6.755296980367153,
+      "endTime": 9.235389522567042,
+      "lineId": "line-high-order"
+    },
+    {
+      "type": "wait",
+      "duration": 0.9822146413982134,
+      "startTime": 9.235389522567042,
+      "endTime": 10.217604163965255,
+      "startHeading": 67.8596311914382,
+      "targetHeading": -108.93900426024018,
+      "atPoint": {
+        "x": 120,
+        "y": 72
+      }
+    },
+    {
+      "type": "travel",
+      "duration": 2.9135610245503596,
+      "startTime": 10.217604163965255,
+      "endTime": 13.131165188515615,
+      "lineId": "line-through"
+    }
+  ]
+}
