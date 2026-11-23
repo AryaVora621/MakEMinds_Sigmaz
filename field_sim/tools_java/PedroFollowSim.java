@@ -123,12 +123,20 @@ public class PedroFollowSim {
     Follower follower;
     FollowerConstants fc = new FollowerConstants();
     PathConstraints pc;
-    double dt = 0.005, t = 0, maxTime = 60, settle = 0.3, waitEnd = 0, settleEnd = 0;
+    double dt = 0.01, t = 0, maxTime = 60, settle = 0.3, waitEnd = 0, settleEnd = 0;   // ASSUMED FTC loop period; see dt default below
     int stride = 2, tickNo = 0, phase = FOLLOW, gi = 0, phaseTicks = 0, curSeg = 0;
     boolean holdEnd = true, done = false;
     String endReason = "";
     List<Group> groups = new ArrayList<>();
-    double tauX = 0.18, tauY = 0.20, tauW = 0.10, maxAccel = 220, omegaMax, coastW = 8;
+    // Plant parameters (section 3 of the pedro-fidelity spec). All plant values are ASSUMED estimates (flagged ESTIMATE in params.js).
+    double tauX = 0.18, tauY = 0.20, tauW = 0.10;   // PARAMS-SYNC tauX=0.18 (s)  tauY=0.2 (s)  tauW=0.1 (s)
+    double omegaMax, coulombX, coulombY, coulombW, vFreeX, vFreeY, vFreeW, aTractionMax, kV, halfSumIn;
+    double trackWidthIn = 15, wheelBaseIn = 15;      // PARAMS-SYNC trackWidthIn=15 (in)  wheelBaseIn=15 (in)
+    double muTraction = 0.8;                         // PARAMS-SYNC muTraction=0.8 (unitless, ASSUMED)
+    double plantNominalV = 12.0, batteryVoc = 12.0;  // PARAMS-SYNC plantNominalV=12 (V)  batteryVoc=12 (V)
+    static final double G_IN = 386.0886;             // in/s^2, standard gravity
+    static final double PHYSICS_DT = 0.001;          // PARAMS-SYNC physicsDt=0.001 (s)
+    boolean slipping = false, stuckEmitted = false, everFollowed = false;
     double maxPower = 1;
     StringBuilder events = new StringBuilder();
     int evCount = 0;
@@ -148,7 +156,7 @@ public class PedroFollowSim {
     PedroFollowSim(Map<String, Object> req) {
         Map<String, Object> robot = req.get("robot") == null ? new HashMap<>() : PedroSampler.obj(req.get("robot"));
         Map<String, Object> cs = req.get("constants") == null ? new HashMap<>() : PedroSampler.obj(req.get("constants"));
-        dt = PedroSampler.num(req, "dt", 0.005);
+        dt = PedroSampler.num(req, "dt", 0.01 /* PARAMS-SYNC loop.dt=0.01 */);
         if (dt < 0.0005 || dt > 0.05) throw new RuntimeException("dt must be within 0.0005..0.05 s");
         stride = (int) Math.max(1, PedroSampler.num(req, "stride", 2));
         maxTime = PedroSampler.num(req, "maxTime", 60);
@@ -173,15 +181,24 @@ public class PedroFollowSim {
 
         Map<String, Object> pcm = req.get("pathConstraints") == null ? new HashMap<>() : PedroSampler.obj(req.get("pathConstraints"));
         // TeamCode Constants.pathConstraints = new PathConstraints(0.99, 100, 1, 1)
-        pc = new PathConstraints(PedroSampler.num(pcm, "tValue", 0.99), PedroSampler.num(pcm, "timeoutMs", 100),
-                                 PedroSampler.num(pcm, "braking", 1), PedroSampler.num(pcm, "brakingStart", 1));
+        pc = new PathConstraints(PedroSampler.num(pcm, "tValue", 0.99 /* PARAMS-SYNC tValue=0.99 */), PedroSampler.num(pcm, "timeoutMs", 100 /* PARAMS-SYNC timeoutMs=100 */),
+                                 PedroSampler.num(pcm, "braking", 1 /* PARAMS-SYNC braking=1 */), PedroSampler.num(pcm, "brakingStart", 1 /* PARAMS-SYNC brakingStart=1 */));
 
         // Mecanum defaults from com.pedropathing.ftc MecanumConstants (Constants.java does not override them).
-        double xv = PedroSampler.num(robot, "xVelocity", 81.34056), yv = PedroSampler.num(robot, "yVelocity", 65.43028);
+        double xv = PedroSampler.num(robot, "xVelocity", 81.34056 /* PARAMS-SYNC xVelocity=81.34056 */), yv = PedroSampler.num(robot, "yVelocity", 65.43028 /* PARAMS-SYNC yVelocity=65.43028 */);
         tauX = PedroSampler.num(robot, "tauX", tauX); tauY = PedroSampler.num(robot, "tauY", tauY);
-        tauW = PedroSampler.num(robot, "tauW", tauW); maxAccel = PedroSampler.num(robot, "maxAccel", maxAccel);
-        coastW = PedroSampler.num(robot, "coastW", coastW);
-        omegaMax = PedroSampler.num(robot, "omegaMax", xv / 15.0);   // v / (half track + half wheelbase ~ 15 in)
+        tauW = PedroSampler.num(robot, "tauW", tauW);
+        trackWidthIn = PedroSampler.num(robot, "trackWidthIn", trackWidthIn); wheelBaseIn = PedroSampler.num(robot, "wheelBaseIn", wheelBaseIn);
+        muTraction = PedroSampler.num(robot, "muTraction", muTraction);
+        plantNominalV = PedroSampler.num(robot, "plantNominalV", plantNominalV); batteryVoc = PedroSampler.num(robot, "batteryVoc", batteryVoc);
+        halfSumIn = (trackWidthIn + wheelBaseIn) / 2.0;
+        omegaMax = PedroSampler.num(robot, "omegaMax", xv / halfSumIn);   // rad/s
+        coulombX = PedroSampler.num(robot, "coulombX", Math.abs(fc.forwardZeroPowerAcceleration));   // in/s^2
+        coulombY = PedroSampler.num(robot, "coulombY", Math.abs(fc.lateralZeroPowerAcceleration));   // in/s^2
+        coulombW = PedroSampler.num(robot, "coulombW", ((coulombX + coulombY) / 2.0) / halfSumIn);   // rad/s^2
+        vFreeX = xv + coulombX * tauX; vFreeY = yv + coulombY * tauY; vFreeW = omegaMax + coulombW * tauW;
+        aTractionMax = muTraction * G_IN;
+        kV = batteryVoc / plantNominalV;
         drive = new SimMecanum(xv, yv, PedroSampler.num(robot, "maxPower", 1));
         follower = new Follower(fc, loc, drive, pc);
         follower.setMaxPower(maxPower);
@@ -269,7 +286,7 @@ public class PedroFollowSim {
         Group g = groups.get(gi);
         phase = FOLLOW; phaseTicks = 0; curSeg = g.firstSeg; segStartT = t; g.fired = new boolean[g.cbs.size()];
         event("pathStart", "group" + gi, g.firstSeg);
-        follower.followPath(buildChain(g), maxPower, holdEnd);
+        follower.followPath(buildChain(g), maxPower, holdEnd); everFollowed = true;
     }
 
     void finishGroupOrAdvance() {
@@ -281,37 +298,44 @@ public class PedroFollowSim {
         else { phase = SETTLE; settleEnd = t + settle; }
     }
 
-    /** Integrates the simulated robot over h seconds using the wheel powers last commanded by the Follower. */
+    /** Integrates the plant over h seconds with the wheel powers last commanded by the Follower (zero-order hold).
+     *  Spec section 3: first-order axis + Coulomb friction, FLOAT coast at the ZPA, stiction, friction-circle traction clamp. */
     void physics(double h) {
         double[] p = drive.powers;
         Vector[] v = drive.vecs();
-        double cx = Math.abs(v[0].getXComponent()), sy = Math.abs(v[0].getYComponent());
-        double fx = 0, fy = 0;
-        for (int i = 0; i < 4; i++) { fx += p[i] * v[i].getXComponent(); fy += p[i] * v[i].getYComponent(); }
-        double cmdX = fx / (4 * cx), cmdY = fy / (4 * sy);
-        double cmdW = ((p[2] + p[3]) - (p[0] + p[1])) / 4.0;
-        double mag = Math.abs(p[0]) + Math.abs(p[1]) + Math.abs(p[2]) + Math.abs(p[3]);
-        double c = Math.cos(loc.h), s = Math.sin(loc.h);
-        double rvx = loc.vx * c + loc.vy * s, rvy = -loc.vx * s + loc.vy * c, w = loc.w;
-        int n = 4; double hh = h / n;
+        double cosF = Math.abs(v[0].getXComponent()), sinF = Math.abs(v[0].getYComponent());
+        double fx = 0, fy = 0; boolean allZero = true;
+        for (int i = 0; i < 4; i++) { fx += p[i] * v[i].getXComponent(); fy += p[i] * v[i].getYComponent(); if (p[i] != 0) allZero = false; }
+        double cx = fx / (4 * cosF), cy = fy / (4 * sinF);
+        double cw = ((p[2] + p[3]) - (p[0] + p[1])) / 4.0;
+        int n = Math.max(1, (int) Math.ceil(h / PHYSICS_DT - 1e-9)); double hh = h / n;
+        double[] c = {cx, cy, cw}, vFree = {vFreeX, vFreeY, vFreeW}, F = {coulombX, coulombY, coulombW}, tau = {tauX, tauY, tauW};
+        boolean slipAny = false;
         for (int k = 0; k < n; k++) {
-            if (mag < 0.02) {                        // float mode: coast with the tuned zero-power deceleration
-                rvx = coast(rvx, Math.abs(fc.forwardZeroPowerAcceleration), hh);
-                rvy = coast(rvy, Math.abs(fc.lateralZeroPowerAcceleration), hh);
-                w = coast(w, coastW, hh);
-            } else {
-                rvx += clamp((cmdX * drive.xVel - rvx) / tauX, maxAccel) * hh;
-                rvy += clamp((cmdY * drive.yVel - rvy) / tauY, maxAccel) * hh;
-                w += clamp((cmdW * omegaMax - w) / tauW, omegaMax / tauW) * hh;
+            double hm = loc.h + loc.w * hh * 0.5;   // midpoint heading (matches plant.js)
+            double co = Math.cos(hm), si = Math.sin(hm);
+            double[] vel = {loc.vx * co + loc.vy * si, -loc.vx * si + loc.vy * co, loc.w};
+            double[] a = new double[3];
+            for (int j = 0; j < 3; j++) {
+                if (allZero) {                                   // FLOAT: coast at the zero-power deceleration, no reversal
+                    if (Math.abs(vel[j]) <= F[j] * hh) { vel[j] = 0; a[j] = 0; }
+                    else a[j] = -F[j] * Math.signum(vel[j]);
+                } else {
+                    double dr = (kV * c[j] * vFree[j] - vel[j]) / tau[j];
+                    if (Math.abs(vel[j]) < 1e-3 && Math.abs(dr) <= F[j]) { vel[j] = 0; a[j] = 0; }   // stiction
+                    else a[j] = dr - F[j] * Math.signum(vel[j]);
+                }
             }
-            double hm = loc.h + w * hh * 0.5;
-            double cm = Math.cos(hm), sm = Math.sin(hm);
-            loc.vx = rvx * cm - rvy * sm; loc.vy = rvx * sm + rvy * cm; loc.w = w;
-            loc.x += loc.vx * hh; loc.y += loc.vy * hh; loc.h += w * hh;
+            double aw = a[2] * halfSumIn;
+            double nrm = Math.sqrt(a[0] * a[0] + a[1] * a[1] + aw * aw);
+            if (nrm > aTractionMax) { double sc = aTractionMax / nrm; a[0] *= sc; a[1] *= sc; a[2] *= sc; slipAny = true; }
+            double u = vel[0] + a[0] * hh, sv = vel[1] + a[1] * hh, wn = vel[2] + a[2] * hh;   // robot frame (zeroed axes keep 0 unless driven)
+            loc.vx = u * co - sv * si; loc.vy = u * si + sv * co; loc.w = wn;
+            loc.x += loc.vx * hh; loc.y += loc.vy * hh;
+            loc.h += loc.w * hh;
         }
+        slipping = slipAny;
     }
-    static double clamp(double a, double m) { return Math.max(-m, Math.min(m, a)); }
-    static double coast(double v, double decel, double h) { double d = decel * h; return Math.abs(v) <= d ? 0 : v - Math.signum(v) * d; }
 
     void tick() {
         if (done) return;
@@ -320,6 +344,7 @@ public class PedroFollowSim {
         physics(dt);
         t += dt; tickNo++; phaseTicks++;
         follower.update();
+        if (!stuckEmitted && follower.isRobotStuck()) { stuckEmitted = true; event("stuck", "stuck", curSeg); }
         if (phase == FOLLOW) {
             if (follower.getFollowingPathChain()) { int ns = groups.get(gi).firstSeg + follower.getChainIndex(); if (ns != curSeg) { curSeg = ns; segStartT = t; } }
             monitorCallbacks();
@@ -335,19 +360,58 @@ public class PedroFollowSim {
         if (!done && t >= maxTime) { done = true; phase = DONE; endReason = "timeout"; event("timeout", "maxTime", curSeg); }
     }
 
+    /** "follow" while the follower is busy, "hold" after a path ends with holdEnd, else "idle". */
+    String mode() {
+        if (follower.isBusy()) return "follow";
+        return everFollowed && holdEnd ? "hold" : "idle";
+    }
+
     void appendTick(StringBuilder o) {
         o.append("{\"t\":").append(PedroSampler.d(t)).append(",\"x\":").append(PedroSampler.d(loc.x)).append(",\"y\":").append(PedroSampler.d(loc.y))
          .append(",\"h\":").append(PedroSampler.d(Math.toDegrees(loc.h))).append(",\"vx\":").append(PedroSampler.d(loc.vx)).append(",\"vy\":").append(PedroSampler.d(loc.vy))
          .append(",\"w\":").append(PedroSampler.d(Math.toDegrees(loc.w))).append(",\"p\":[");
         for (int i = 0; i < 4; i++) o.append(i > 0 ? "," : "").append(PedroSampler.d(drive.powers[i]));
-        o.append("],\"seg\":").append(curSeg).append(",\"phase\":").append(phase).append("}");
+        o.append("],\"seg\":").append(curSeg).append(",\"phase\":").append(phase)
+         .append(",\"stuck\":").append(follower.isRobotStuck()).append(",\"mode\":").append(PedroSampler.q(mode())).append("}");
     }
 
     String info() {
         return "{\"dt\":" + PedroSampler.d(dt) + ",\"stride\":" + stride + ",\"realtimeClock\":" + REALTIME
             + ",\"constants\":{\"mass\":" + PedroSampler.d(fc.mass) + ",\"forwardZeroPowerAcceleration\":" + PedroSampler.d(fc.forwardZeroPowerAcceleration)
             + ",\"lateralZeroPowerAcceleration\":" + PedroSampler.d(fc.lateralZeroPowerAcceleration) + ",\"centripetalScaling\":" + PedroSampler.d(fc.centripetalScaling)
-            + ",\"xVelocity\":" + PedroSampler.d(drive.xVel) + ",\"yVelocity\":" + PedroSampler.d(drive.yVel) + ",\"omegaMax\":" + PedroSampler.d(omegaMax) + "}}";
+            + ",\"xVelocity\":" + PedroSampler.d(drive.xVel) + ",\"yVelocity\":" + PedroSampler.d(drive.yVel) + ",\"omegaMax\":" + PedroSampler.d(omegaMax) + "},\"plant\":{\"tauX\":" + PedroSampler.d(tauX)
+            + ",\"tauY\":" + PedroSampler.d(tauY) + ",\"tauW\":" + PedroSampler.d(tauW) + ",\"coulombX\":" + PedroSampler.d(coulombX)
+            + ",\"coulombY\":" + PedroSampler.d(coulombY) + ",\"coulombW\":" + PedroSampler.d(coulombW) + ",\"muTraction\":" + PedroSampler.d(muTraction)
+            + ",\"aTractionMax\":" + PedroSampler.d(aTractionMax) + ",\"trackWidthIn\":" + PedroSampler.d(trackWidthIn) + ",\"wheelBaseIn\":" + PedroSampler.d(wheelBaseIn)
+            + ",\"plantNominalV\":" + PedroSampler.d(plantNominalV) + ",\"batteryVoc\":" + PedroSampler.d(batteryVoc) + ",\"physicsDt\":" + PedroSampler.d(PHYSICS_DT) + "}"
+            + ",\"libraryDefaults\":{\"followerConstants\":" + reflectJson(new FollowerConstants(), 0)
+            + ",\"pathConstraints\":" + reflectJson(new PathConstraints(0.99, 100, 1, 1), 0) + "}}";
+    }
+
+    /**
+     * Every instance field of a freshly constructed library object (numbers, booleans, and one level of nested
+     * coefficient objects such as PIDFCoefficients), read by reflection from the classes actually on the classpath
+     * (core-2.1.0.jar). This is the ground truth the JS params.js PEDRO/CONSTRAINTS tables are checked against: the
+     * FollowerConstants ctor runs defaults(), which overwrites the field initializers seen in the sources jar.
+     */
+    static String reflectJson(Object o, int depth) {
+        StringBuilder sb = new StringBuilder("{");
+        int n = 0;
+        for (java.lang.reflect.Field f : o.getClass().getDeclaredFields()) {
+            if (java.lang.reflect.Modifier.isStatic(f.getModifiers())) continue;
+            Object v;
+            try { f.setAccessible(true); v = f.get(o); } catch (Exception e) { continue; }
+            String s;
+            if (v instanceof Number) {   // full precision (PedroSampler.d rounds to 6 decimals, too coarse for D = 5e-6)
+                double x = ((Number) v).doubleValue();
+                s = Double.isFinite(x) ? Double.toString(x) : "null";
+            }
+            else if (v instanceof Boolean) s = v.toString();
+            else if (v != null && depth == 0 && v.getClass().getName().startsWith("com.pedropathing.")) s = reflectJson(v, 1);
+            else continue;
+            sb.append(n++ > 0 ? "," : "").append(PedroSampler.q(f.getName())).append(':').append(s);
+        }
+        return sb.append('}').toString();
     }
 
     /** Runs up to n ticks, appending every stride-th tick; returns when done or n ticks are done. */
@@ -407,6 +471,13 @@ public class PedroFollowSim {
                     out.println("{\"ok\":true,\"done\":" + sim.done + ",\"endReason\":" + PedroSampler.q(sim.endReason) + ",\"t\":" + PedroSampler.d(sim.t)
                         + ",\"events\":[" + sim.events + "],\"ticks\":[" + ticks + "]}");
                     sim.events.setLength(0); sim.evCount = 0;
+                } else if (cmd.equals("pose")) {
+                    if (sim == null) throw new RuntimeException("no session: send init first");
+                    sim.loc.x = PedroSampler.num(m, "x", sim.loc.x); sim.loc.y = PedroSampler.num(m, "y", sim.loc.y);
+                    sim.loc.h = Math.toRadians(PedroSampler.num(m, "h", Math.toDegrees(sim.loc.h)));
+                    sim.loc.vx = PedroSampler.num(m, "vx", 0); sim.loc.vy = PedroSampler.num(m, "vy", 0);
+                    sim.loc.w = Math.toRadians(PedroSampler.num(m, "w", 0));
+                    out.println("{\"ok\":true}");
                 } else if (cmd.equals("close")) { out.println("{\"ok\":true}"); return; }
                 else throw new RuntimeException("unknown cmd " + cmd);
             } catch (Throwable t) { out.println(errJson(t).replace("\n", " ")); }

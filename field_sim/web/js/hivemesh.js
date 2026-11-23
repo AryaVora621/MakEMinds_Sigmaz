@@ -2,7 +2,15 @@
 // All coordinates handled here are in the hive LOCAL frame = world position minus the hive pivot, with the hive at
 // its CAD pose (rotation about +x is applied by the caller).
 import { HIVE_TIP } from './hivetip_model.js';
+import { HIVE_PHYS } from './physics/hive-physics/params.js';
+import { FEAT, closestPtTriFeature, computeActiveMasks, featureActive } from './physics/hive-physics/meshedges.js';
+import { sweepSphereTriangle } from './physics/hive-physics/spheresweep.js';
+// Active edges (physics, see physics/hive-physics/meshedges.js): SOURCED Jolt MeshShape active-edge rule (edge shared by 2
+// tris is active iff dihedral > 5 deg, cos = 0.996195, medium confidence) and the Box2D/Bullet ghost-collision rule (a contact
+// on an inactive edge/vertex uses the face normal). The soup is double-sided with arbitrary winding, so the dihedral test uses
+// |n1.n2| and concave-vs-convex cannot be told apart (documented limitation). opts.activeEdges=false restores the old output.
 //
+//     .sweepSphere(p0, p1, r)              -> {hit, t, normal, point, center} swept-sphere CCD (face/edge/vertex TOI)
 //   parseHiveCollider(arrayBuffer) -> { red:{pivot,verts,tris}, blue:{...} }   (format: tools_js/extract_hive_mesh.mjs)
 //   new TriMesh(verts, tris, cellSize)   double-sided triangle soup + uniform 3D grid
 //     .sphereVsMesh(center, radius, prev?) -> {hit, normal, depth, point}      deepest contact
@@ -34,33 +42,9 @@ export function parseHiveCollider(buf) {
   return out;
 }
 
-// closest point on triangle abc to p (Ericson, Real-Time Collision Detection). Writes into out[0..2].
-function closestPtTri(px, py, pz, ax, ay, az, bx, by, bz, cx, cy, cz, out) {
-  const abx = bx - ax, aby = by - ay, abz = bz - az, acx = cx - ax, acy = cy - ay, acz = cz - az;
-  const apx = px - ax, apy = py - ay, apz = pz - az;
-  const d1 = abx * apx + aby * apy + abz * apz, d2 = acx * apx + acy * apy + acz * apz;
-  if (d1 <= 0 && d2 <= 0) { out[0] = ax; out[1] = ay; out[2] = az; return; }
-  const bpx = px - bx, bpy = py - by, bpz = pz - bz;
-  const d3 = abx * bpx + aby * bpy + abz * bpz, d4 = acx * bpx + acy * bpy + acz * bpz;
-  if (d3 >= 0 && d4 <= d3) { out[0] = bx; out[1] = by; out[2] = bz; return; }
-  const vc = d1 * d4 - d3 * d2;
-  if (vc <= 0 && d1 >= 0 && d3 <= 0) { const v = d1 / (d1 - d3); out[0] = ax + v * abx; out[1] = ay + v * aby; out[2] = az + v * abz; return; }
-  const cpx = px - cx, cpy = py - cy, cpz = pz - cz;
-  const d5 = abx * cpx + aby * cpy + abz * cpz, d6 = acx * cpx + acy * cpy + acz * cpz;
-  if (d6 >= 0 && d5 <= d6) { out[0] = cx; out[1] = cy; out[2] = cz; return; }
-  const vb = d5 * d2 - d1 * d6;
-  if (vb <= 0 && d2 >= 0 && d6 <= 0) { const w = d2 / (d2 - d6); out[0] = ax + w * acx; out[1] = ay + w * acy; out[2] = az + w * acz; return; }
-  const va = d3 * d6 - d5 * d4;
-  if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
-    const w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-    out[0] = bx + w * (cx - bx); out[1] = by + w * (cy - by); out[2] = bz + w * (cz - bz); return;
-  }
-  const den = 1 / (va + vb + vc), v = vb * den, w = vc * den;
-  out[0] = ax + abx * v + acx * w; out[1] = ay + aby * v + acy * w; out[2] = az + abz * v + acz * w;
-}
-
 export class TriMesh {
-  constructor(verts, tris, cell = 2.5) {
+  constructor(verts, tris, cell = 2.5, opts = {}) {
+    this.opts = { ...HIVE_PHYS.mesh, ...opts };
     const nt = (tris.length / 3) | 0;
     for (let i = 0; i < nt * 3; i++) if (!(tris[i] * 3 + 2 < verts.length)) throw new Error(`TriMesh: tri index ${tris[i]} out of range`);
     this.nTris = nt;
@@ -106,6 +90,9 @@ export class TriMesh {
     }
     this.stamp = new Int32Array(nt); this.stampN = 0;
     this._cp = [0, 0, 0]; this._tmp = new Float64Array(7 * 8);
+    const am = computeActiveMasks(verts, tris, this.nrm, { cosThreshold: this.opts.activeEdgeCos, weldTol: this.opts.weldTolIn });
+    this.edgeMask = am.edgeMask; this.vertMask = am.vertMask; this.activeEdgeCount = am.activeEdges; this.totalEdgeCount = am.totalEdges;
+    this._sw = { p0: [0, 0, 0], d: [0, 0, 0], a: [0, 0, 0], b: [0, 0, 0], c: [0, 0, 0], n: [0, 0, 0], o: new Float64Array(6), bo: new Float64Array(6) };
   }
 
   _nextStamp() {   // Int32 stamp wraps negative after ~2.1e9 queries and dedupe would silently stop
@@ -123,6 +110,7 @@ export class TriMesh {
     const y0 = Math.max(0, Math.floor((cy - r - mn[1]) / cell)), y1 = Math.min(gy - 1, Math.floor((cy + r - mn[1]) / cell));
     const z0 = Math.max(0, Math.floor((cz - r - mn[2]) / cell)), z1 = Math.min(gz - 1, Math.floor((cz + r - mn[2]) / cell));
     const v = this.v, t = this.t, items = this.items, start = this.start, st = this.stamp, cp = this._cp, r2 = r * r;
+    const ae = this.opts.activeEdges, em = this.edgeMask, vm = this.vertMask, mcos = this.opts.mergeNormalCos, nrm = this.nrm;
     const sid = this._nextStamp();
     let n = 0;
     for (let z = z0; z <= z1; z++) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
@@ -130,13 +118,31 @@ export class TriMesh {
       for (let k = start[ci]; k < start[ci + 1]; k++) {
         const i = items[k]; if (st[i] === sid) continue; st[i] = sid;
         const a = t[3 * i] * 3, b = t[3 * i + 1] * 3, c = t[3 * i + 2] * 3;
-        closestPtTri(cx, cy, cz, v[a], v[a + 1], v[a + 2], v[b], v[b + 1], v[b + 2], v[c], v[c + 1], v[c + 2], cp);
+        const feat = closestPtTriFeature(cx, cy, cz, v[a], v[a + 1], v[a + 2], v[b], v[b + 1], v[b + 2], v[c], v[c + 1], v[c + 2], cp);
         const dx = cx - cp[0], dy = cy - cp[1], dz = cz - cp[2], d2 = dx * dx + dy * dy + dz * dz;
         if (!(d2 < r2)) continue;
-        const d = Math.sqrt(d2); let nx, ny, nz;
-        if (d > 1e-7) { nx = dx / d; ny = dy / d; nz = dz / d; }
-        else { nx = this.nrm[3 * i]; ny = this.nrm[3 * i + 1]; nz = this.nrm[3 * i + 2]; }
-        const depth = r - d;
+        const d = Math.sqrt(d2); let nx, ny, nz, depth = r - d;
+        if (ae && feat !== FEAT.FACE && !featureActive(feat, em[i], vm[i])) {
+          // inactive seam: face normal oriented toward the centre (ghost-collision rule)
+          nx = nrm[3 * i]; ny = nrm[3 * i + 1]; nz = nrm[3 * i + 2];
+          const sd = nx * (cx - v[a]) + ny * (cy - v[a + 1]) + nz * (cz - v[a + 2]);
+          if (sd < 0) { nx = -nx; ny = -ny; nz = -nz; }
+          depth = r - Math.abs(sd);
+          if (depth <= 0) continue;
+        } else if (d > 1e-7) { nx = dx / d; ny = dy / d; nz = dz / d; }
+        else { nx = nrm[3 * i]; ny = nrm[3 * i + 1]; nz = nrm[3 * i + 2]; }
+        if (ae) {   // merge near-parallel contacts (flat wall split into triangles): keep only the deeper one
+          let skip = false;
+          for (let j = 0; j < n; j++) {
+            const o2 = j * 7;
+            if (out[o2] * nx + out[o2 + 1] * ny + out[o2 + 2] * nz >= mcos) {
+              if (depth <= out[o2 + 3]) { skip = true; break; }
+              for (let q = j; q < n - 1; q++) for (let w = 0; w < 7; w++) out[q * 7 + w] = out[(q + 1) * 7 + w];
+              n--; break;
+            }
+          }
+          if (skip) continue;
+        }
         // insert sorted by depth (descending), keep `max`
         let pos = n < max ? n : max - 1;
         if (n >= max && depth <= out[(max - 1) * 7 + 3]) continue;
@@ -195,6 +201,39 @@ export class TriMesh {
     let nx = nrm[3 * bi], ny = nrm[3 * bi + 1], nz = nrm[3 * bi + 2];
     if (nx * dx + ny * dy + nz * dz > 0) { nx = -nx; ny = -ny; nz = -nz; }
     return { hit: true, t: best, normal: [nx, ny, nz], point: [p0[0] + dx * best, p0[1] + dy * best, p0[2] + dz * best] };
+  }
+
+  // Swept-sphere CCD: earliest contact of a sphere of radius r moving p0 -> p1 with any triangle. Triangles the sphere
+  // already overlaps at p0 are skipped (discrete sphereContacts handles them). Returns centre at impact, contact point, normal.
+  sweepSphere(p0, p1, r) {
+    const mn = this.min, mx = this.max, cell = this.cell, [gx, gy, gz] = this.n;
+    const lox = Math.min(p0[0], p1[0]) - r, hix = Math.max(p0[0], p1[0]) + r, loy = Math.min(p0[1], p1[1]) - r, hiy = Math.max(p0[1], p1[1]) + r;
+    const loz = Math.min(p0[2], p1[2]) - r, hiz = Math.max(p0[2], p1[2]) + r;
+    if (hix < mn[0] || lox > mx[0] || hiy < mn[1] || loy > mx[1] || hiz < mn[2] || loz > mx[2]) return { hit: false, t: 1 };
+    const x0 = Math.max(0, Math.floor((lox - mn[0]) / cell)), x1 = Math.min(gx - 1, Math.floor((hix - mn[0]) / cell));
+    const y0 = Math.max(0, Math.floor((loy - mn[1]) / cell)), y1 = Math.min(gy - 1, Math.floor((hiy - mn[1]) / cell));
+    const z0 = Math.max(0, Math.floor((loz - mn[2]) / cell)), z1 = Math.min(gz - 1, Math.floor((hiz - mn[2]) / cell));
+    const v = this.v, tr = this.t, items = this.items, start = this.start, st = this.stamp, nrm = this.nrm, W = this._sw;
+    const useM = this.opts.activeEdges, sid = this._nextStamp();
+    W.p0[0] = p0[0]; W.p0[1] = p0[1]; W.p0[2] = p0[2];
+    W.d[0] = p1[0] - p0[0]; W.d[1] = p1[1] - p0[1]; W.d[2] = p1[2] - p0[2];
+    let best = 2;
+    for (let z = z0; z <= z1; z++) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const ci = x + gx * (y + gy * z);
+      for (let k = start[ci]; k < start[ci + 1]; k++) {
+        const i = items[k]; if (st[i] === sid) continue; st[i] = sid;
+        const a = tr[3 * i] * 3, b = tr[3 * i + 1] * 3, c = tr[3 * i + 2] * 3;
+        for (let q = 0; q < 3; q++) { W.a[q] = v[a + q]; W.b[q] = v[b + q]; W.c[q] = v[c + q]; W.n[q] = nrm[3 * i + q]; }
+        const t = sweepSphereTriangle(W.p0, W.d, r, W.a, W.b, W.c, W.n, useM ? this.edgeMask[i] : 7, useM ? this.vertMask[i] : 7, W.o);
+        if (t >= 0 && t < best) { best = t; for (let q = 0; q < 6; q++) W.bo[q] = W.o[q]; }
+      }
+    }
+    if (best > 1) return { hit: false, t: 1 };
+    const o = W.bo;
+    return {
+      hit: true, t: best, normal: [o[0], o[1], o[2]], point: [o[3], o[4], o[5]],
+      center: [p0[0] + W.d[0] * best, p0[1] + W.d[1] * best, p0[2] + W.d[2] * best],
+    };
   }
 }
 

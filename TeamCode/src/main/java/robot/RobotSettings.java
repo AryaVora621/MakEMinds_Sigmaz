@@ -4,7 +4,6 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import commands.field.Alliance;
-import commands.subsystems.ball_sensing.BallSensor.SensorType;
 import commands.subsystems.turret.Turret.ZeroMode;
 import commands.subsystems.turret.TurretAiming.ShotSource;
 
@@ -22,15 +21,14 @@ import commands.subsystems.turret.TurretAiming.ShotSource;
  *     because Pedro's tuning OpModes tell you to paste them there; everything else for Pedro (motor names and
  *     directions, odometry pods, path constraints) is read from this file.
  *   - Safety ceilings that must not be edited stay in code: Flywheel.HARD_MAX_RPM (5000).
- *   - Every setting exists once. Notes on two that used to be copied: the shot source is TurretAiming.SHOT_SOURCE;
- *     intake auto-stop is Robot.AUTO_STOP_INTAKE_WHEN_FULL.
+ *   - Every setting exists once. Note on one that used to be copied: the shot source is TurretAiming.SHOT_SOURCE.
  *     Teleop started after autonomous also sets Turret.ZERO_MODE = PERSIST_FROM_LAST_OPMODE.
  *   - Kept in their own files on purpose: field geometry (commands/field/FieldConstants.java), Pedro tuning
  *     OpModes (pedroPathing/Tuning.java) and the motion-profile constants (commands/autonomous/motion_profiling/).
  *
- * SECTIONS: Robot, TeleOp, Drivetrain, Odometry, PathFollowing, AutoAim, Intake, Transfer, IntakeTransfer,
+ * SECTIONS: Robot, TeleOp, Drivetrain, Odometry, PathFollowing, AutoAim, Intake, Transfer,
  *           Flywheel, FlywheelPIDF, Shooter, ShotTable, TurretAiming, Turret, TurretLimits, AxonServo,
- *           FlowerMech, Gate, BallSensor, HueClassifier, BallTracker, LaneSorter, Limelight.
+ *           FlowerMech, Gate, Limelight.
  */
 public final class RobotSettings {
     private RobotSettings() {}
@@ -61,22 +59,16 @@ public final class RobotSettings {
         // ---- diagnostics ----
         /** Show the list of unmeasured constants still at their defaults in telemetry. */
         public static boolean SHOW_PLACEHOLDER_WARNINGS = true;
-        /** Append one CSV line per shot to FIRST_FOLDER/shotlog/shots_DATE.csv (disables itself on any error). With the tracker on it logs on shooter-sensor shot events (needs BallTracker.USE_SHOOTER_SENSOR); without it, on the rising edge of feeding, at most once per SHOT_LOG_MIN_INTERVAL_MS. */
+        /** Append one CSV line per shot to FIRST_FOLDER/shotlog/shots_DATE.csv (disables itself on any error). Logs on the rising edge of feeding, at most once per SHOT_LOG_MIN_INTERVAL_MS. */
         public static boolean SHOT_LOG_ENABLED = false;
-        /** Without the ball tracker: minimum milliseconds between two shot-log lines (feed rising edges closer than this are not logged). */
+        /** Minimum milliseconds between two shot-log lines (feed rising edges closer than this are not logged). */
         public static long SHOT_LOG_MIN_INTERVAL_MS = 300;
 
         // ---- optional hardware (all default false because hardwareMap.get throws if it is not configured) ----
-        /** Construct a BallTracker (colour sensors) and feed it to the intake each loop. It expects two sensors (intakeColor, shooterColor); with only one, set BallTracker.USE_INTAKE_SENSOR / USE_SHOOTER_SENSOR to false for the missing one. */
-        public static boolean USE_BALL_TRACKER = false;
-        /** Requires USE_BALL_TRACKER: stop the intake when the tracker reports full (needs BallTracker.USE_SHOOTER_SENSOR to engage). */
-        public static boolean AUTO_STOP_INTAKE_WHEN_FULL = false;
         /** Construct the flower mechanism. */
         public static boolean USE_FLOWER_MECH = true;
-        /** Construct the gate. */
+        /** Construct the gate (lets balls in to, or blocks them from, the shooter). Driver-controlled. */
         public static boolean USE_GATE = false;
-        /** Construct the lane colour sorter (the left-wall colour sensor drives the gate). Needs USE_GATE. */
-        public static boolean USE_COLOR_SORT = false;
     }
 
     // ======================================================================
@@ -250,19 +242,6 @@ public final class RobotSettings {
         // ---- power ----
         /** Motor power used by forward()/backward(), fraction 0..1. */
         public static double POWER = 1.0;
-    }
-
-    // ======================================================================
-    // IntakeTransfer
-    // ======================================================================
-    /** Intake and transfer kept in sync (full-stop and feed-confirmation switches). */
-    public static final class IntakeTransfer {
-        private IntakeTransfer() {}
-
-        // ---- feature switches ----
-        // Full-stop of the intake is chosen by RobotSettings.Robot.AUTO_STOP_INTAKE_WHEN_FULL (needs the ball tracker).
-        /** When true, isFeedConfirmed() only returns true while feeding and ballAtShooter() was seen since the feed began. */
-        public static boolean CONFIRM_FEED_WITH_SHOOTER_SENSOR = false;
     }
 
     // ======================================================================
@@ -614,133 +593,6 @@ public final class RobotSettings {
         public static double AT_TARGET_TOL_DEG = 3;             // PLACEHOLDER
         /** Cap on the time step so the first update after init or a pause cannot jump, seconds. */
         public static double MAX_DT_S = 0.1;
-    }
-
-    // ======================================================================
-    // BallSensor
-    // ======================================================================
-    /** Shared tuning for every ball sensor (lane sorter sensor and the two ball-tracker sensors). REV Color Sensor V3 by default. */
-    public static final class BallSensor {
-        private BallSensor() {}
-
-        // ---- sensor type / what to read ----
-        /** Which device(s) to read: REV_COLOR_V3 (colour + distance), COLOR_ONLY, or DISTANCE_ONLY. */
-        public static SensorType SENSOR_TYPE = SensorType.REV_COLOR_V3;
-        /** Use the distance reading for ball presence. */
-        public static boolean USE_DISTANCE = true;
-        /** Also use the alpha (brightness) reading for ball presence (OR'd with distance). */
-        public static boolean USE_COLOR_THRESHOLD = false;
-        /** Classify ball colour (hue) on every sensor; the lane sorter forces this on for itself. */
-        public static boolean DETECT_COLOR = false;
-        /** Colour sensor gain written to the sensor, unitless. */
-        public static float GAIN = 2.0F;
-
-        // ---- presence thresholds ----
-        /** Distance presence: ball enters at or below this distance, cm. PLACEHOLDER. */
-        public static double DISTANCE_ENTER_CM = 4.0;   // PLACEHOLDER
-        /** Distance presence: ball leaves at or above this distance, cm. PLACEHOLDER. */
-        public static double DISTANCE_EXIT_CM = 6.0;    // PLACEHOLDER
-        /** Alpha presence (needs USE_COLOR_THRESHOLD): enter at or above this alpha, 0..1. PLACEHOLDER. */
-        public static double ALPHA_ENTER = 0.15;        // PLACEHOLDER
-        /** Alpha presence: leave at or below this alpha, 0..1. PLACEHOLDER. */
-        public static double ALPHA_EXIT = 0.08;         // PLACEHOLDER
-
-        // ---- timing ----
-        /** Debounce: presence must hold this long before it turns on, ms. */
-        public static long RISE_MS = 30L;
-        /** Debounce: absence must hold this long before presence turns off, ms. */
-        public static long FALL_MS = 60L;
-        /** Minimum time between I2C reads, ms; 0 = read every update. */
-        public static double MIN_READ_INTERVAL_MS = 0.0;
-
-        // ---- fault handling ----
-        /** Invalid distance readings in a row before presence is dropped (until then the last state is held). */
-        public static int MAX_INVALID_READS = 5;
-        /** Read exceptions in a row before the sensor is marked faulted. */
-        public static int MAX_READ_ERRORS = 5;
-    }
-
-    // ======================================================================
-    // HueClassifier
-    // ======================================================================
-    /** Ball colour classification from sensor hue (pollen = yellow, nectar = red or blue). All ranges are PLACEHOLDERS: tune with the real balls. */
-    public static final class HueClassifier {
-        private HueClassifier() {}
-
-        // ---- pollen (yellow) ----
-        /** Pollen hue range minimum, degrees 0..360. */
-        public static double POLLEN_HUE_MIN = 40.0;      // PLACEHOLDER
-        /** Pollen hue range maximum, degrees 0..360. */
-        public static double POLLEN_HUE_MAX = 75.0;      // PLACEHOLDER
-
-        // ---- nectar, blue ----
-        /** Blue nectar hue range minimum, degrees. */
-        public static double NECTAR_HUE_MIN = 180.0;     // PLACEHOLDER
-        /** Blue nectar hue range maximum, degrees. */
-        public static double NECTAR_HUE_MAX = 260.0;     // PLACEHOLDER
-
-        // ---- nectar, red ----
-        /** Red nectar hue range minimum, degrees; the range wraps through 0 when MIN > MAX (e.g. 330..25). */
-        public static double NECTAR_RED_HUE_MIN = 330.0; // PLACEHOLDER
-        /** Red nectar hue range maximum, degrees. */
-        public static double NECTAR_RED_HUE_MAX = 25.0;  // PLACEHOLDER
-
-        // ---- reliability ----
-        /** Below this HSV saturation (0..1) the reading is too grey to trust (no ball, or the lane wall). */
-        public static double MIN_SATURATION = 0.15;
-    }
-
-    // ======================================================================
-    // BallTracker
-    // ======================================================================
-    /** Two-sensor ball counter: intake-mouth sensor counts balls in, shooter-side sensor counts shots out. */
-    public static final class BallTracker {
-        private BallTracker() {}
-
-        // ---- feature switches ----
-        /** Master switch for the ball tracker. */
-        public static boolean ENABLED = true;
-        /** Use the sensor at the intake mouth. */
-        public static boolean USE_INTAKE_SENSOR = true;
-        /** Use the sensor just before the shooter (needed for shot counting / auto-stop when full). */
-        public static boolean USE_SHOOTER_SENSOR = true;
-        /** Classify ball colour on the tracker sensors too. */
-        public static boolean DETECT_COLOR = false;
-
-        // ---- hardware ----
-        /** Config name of the intake-mouth colour sensor. */
-        public static String INTAKE_SENSOR_NAME = "intakeColor";
-        /** Config name of the shooter-side colour sensor. */
-        public static String SHOOTER_SENSOR_NAME = "shooterColor";
-
-        // ---- limits ----
-        /** Most balls the robot can hold, count (at least 1 is used). */
-        public static int MAX_BALLS = 4;
-    }
-
-    // ======================================================================
-    // LaneSorter
-    // ======================================================================
-    /** Colour sorter: the lane-wall colour sensor reads each ball and drives the lane gate. */
-    public static final class LaneSorter {
-        private LaneSorter() {}
-
-        // ---- hardware ----
-        /** Config name of the lane-wall colour sensor. */
-        public static String SENSOR_NAME = "laneColor";   // PLACEHOLDER
-
-        // ---- sorting rules ----
-        /**
-         * Colour order to let through, repeating: P = pollen, N = nectar. Empty = order does not matter:
-         * every ball is let through and the sorter only reports each ball's colour and carriage position.
-         */
-        public static String PATTERN = "";
-        /** true = a ball whose colour cannot be told is let through; false = it is held. */
-        public static boolean PASS_UNKNOWN = true;
-
-        // ---- timing ----
-        /** How long a ball must be gone from the sensor before the gate resets, ms. */
-        public static long CLEAR_MS = 150;                // PLACEHOLDER
     }
 
     // ======================================================================

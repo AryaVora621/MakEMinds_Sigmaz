@@ -220,7 +220,16 @@ test('reset restores initial state', () => {
   assert.equal(s.upPollen, 0);
   assert.equal(s.upNectar, 0);
   assert.equal(s.tipProgress, 0);
-  for (const k of ['upCellWeight', 'upPollen', 'upNectar', 'tipProgress']) delete s[k];
+  // cycleStats() gained physics fields with the dynamic hive (tipModel, motionModel, omegaDegS,
+  // leaveTorqueNm, holdTorqueNm). They are not counters, so reset must make them equal to a FRESH hive's
+  // values; the stats object as a whole must also equal a fresh hive's (stronger than the old key list).
+  assert.deepEqual(s, make().cycleStats());
+  assert.equal(s.tipModel, 'rule');
+  assert.equal(s.motionModel, 'dynamic');
+  assert.equal(s.omegaDegS, 0);
+  assert.ok(Math.abs(s.holdTorqueNm - h.calibration.holdTorqueNm) < 1e-12);
+  for (const k of ['upCellWeight', 'upPollen', 'upNectar', 'tipProgress',
+    'tipModel', 'motionModel', 'omegaDegS', 'leaveTorqueNm', 'holdTorqueNm']) delete s[k];
   assert.deepEqual(s, {
     tips: 0, upCellCount: 0, ballsToTip: 8, scoredTotal: 0,
     scoredInCell: { audience: 3, far: 0 }, tipsByAuto: null,

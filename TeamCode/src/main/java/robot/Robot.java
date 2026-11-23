@@ -20,10 +20,8 @@ import commands.autonomous.AutoDrivebase;
 import commands.field.Alliance;
 import commands.subsystems.drivebase.Drivebase;
 import commands.subsystems.turret.Turret;
-import commands.subsystems.ball_sensing.BallTracker;
 import commands.subsystems.flower_mech.FlowerMech;
 import commands.subsystems.gate.Gate;
-import commands.subsystems.sorting.LaneSorter;
 import commands.subsystems.grouped_subsystems.intake_transfer.IntakeTransfer;
 import commands.subsystems.grouped_subsystems.shooter.FlywheelTurret;
 import commands.subsystems.grouped_subsystems.shooter.ShooterBase;
@@ -57,14 +55,10 @@ public class Robot {
     public final ShooterBase shooter;
     /** Null when USE_LIMELIGHT is false. */
     public final Limelight limelight;
-    /** Null when USE_BALL_TRACKER is false. */
-    public final BallTracker tracker;
     /** Null when USE_FLOWER_MECH is false. */
     public final FlowerMech flower;
     /** Null when USE_GATE is false. */
     public final Gate gate;
-    /** Null unless USE_COLOR_SORT and USE_GATE are both true. */
-    public final LaneSorter sorter;
 
     private double filteredAccel;
     /** Loop timing for telemetry: last, smoothed average and worst loop time in ms. */
@@ -83,10 +77,8 @@ public class Robot {
         for (com.qualcomm.hardware.lynx.LynxModule hub : hardwareMap.getAll(com.qualcomm.hardware.lynx.LynxModule.class)) {
             hub.setBulkCachingMode(com.qualcomm.hardware.lynx.LynxModule.BulkCachingMode.AUTO);
         }
-        // DRIVE-MOTORS-ONLY MODE: no odometry. AutoDrivebase builds the Pedro follower, which needs the Pinpoint, so it is
-        // commented out; robot.auto is null and every use below is guarded. To restore: uncomment this line and delete "auto = null".
-        auto = null;
-        // auto = new AutoDrivebase(hardwareMap, startPose);
+        // Odometry enabled: AutoDrivebase builds the Pedro follower, which uses the Pinpoint.
+        auto = new AutoDrivebase(hardwareMap, startPose);
         drivebase = new Drivebase(hardwareMap);   // created after the follower so its motor setup wins
         // ====== DRIVE-ONLY MODE (requested): every subsystem except the drivetrain is commented out. ======
         // To bring one back: uncomment its block below AND delete its "= null" line. Other code in this file and in
@@ -94,42 +86,23 @@ public class Robot {
         intake = null;
         shooter = null;
         limelight = null;
-        tracker = null;
         flower = null;
         gate = null;
-        sorter = null;
-        // ---- original code, kept for restoring (intake, shooter, limelight, tracker, flower, gate, sorter) ----
+        // ---- original code, kept for restoring (intake, shooter, limelight, flower, gate) ----
         // intake = new IntakeTransfer(hardwareMap);
         // shooter = RobotSettings.Robot.USE_SHOOTER ? createShooter(hardwareMap) : null;
         // limelight = RobotSettings.Robot.USE_LIMELIGHT ? new Limelight(hardwareMap) : null;
         // // Optional hardware is fail-soft: a missing device gives null plus a "missing" telemetry line.
-        // BallTracker trk = null;
-        // if (RobotSettings.Robot.USE_BALL_TRACKER) {
-        //     try { trk = new BallTracker(hardwareMap); } catch (RuntimeException e) { missing.append(" ball tracker"); }
-        // }
-        // tracker = trk;
         // FlowerMech fl = null;
         // if (RobotSettings.Robot.USE_FLOWER_MECH) {
         //     try { fl = new FlowerMech(hardwareMap); } catch (RuntimeException e) { missing.append(" flower mech"); }
         // }
         // flower = fl;
         // Gate g = null;
-        // if (RobotSettings.Robot.USE_GATE || RobotSettings.Robot.USE_COLOR_SORT) {   // the sorter needs the gate
+        // if (RobotSettings.Robot.USE_GATE) {
         //     try { g = new Gate(hardwareMap); } catch (RuntimeException e) { missing.append(" gate"); }
         // }
         // gate = g;
-        // LaneSorter ls = null;
-        // if (RobotSettings.Robot.USE_COLOR_SORT) {
-        //     if (gate == null) {
-        //         missing.append(" sorter (needs gate)");
-        //     } else {
-        //         try { ls = new LaneSorter(hardwareMap); } catch (RuntimeException e) { missing.append(" sorter"); }
-        //     }
-        // }
-        // sorter = ls;
-        // // Only enabled when the ball tracker exists (full-stop needs the count).
-        // boolean fullStop = tracker != null && RobotSettings.Robot.AUTO_STOP_INTAKE_WHEN_FULL;
-        // intake.setFullStop(fullStop);
     }
 
     /**
@@ -181,20 +154,8 @@ public class Robot {
         if (limelight != null) {
             limelight.update();
         }
-        if (tracker != null) {
-            tracker.setIntakeReversing(intake.isReversing());   // before update(): a backing-out ball must not count
-            tracker.update();
-            intake.update(tracker);
-            // Only the shot log consumes shot events.
-            if (tracker.consumeShotEvent()) {
-                logShot();
-            }
-        }
         if (flower != null) {
             flower.update();
-        }
-        if (sorter != null) {
-            sorter.update(gate);   // before gate.update(): the sorter's open/close takes effect this loop
         }
         if (gate != null) {
             gate.update();
@@ -222,10 +183,10 @@ public class Robot {
         boolean feedingBefore = wasFeeding;
         wasFeeding = false;
         if (wantFire && readyToFire()) {
-            intake.feed();   // not forward(): forward() is blocked by the full-stop
-            if (tracker == null && !feedingBefore && System.currentTimeMillis() - lastShotLogMs >= RobotSettings.Robot.SHOT_LOG_MIN_INTERVAL_MS) {
+            intake.feed();
+            if (!feedingBefore && System.currentTimeMillis() - lastShotLogMs >= RobotSettings.Robot.SHOT_LOG_MIN_INTERVAL_MS) {
                 lastShotLogMs = System.currentTimeMillis();
-                logShot();   // no tracker: one line per feed start (rising edge)
+                logShot();   // one line per feed start (rising edge)
             }
             wasFeeding = true;
             return true;
@@ -281,36 +242,16 @@ public class Robot {
         }
     }
 
-    /**
-     * Driver recovery: zeroes the ball count and releases the intake full-stop, so a drifted count can never
-     * lock out the intake. Null-safe (the count reset needs a tracker; the full-stop release always runs).
-     */
-    public void resetBallCount() {
-        if (tracker != null) {
-            tracker.reset();
-        }
-        if (intake != null) {
-            intake.resetFullStop();
-        }
-    }
-
-    /** Flips which hive cell is raised (the aim target). Wire to an operator button; the hive is bistable. */
-    public void toggleFarCellUp() {
-        RobotSettings.Robot.FAR_CELL_UP = !RobotSettings.Robot.FAR_CELL_UP;
-    }
-
-    /** Toggles the gate (null-safe). */
+    /** Toggles the gate that lets balls in to, or blocks them from, the shooter (null-safe). */
     public void toggleGate() {
         if (gate != null) {
             gate.toggle();
         }
     }
 
-    /** Turns the colour sorter on or off (null-safe). While off, the gate is only moved by the driver. */
-    public void toggleSort() {
-        if (sorter != null) {
-            sorter.toggle();
-        }
+    /** Flips which hive cell is raised (the aim target). Wire to an operator button; the hive is bistable. */
+    public void toggleFarCellUp() {
+        RobotSettings.Robot.FAR_CELL_UP = !RobotSettings.Robot.FAR_CELL_UP;
     }
 
     /** Makes the turret's current position 0 deg (null-safe: does nothing without a turret). */
@@ -344,13 +285,8 @@ public class Robot {
         if (RobotSettings.Robot.USE_SHOOTER && RobotSettings.Turret.PERSIST_MAX_AGE_S == 300) w.add("Turret.PERSIST_MAX_AGE_S");
         if (RobotSettings.Robot.USE_FLOWER_MECH && RobotSettings.FlowerMech.FAULT_GRACE_S == 1.0) w.add("FlowerMech.FAULT_GRACE_S");
         if (RobotSettings.Robot.USE_SHOOTER && RobotSettings.Flywheel.MOTOR_B_NAME.equals("flywheel2") && RobotSettings.Flywheel.MOTOR_B_REVERSED) w.add("Flywheel.MOTOR_B_NAME / MOTOR_B_REVERSED (second flywheel motor)");
-        if (RobotSettings.Robot.USE_BALL_TRACKER && RobotSettings.BallSensor.MIN_READ_INTERVAL_MS == 0) w.add("BallSensor.MIN_READ_INTERVAL_MS");
         if (RobotSettings.Robot.USE_FLOWER_MECH && RobotSettings.FlowerMech.A_DEPLOY_DEG == 120) w.add("FlowerMech deploy angles/dwell");
         if (RobotSettings.Robot.USE_GATE && RobotSettings.Gate.OPEN_DEG == 90) w.add("Gate.OPEN_DEG/CLOSED_DEG");
-        if (RobotSettings.Robot.USE_COLOR_SORT && RobotSettings.LaneSorter.CLEAR_MS == 150) w.add("LaneSorter.CLEAR_MS");
-        if (RobotSettings.Robot.USE_COLOR_SORT && RobotSettings.HueClassifier.POLLEN_HUE_MIN == 40
-                && RobotSettings.HueClassifier.NECTAR_HUE_MIN == 180) w.add("HueClassifier hue ranges (tune with the real balls)");
-        if (RobotSettings.Robot.USE_COLOR_SORT && RobotSettings.Robot.USE_BALL_TRACKER) w.add("BallSensor tuning is shared by the sorter and the ball tracker");
         if (RobotSettings.Robot.USE_SHOOTER && RobotSettings.Turret.ASSUMED_SPEED_DEG_PER_S == 250) w.add("Turret.ASSUMED_SPEED_DEG_PER_S (measure turret speed)");
         return w;
     }
@@ -370,15 +306,15 @@ public class Robot {
                 boolean header = !f.exists() || f.length() == 0;
                 shotLog = new BufferedWriter(new FileWriter(f, true));
                 if (header) {
-                    shotLog.write("time_ms,x_in,y_in,heading_deg,distance_in,target_rpm,measured_rpm,launch_elev_deg,turret_deg,reachable,alliance,ball_count\n");
+                    shotLog.write("time_ms,x_in,y_in,heading_deg,distance_in,target_rpm,measured_rpm,launch_elev_deg,turret_deg,reachable,alliance\n");
                 }
             }
             Pose p = auto.getPose();
             TurretAiming.Solution s = shooter.getSolution();
-            shotLog.write(String.format(Locale.US, "%d,%.2f,%.2f,%.2f,%.2f,%.0f,%.0f,%.2f,%.2f,%b,%s,%d\n",
+            shotLog.write(String.format(Locale.US, "%d,%.2f,%.2f,%.2f,%.2f,%.0f,%.0f,%.2f,%.2f,%b,%s\n",
                     System.currentTimeMillis(), p.getX(), p.getY(), Math.toDegrees(p.getHeading()), s.distanceIn,
                     s.rpm, shooter.getFlywheel().getRpm(), s.launchElevDeg,shooter.getTurretAngleDeg(),
-                    s.reachable, RobotSettings.Robot.ALLIANCE, tracker != null ? tracker.getCount() : -1));
+                    s.reachable, RobotSettings.Robot.ALLIANCE));
             shotLog.flush();
         } catch (Exception | LinkageError e) {
             shotLogFailed = true;
@@ -483,22 +419,11 @@ public class Robot {
         if (missing.length() > 0) {
             t.addData("missing", missing.toString().trim());
         }
-        if (tracker != null) {
-            t.addData("balls", "count %d, full %b, at intake %b, at shooter %b", tracker.getCount(), tracker.isFull(),
-                    tracker.ballAtIntake(), tracker.ballAtShooter());
-            String fault = tracker.getFaultText();
-            if (fault != null && !fault.isEmpty()) {
-                t.addData("ball tracker FAULT", fault);
-            }
-        }
         if (flower != null) {
             t.addData("flower mech", "%s%s", flower.getState(), flower.isFaulted() ? " FAULTED (gp2 X clears)" : "");
         }
         if (gate != null) {
             t.addData("gate", "%s%s", gate.isOpen() ? "OPEN" : "CLOSED", gate.isStalled() ? " FAULTED (stalled)" : "");
-        }
-        if (sorter != null) {
-            sorter.addTelemetry(t);
         }
         if (RobotSettings.Robot.SHOW_PLACEHOLDER_WARNINGS) {
             List<String> warnings = placeholderWarnings();

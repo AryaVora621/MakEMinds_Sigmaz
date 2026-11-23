@@ -60,6 +60,22 @@ export function formatReport(errors, env = {}) {
   return out.join('\n');
 }
 
+// Pure formatter for the physics HUD (validation-tuning). Fields that are absent are skipped.
+// Units: ms per step, in for penetration, J for energy.
+export function formatPhysicsStats(s) {
+  s = s || {};
+  const out = [];
+  const num = (v) => typeof v === 'number' && Number.isFinite(v);
+  if (num(s.stepMs)) out.push(`step ${s.stepMs.toFixed(2)} ms` + (num(s.stepMsP95) ? ` (p95 ${s.stepMsP95.toFixed(2)})` : ''));
+  if (num(s.balls)) out.push(`balls ${s.balls}` + (num(s.awake) ? ` (awake ${s.awake})` : ''));
+  if (num(s.contacts)) out.push(`contacts ${s.contacts}`);
+  if (num(s.energyJ)) out.push(`energy ${s.energyJ.toFixed(3)} J`);
+  if (num(s.energyDriftRel)) out.push(`energy drift ${(s.energyDriftRel * 100).toFixed(1)} %`);
+  if (num(s.maxPenIn)) out.push(`max pen ${s.maxPenIn.toFixed(2)} in`);
+  if (num(s.violations)) out.push(`violations ${s.violations}`);
+  return out;
+}
+
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
@@ -78,6 +94,10 @@ const CSS = `
 .dg-err{background:#2a0f14;border-bottom:1px solid #ff6b6b;color:#ffd6d6;padding:6px 10px;font-size:13px;pointer-events:auto}
 .dg-err pre{white-space:pre-wrap;font-size:11px;margin:4px 0 0;max-height:160px;overflow:auto}
 .dg-err button,.dg-log button{pointer-events:auto;background:#162036;color:#dfe6f5;border:1px solid #2a3652;border-radius:4px;margin-left:6px;cursor:pointer}
+.dg-phys{position:fixed;top:48px;left:12px;z-index:10000;background:#0e1422e6;border:1px solid #2a3652;border-radius:6px;padding:6px 8px;color:#b8c4de;font:11px Consolas,monospace;white-space:pre;pointer-events:none;display:none}
+.dg-report{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:10003;background:#0e1422;border:1px solid #2a3652;border-radius:8px;padding:8px 12px;max-width:640px;max-height:60%;overflow:auto;color:#dfe6f5;font:12px Consolas,monospace;pointer-events:auto}
+.dg-report pre{white-space:pre-wrap;margin:6px 0}
+.dg-report button{background:#162036;color:#dfe6f5;border:1px solid #2a3652;border-radius:4px;margin-right:6px;cursor:pointer}
 .dg-log{position:fixed;left:0;right:0;bottom:0;height:35%;z-index:10002;background:#0e1422ee;border-top:1px solid #2a3652;color:#b8c4de;font:11px Consolas,monospace;overflow:auto;white-space:pre-wrap;display:none;pointer-events:auto}
 `;
 
@@ -102,7 +122,8 @@ export function initDiag(opts = {}) {
   const notesBox = mk('div', 'dg-notes');
   const errBox = mk('div', 'dg-errs'); errBox.setAttribute('role', 'alert');
   const logBox = mk('div', 'dg-log');
-  [toastBox, shotBox, notesBox, errBox, logBox].forEach((e) => root.appendChild(e));
+  const physBox = mk('div', 'dg-phys');
+  [toastBox, shotBox, notesBox, errBox, logBox, physBox].forEach((e) => root.appendChild(e));
 
   // ---- toasts
   let toasts = []; // {text,severity,count,id,expires,sticky}
@@ -252,6 +273,29 @@ export function initDiag(opts = {}) {
     return null;
   }
 
+  // ---- physics HUD and report panel (validation-tuning)
+  function setPhysicsStats(st) {
+    if (st == null) { physBox.style.display = 'none'; physBox.textContent = ''; return; }
+    physBox.textContent = formatPhysicsStats(st).join('\n');
+    physBox.style.display = 'block';
+  }
+  let reportBox = null;
+  function showReport(title, lines) {
+    if (reportBox) { reportBox.style.display = 'none'; reportBox = null; }
+    const box = mk('div', 'dg-report');
+    const head = mk('b'); head.textContent = String(title);
+    const pre = mk('pre'); const text = (lines || []).map(String).join('\n'); pre.textContent = text;
+    const copy = mk('button'); copy.textContent = 'Copy';
+    copy.addEventListener('click', () => {
+      try { if (nav.clipboard && nav.clipboard.writeText) nav.clipboard.writeText(text); } catch (_) { /* ignore */ }
+    });
+    const close = mk('button'); close.textContent = 'Dismiss';
+    close.addEventListener('click', () => { box.style.display = 'none'; if (reportBox === box) reportBox = null; });
+    box.appendChild(head); box.appendChild(pre); box.appendChild(copy); box.appendChild(close);
+    root.appendChild(box);
+    reportBox = box;
+  }
+
   // ---- boot watchdog
   let booted = false;
   let watchdog = null;
@@ -294,8 +338,9 @@ export function initDiag(opts = {}) {
   }
 
   const diag = { toast, tick, setShotStatus, setSimNote, error, getErrors, log, toggleLog, bootDone, copyReport, reportText,
+    setPhysicsStats, showReport,
     format: { formatReport, dedupeToasts, severityTtl, summarizeReasons },
-    _els: { toastBox, shotBox, notesBox, errBox, logBox } };
+    _els: { toastBox, shotBox, notesBox, errBox, logBox, physBox } };
   if (win) win.__diag = diag;
   return diag;
 }

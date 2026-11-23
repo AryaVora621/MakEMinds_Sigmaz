@@ -51,25 +51,77 @@ export const BALL = {
   g: 386.0886,   // SOURCED (unit conversion): standard gravity 9.80665 m/s^2 = 386.0886 in/s^2
   // Coefficients of restitution. The hard-plastic-on-concrete drop test (~0.69, https://hypertextbook.com/facts/2006/restitution.shtml,
   // search snippet only, not fetched) is weak evidence for the wall value. No foam-floor or ball-on-ball source was found.
-  restitutionFloor: 0.45,  // ASSUMED: foam-on-floor COR, no source. TODO: measure with a dropped pollen ball.
-  restitutionWall: 0.55,   // SOURCED (weak: hard plastic on concrete, not foam), kept as-is.
-  restitutionBall: 0.7,    // ASSUMED: ball-ball COR, no source.
-  restitutionRobot: 0.35,  // ASSUMED: ball-robot COR, no source. A fast push leaves at (1+e)*v (see sim_physics tests).
-  restitutionHive: 0.3,    // ASSUMED: ball-hive COR, no source.
+  // The contact code reads SURFACES (physics/ball-bounce-rolling/params.js, where the values and tags live). These BALL
+  // fields are mirrors: writing one (the validation-tuning panel does, e.g. presets.js Object.assign(BALL, ...)) is pushed
+  // into SURFACES at the start of the next BallWorld.step (syncBallSurfaces). setRestitution() writes both at once.
+  restitutionFloor: SURFACES.floor.eRef,  // ASSUMED 0.45: foam-on-floor COR, no source. TODO: measure with a dropped pollen ball.
+  restitutionWall: SURFACES.wall.eRef,    // SOURCED (weak: hard plastic on concrete, not foam) 0.55.
+  restitutionBall: SURFACES.ball.eRef,    // ASSUMED 0.7: ball-ball COR, no source.
+  restitutionRobot: SURFACES.robot.eRef,  // ASSUMED 0.35: ball-robot COR, no source. A fast push leaves at (1+e)*v (see sim_physics tests).
+  restitutionHive: SURFACES.hive.eRef,    // ASSUMED 0.3: ball-hive COR, no source.
   // Quadratic air drag on free airborne balls: a = -dragK*|v|*v (units 1/in). ASSUMED value, not sourced.
   // Physical estimate from k = 0.5*rho*Cd*A/m with rho 1.2 kg/m3, Cd 0.47, 2.8 in ball, 25 g gives ~0.0011 1/in,
   // which would bleed a 500 in/s shot ~12% in 0.25 s. That is far beyond the envelope the shot solver was tuned to,
   // so the value is set by project tests (sim_physics: 0.5-6% loss over 0.25 s). TODO: measure with a real ball.
   dragK: 0.0004,
-  rollFriction: 0.04,      // ASSUMED coefficient (r3 cites a carpet reel value, not fetched); rolling deceleration = rollFriction*g = ~15.4 in/s^2 (40 in/s stops in ~2.6 s)
-  slideFriction: 0.5,      // ASSUMED Coulomb coefficient applied on impacts, no source
-  restSpeed: 5,            // normal speed (in/s) below which a contact is "resting" (no bounce)
-  sleepSpeed: 1.5, sleepTime: 0.25, maxSubstep: 0.004,
+  rollFriction: SURFACES.floor.crr,       // mirror of SURFACES.floor.crr. ASSUMED 0.04 (r3 cites a carpet reel value, not fetched); rolling deceleration = rollFriction*g = ~15.4 in/s^2 (40 in/s stops in ~2.6 s)
+  slideFriction: SURFACES.floor.muSlide,  // mirror of SURFACES.floor.muSlide. ASSUMED 0.5 Coulomb coefficient, no source
+  restSpeed: BBR.restSpeed,            // normal speed (in/s) below which a contact is "resting" (no bounce)
+  sleepSpeed: BBR.sleepSpeed, sleepTime: BBR.sleepTime, maxSubstep: 0.004,
   captureRest: 0.15, captureSlow: 30,   // s and in/s: slow-inside-the-cell capture rule
   maxStepTravel: 0.8,                    // max distance a ball (or the robot) may move in one substep (anti-tunnelling)
   maxFired: 90,                          // launched free balls kept alive (oldest recycled)
   maxSpeed: 1800,                        // in/s hard clamp (a runaway ball can never skip through geometry)
 };
+// Restitution / friction live in ONE place (SURFACES). BALL.<field> -> SURFACES[surface][key]:
+const BALL_SURFACE_FIELDS = {
+  restitutionFloor: ['floor', 'eRef'], restitutionWall: ['wall', 'eRef'], restitutionBall: ['ball', 'eRef'],
+  restitutionRobot: ['robot', 'eRef'], restitutionHive: ['hive', 'eRef'],
+  rollFriction: ['floor', 'crr'], slideFriction: ['floor', 'muSlide'],
+};
+const _synced = {};   // last BALL value pushed into / read from SURFACES, per field
+for (const f of Object.keys(BALL_SURFACE_FIELDS)) _synced[f] = BALL[f];
+// Bumped whenever a ball-ball surface value changes, so BallWorlds rebuild their frozen ball-ball solver params.
+let _bbParamsVer = 0;
+/** Push BALL.restitution* / rollFriction / slideFriction writes into SURFACES. A field is pushed only when BALL changed
+ *  since the last sync, so a direct SURFACES write (tests, fit.js) is never overwritten by a stale BALL copy.
+ *  Called at the start of every BallWorld.step; exported for callers that read SURFACES without stepping. */
+export function syncBallSurfaces() {
+  for (const f in BALL_SURFACE_FIELDS) {
+    const v = BALL[f];
+    if (v === _synced[f]) continue;
+    const [surf, key] = BALL_SURFACE_FIELDS[f];
+    if (key === 'eRef') { if (Number.isFinite(v) && v >= 0 && v <= 1) setRestitution(surf, v); }
+    else if (Number.isFinite(v) && v >= 0) { SURFACES[surf][key] = v; if (surf === 'ball') _bbParamsVer++; }
+    _synced[f] = v;
+  }
+}
+/** Set the reference coefficient of restitution (dimensionless, 0..1) of one contact surface:
+ *  'floor' | 'wall' | 'ball' | 'robot' | 'hive'. This is the value every contact reads (SURFACES[surface].eRef), the same
+ *  thing BALL.restitution<Surface> = e does. The surface's eMin/eMax clamp is widened to include e so the new value is
+ *  really used (floor has eMax 0.75, ASSUMED). Returns the stored eRef. Throws on an unknown surface or e outside [0, 1]. */
+export function setRestitution(surface, e) {
+  const s = SURFACES[surface];
+  if (!s) throw new RangeError('setRestitution: unknown surface ' + surface + ' (floor|wall|ball|robot|hive)');
+  if (!(Number.isFinite(e) && e >= 0 && e <= 1)) throw new RangeError('setRestitution: e must be in [0, 1], got ' + e);
+  s.eRef = e;
+  if (s._eMax0 === undefined) { s._eMax0 = s.eMax; s._eMin0 = s.eMin; }   // the surface's own clamp, kept for restores
+  s.eMax = Math.max(s._eMax0, e); s.eMin = Math.min(s._eMin0, e);
+  if (surface === 'ball') _bbParamsVer++;
+  const f = 'restitution' + surface[0].toUpperCase() + surface.slice(1);
+  BALL[f] = e; _synced[f] = e;   // keep the BALL mirror in step
+  return s.eRef;
+}
+// Per-model switches (read every substep, so they can be flipped at run time; a BallWorld also takes env.models overrides).
+//   aero:     'legacy'   = the original inline quadratic drag (k = BALL.dragK) + gravity, bit-identical, through
+//                          ball-aerodynamics stepFlight(legacy). DEFAULT: shotrules/shot_core aim was tuned to this drag.
+//             'physical' = ball-aerodynamics RK4 with air-density drag (k = 0.5*rho*Cd*A/m ~ 2.7x BALL.dragK) and Magnus
+//                          (AERO.lift.enabled, off by default). Off by default: it moves every shot off the solver's aim.
+//   ballBall: 'legacy'   = BallWorld._ballBall/_pair (3 Jacobi passes) + per-ball sleep (ball-bounce-rolling updateSleep).
+//             'solver'   = ball-ball-collisions BallBallSystem: sequential impulses with warm start, speculative contacts,
+//                          position correction and Box2D island sleeping. Default chosen from tests (see the report in
+//                          tests_js/balls_models.test.mjs).
+export const BALL_MODELS = { aero: 'legacy', ballBall: 'legacy' };
 // Intake: dual full-width rollers (front = robot +x, rear = robot -x). A ball is taken only when it touches the roller
 // (its surface within captureGap of the face) with its centre inside the mouth width, or is pulled the last few inches by
 // the roller when its surface is within pullRadius of the face and its centre is inside the mouth width. Nothing is taken
@@ -90,7 +142,37 @@ export const INTAKE = {
 export const MAX_HELD = 4;
 import { TriMesh, cellSensors, insideCell, crossesOpening, buildFallbackMesh, pointInPoly } from './hivemesh.js';
 import { shouldTip } from './hivetip_model.js';
+import { BBR, SURFACES, inertiaFactor } from './physics/ball-bounce-rolling/params.js';
+import { resolveContact, resolvePairFriction } from './physics/ball-bounce-rolling/contact.js';
+import { updateSleep, isAirborne, rollingSpinFor, launchSpin, clampSpin } from './physics/ball-bounce-rolling/rolling.js';
+import { AERO, buildAeroModel, createAeroRegistry, stepFlight } from './physics/ball-aerodynamics/index.js';
+import { BallBallSystem, makeParams as makeBBParams } from './physics/ball-ball-collisions/index.js';
 const G = BALL.g, RAD = Math.PI / 180;
+// Legacy aero model (k is overwritten with BALL.dragK every substep so tuning BALL.dragK still works).
+const AERO_LEGACY = buildAeroModel(Object.assign({}, AERO, { model: 'legacy' }));
+let AERO_PHYS = null;   // lazily built registry for BALL_MODELS.aero === 'physical'
+function physAeroModel(kind) {
+  if (!AERO_PHYS) AERO_PHYS = createAeroRegistry(Object.assign({}, AERO, { model: 'physical' }));
+  return AERO_PHYS.modelFor(kind);
+}
+/** Rebuild the physical aero models after changing AERO (air, cd, lift). No-op until physical mode was first used. */
+export function refreshAeroModels() { AERO_PHYS = null; }
+// Ball-ball solver params derived from the SAME ball model the bounce-rolling contacts use, so the two never disagree:
+// mass (kg) from BALL_KINDS, inertia factor k from the hollow-shell model (inertiaFactor), Coulomb mu, restitution,
+// its speed exponent and rolling coefficient from SURFACES.ball, rest threshold from BBR.restSpeed (in/s). Everything
+// else (iterations, slop, Baumgarte, Box2D sleep 1.969 in/s for 0.5 s) keeps the ball-ball-collisions defaults (sourced there).
+function ballBallParams() {
+  const sb = SURFACES.ball;
+  return makeBBParams({
+    massKg: { pollen: BALL_KINDS.pollen.massKg, nectar: BALL_KINDS.nectar.massKg },
+    inertiaK: {
+      pollen: inertiaFactor(BALL_KINDS.pollen.radiusIn, BALL_KINDS.pollen.massKg),
+      nectar: inertiaFactor(BALL_KINDS.nectar.radiusIn, BALL_KINDS.nectar.massKg),
+    },
+    mu: sb.muSlide, e0: sb.eRef, eRefSpeed: sb.vRef, eSpeedExp: sb.ePow, eMin: sb.eMin, eMax: sb.eMax,
+    muRoll: sb.crr, restitutionThreshold: BBR.restSpeed,
+  });
+}
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 // How far (in) behind the opening plane a ball centre may be and still count as entering the hive opening (see _entering).
 const ENTRY_DEPTH = 3;
@@ -144,35 +226,6 @@ export function hiveBallCounts(hiveId) {
 export function clearHiveBallCounts() { HIVE_BALL_COUNTS.clear(); }
 /** Pure tip test on {pollen, nectar} counts. Delegates to hivetip_model.shouldTip (8 pollen tip; see that file's ledger). */
 export function tipReady(counts) { return shouldTip(counts || {}); }
-
-// Resolve a sphere contact with a surface. n = unit normal pointing toward the ball, pen = penetration depth,
-// vs = velocity of the surface. Pushes the ball out, bounces, applies impact (Coulomb) or rolling friction.
-function contact(b, nx, ny, nz, pen, e, vsx, vsy, vsz, h) {
-  b.x += nx * pen; b.y += ny * pen; b.z += nz * pen; b._c = true;
-  let rx = b.vx - vsx, ry = b.vy - vsy, rz = b.vz - vsz;
-  const vn = rx * nx + ry * ny + rz * nz;
-  let impact = false;
-  if (vn < 0) {
-    impact = -vn > BALL.restSpeed;
-    const k = (1 + (impact ? e : 0)) * vn;
-    rx -= k * nx; ry -= k * ny; rz -= k * nz;
-    if (impact) {
-      const tn = rx * nx + ry * ny + rz * nz;
-      let tx = rx - tn * nx, ty = ry - tn * ny, tz = rz - tn * nz;
-      const tm = Math.hypot(tx, ty, tz), dec = BALL.slideFriction * (1 + e) * -vn;
-      const f = tm <= dec ? 0 : (tm - dec) / tm;
-      rx = tn * nx + tx * f; ry = tn * ny + ty * f; rz = tn * nz + tz * f;
-    }
-  }
-  if (!impact && nz > 0.2) {
-    const tn = rx * nx + ry * ny + rz * nz;
-    const tx = rx - tn * nx, ty = ry - tn * ny, tz = rz - tn * nz;
-    const tm = Math.hypot(tx, ty, tz), dec = BALL.rollFriction * G * nz * h;
-    const f = tm <= dec ? 0 : (tm - dec) / tm;
-    rx = tn * nx + tx * f; ry = tn * ny + ty * f; rz = tn * nz + tz * f;
-  }
-  b.vx = rx + vsx; b.vy = ry + vsy; b.vz = rz + vsz;
-}
 
 function prepCell(c) {
   const A = c.opening_corners[0], B = c.opening_corners[2], C = c.floor_corners[2], D = c.back_wall_corners[2];
@@ -249,6 +302,23 @@ export class BallWorld {
     this._rob0 = null; this._rob1 = null; this._robI = null; this._intaked = [];
     this._acc = 0;    // fixed-step accumulator (stepFixed)
     this.held = [];   // FIFO of held balls: {id, type, kind}, oldest first (at most MAX_HELD)
+    this.models = Object.assign({}, env.models || {});   // per-world overrides of BALL_MODELS ({aero, ballBall})
+    this._bb = null; this._bbVer = -1; this._bbOn = false;
+  }
+  /** Active model name for 'aero' | 'ballBall' (this.models override, else the global BALL_MODELS switch). */
+  model(name) { const m = this.models[name]; return m !== undefined ? m : BALL_MODELS[name]; }
+  // Ball-ball solver (BALL_MODELS.ballBall === 'solver'), created on first use. Returns null in legacy mode.
+  // On a legacy -> solver switch every sleeping free ball is adopted into an island; on solver -> legacy the islands are
+  // dropped (balls keep their sleeping flag, which the legacy code understands).
+  _bbSys() {
+    const on = this.model('ballBall') === 'solver';
+    if (!on) { if (this._bbOn) { this._bbOn = false; if (this._bb) this._bb.reset(); for (const b of this.balls) b._bbIsl = -1; } return null; }
+    if (!this._bb) { this._bb = new BallBallSystem(ballBallParams()); this._bbVer = _bbParamsVer; }
+    else if (this._bbVer !== _bbParamsVer) {
+      const p = ballBallParams(); this._bb.params = this._bb.solver.params = this._bb.islands.params = p; this._bbVer = _bbParamsVer;
+    }
+    if (!this._bbOn) { this._bbOn = true; this._bb.reset(); this._bb.adoptSleeping(this.balls.filter(b => b.state === 'free')); }
+    return this._bb;
   }
 
   reset(startBalls) {
@@ -262,6 +332,7 @@ export class BallWorld {
       b.start = true;      // start balls (hive preloads) may be captured by resting in a cell; shot balls must cross the opening
       this.balls.push(b);
     }
+    if (this._bbOn) { this._bb.reset(); this._bb.adoptSleeping(this.balls); }
   }
   /** Restore the whole field: every ball back at its start position (or opts.balls; [] clears the field), hives back to
    *  their initial angles (or opts.hiveAngles), intake counters and robot cleared. opts.hiveDyn = {red,blue}: their
@@ -289,18 +360,30 @@ export class BallWorld {
   }
   _mk(type, p, v, diameter, id, kind) {
     const k = kindOf(type, kind);
-    return {
+    const o = {
       id: id || ('shot' + (++this._seq)), type, kind: k, x: p[0], y: p[1], z: p[2], vx: v[0], vy: v[1], vz: v[2],
       r: radiusFor(k, diameter), state: 'free', hive: null, cell: null, sleeping: false,
+      wx: 0, wy: 0, wz: 0, k: 2 / 3, _cPrev: false, _jnSum: 0,
       sleepT: 0, _enter: null, _rest: 0, _c: false, _px: p[0], _py: p[1], _pz: p[2], _slot: -1, _lx: 0, _ly: 0, _lz: 0,
     };
+    o.k = inertiaFactor(o.r, BALL_KINDS[k].massKg);
+    if (BBR.initRollingSpin && o.z <= o.r + 0.05 && (o.vx !== 0 || o.vy !== 0 || o.vz !== 0)) {
+      const w = rollingSpinFor(o.vx, o.vy, o.vz, 0, 0, 1, o.r, [0, 0, 0]);
+      o.wx = w[0]; o.wy = w[1]; o.wz = w[2];
+    }
+    return o;
   }
   /** Add a launched ball. Launched balls are recycled: above BALL.maxFired free launched balls the oldest (sleeping first)
    *  is removed, so unlimited shooting never grows the world without bound. A ball spawned INSIDE the robot box (the shooter
    *  exit is within the robot footprint) is exempt from robot collision until it has left the box, so it is not nudged
    *  or killed by the very robot that fired it. */
-  addBall(type, pos, vel, kind) {
+  addBall(type, pos, vel, kind, opts) {
     const b = this._mk(type, pos, vel || [0, 0, 0], undefined, undefined, kind);
+    if (opts && opts.spin) { b.wx = opts.spin[0]; b.wy = opts.spin[1]; b.wz = opts.spin[2]; }
+    else if (BBR.launchSpinRatio !== 0 && isAirborne(b)) {
+      const w = launchSpin(b.vx, b.vy, b.vz, b.r, BBR.launchSpinRatio, [0, 0, 0]);
+      b.wx = w[0]; b.wy = w[1]; b.wz = w[2];
+    }
     b.fired = true;
     if (this.robot && this.robotDims) {
       const R = this.robot, D = this.robotDims, c = Math.cos(R.h), s = Math.sin(R.h), dx = b.x - R.x, dy = b.y - R.y;
@@ -336,10 +419,11 @@ export class BallWorld {
     return b;
   }
   removeBall(b) { const i = this.balls.indexOf(b); if (i >= 0) this.balls.splice(i, 1); this._wakeAbove(b); }
-  hold(b) { this._wakeAbove(b); b._enter = null; b._rest = 0; b.state = 'held'; b.hive = null; b.cell = null; b._slot = -1; b.vx = b.vy = b.vz = 0; b.sleeping = false; }
-  release(b, vel) {
+  hold(b) { this._wakeAbove(b); b._enter = null; b._rest = 0; b.state = 'held'; b.hive = null; b.cell = null; b._slot = -1; b.vx = b.vy = b.vz = 0; b.wx = b.wy = b.wz = 0; b.sleeping = false; }
+  release(b, vel, spin) {
     b.state = 'free'; b.hive = null; b.cell = null; b._slot = -1; b.sleeping = false; b.sleepT = 0; b._enter = null; b._rest = 0;
     const v = vel || [0, 0, 0]; b.vx = v[0]; b.vy = v[1]; b.vz = v[2]; b._px = b.x; b._py = b.y; b._pz = b.z;
+    const w = spin || [0, 0, 0]; b.wx = w[0]; b.wy = w[1]; b.wz = w[2];
   }
   setRobot(pose, dims) {
     if (!pose || !dims) { this.robot = null; this.robotDims = null; this._rob0 = this._rob1 = null; return; }
@@ -362,6 +446,7 @@ export class BallWorld {
 
   _wake(b) {
     if (!b.sleeping) return;
+    if (this._bbOn) this._bb.wake(b);   // solver mode: wakes b's whole sleeping island
     b.sleeping = false; b.sleepT = 0;
     for (const o of this.balls) {
       if (!o.sleeping || o.state !== 'free' || o.z <= b.z + 0.3) continue;
@@ -372,6 +457,7 @@ export class BallWorld {
 
   // a ball leaves: balls that were resting on/against it must not float
   _wakeAbove(b) {
+    if (this._bbOn) this._bb.onRemoved(b, this.balls.filter(o => o.state === 'free' && o !== b));   // drop b from its island
     for (const o of this.balls) {
       if (!o.sleeping || o.state !== 'free' || o === b || o.z < b.z - 0.3) continue;
       const dx = o.x - b.x, dy = o.y - b.y, dz = o.z - b.z, rr = o.r + b.r + 0.6;
@@ -404,7 +490,7 @@ export class BallWorld {
           if (b.state !== 'scored' || b.hive !== hv.name || b.cell !== co.name) continue;
           const dy = b.y - hv.pivot[1], dz = b.z - hv.pivot[2];
           b.state = 'free'; b.sleeping = false; b.start = false; b._enter = null; b._rest = 0; b.sleepT = 0; b._slot = -1;
-          b.vx = 0; b.vy = -hv.omega * dz; b.vz = hv.omega * dy;
+          b.vx = 0; b.vy = -hv.omega * dz; b.vz = hv.omega * dy; b.wx = b.wy = b.wz = 0;
           b._px = b.x; b._py = b.y; b._pz = b.z;
           this.released = (this.released || 0) + 1;
           if (this.onRelease) this.onRelease(b, hv.name, co.name);
@@ -440,7 +526,7 @@ export class BallWorld {
     b._seq = ++this._capSeq;
     const p = this._slotPos(hv, cellObj, k);
     b.state = 'scored'; b.hive = hv.name; b.cell = cellObj.name; b._slot = k; b.sleeping = false;
-    b._lx = p[0]; b._ly = p[1]; b._lz = p[2]; b.vx = b.vy = b.vz = 0; b._enter = null; b._rest = 0;
+    b._lx = p[0]; b._ly = p[1]; b._lz = p[2]; b.vx = b.vy = b.vz = 0; b.wx = b.wy = b.wz = 0; b._enter = null; b._rest = 0;
     this._placeScored(b, hv);
     this._wakeAbove(b);
     this._pending.push([b, hv.name, cellObj.name]);
@@ -449,6 +535,7 @@ export class BallWorld {
   step(dt) {
     if (!(dt > 0)) return;
     dt = Math.min(dt, 0.1);
+    syncBallSurfaces();
     let vmax = 0;
     for (const b of this.balls) if (b.state === 'free' && !b.sleeping) vmax = Math.max(vmax, Math.hypot(b.vx, b.vy, b.vz) + G * dt);
     this._pending = [];
@@ -471,6 +558,8 @@ export class BallWorld {
     }
     const n = Math.min(120, Math.max(1, Math.ceil(dt / BALL.maxSubstep), Math.ceil(dt * vmax / BALL.maxStepTravel))), h = dt / n;
     if (interp && !this._robI) this._robI = {};
+    const bb = this._bbSys();
+    if (bb) bb.beginStep(this.balls.filter(o => o.state === 'free'), dt);
     for (let k = 0; k < n; k++) {
       for (const hv of this.hv) { hv.dPrev = hv.delta; hv.delta = hv.d0 + (hv.d1 - hv.d0) * ((k + 1) / n); }
       if (interp) {
@@ -516,26 +605,39 @@ export class BallWorld {
   }
 
   _substep(h) {
-    const balls = this.balls, bd = this.bounds, e = BALL;
+    const balls = this.balls, bd = this.bounds;
     const list = [];
+    const phys = this.model('aero') === 'physical';
+    AERO_LEGACY.kDrag = BALL.dragK;   // 1/in; live, so tuning BALL.dragK still applies
     for (let i = 0; i < balls.length; i++) {
       const b = balls[i]; if (b.state !== 'free') continue;
       list.push(b);
       if (b.sleeping) continue;
-      b._c = false; b._px = b.x; b._py = b.y; b._pz = b.z;
-      if (b.z > b.r + 0.05) {   // airborne: quadratic drag, applied before integration (deterministic, no RNG)
-        const sp = Math.sqrt(b.vx * b.vx + b.vy * b.vy + b.vz * b.vz), f = 1 / (1 + e.dragK * sp * h);
-        b.vx *= f; b.vy *= f; b.vz *= f;
+      b._cPrev = b._c; b._c = false; b._jnSum = 0; b._px = b.x; b._py = b.y; b._pz = b.z;
+      const air = isAirborne(b);
+      if (!phys) stepFlight(b, h, AERO_LEGACY, air, 'legacy');   // drag (airborne only) then gravity: the original inline code
+      else if (air) stepFlight(b, h, physAeroModel(b.kind), true, 'rk4');
+      else {   // grounded in physical mode: gravity only, and spin is left to the contact model (no in-flight spin decay)
+        const wx = b.wx, wy = b.wy, wz = b.wz;
+        stepFlight(b, h, physAeroModel(b.kind), false, 'rk4');
+        b.wx = wx; b.wy = wy; b.wz = wz;
       }
-      b.x += b.vx * h; b.y += b.vy * h; b.z += b.vz * h - 0.5 * G * h * h; b.vz -= G * h;
       const sp2 = b.vx * b.vx + b.vy * b.vy + b.vz * b.vz;
       if (sp2 > BALL.maxSpeed * BALL.maxSpeed) { const k = BALL.maxSpeed / Math.sqrt(sp2); b.vx *= k; b.vy *= k; b.vz *= k; }
+      clampSpin(b, BBR.maxSpeed / b.r);
     }
     if (this.robot && this.intake.enabled) this._intakeStep(list, h);
     // hive: opening-crossing bookkeeping and swept test against the mesh (before the discrete collisions)
     for (const hv of this.hv) for (const b of list) if (!b.sleeping && b.state === 'free') this._hiveSweep(b, hv, h);
     // ball-ball
-    this._ballBall(list, h);
+    const bb = this._bbOn ? this._bb : null;
+    if (bb) {
+      const nc = bb.substep(list, h), cs = bb.contacts, touch = bb.params.touchDistance;
+      for (let k = 0; k < nc; k++) {   // touching ball-ball contacts count as support for sleep (as _pair sets _c)
+        const c = cs[k]; if (c.s >= touch || c.plane) continue;
+        if (!c.a.sleeping) c.a._c = true; if (!c.b.sleeping) c.b._c = true;
+      }
+    } else this._ballBall(list, h);
     // statics
     const rob = this.robot;
     for (const b of list) {
@@ -543,13 +645,13 @@ export class BallWorld {
       if (rob) this._robotCollide(b, h);
       if (b.sleeping) continue;
       for (let it = 0; it < 2; it++) {
-        if (b.z < b.r) contact(b, 0, 0, 1, b.r - b.z, e.restitutionFloor, 0, 0, 0, h);
+        if (b.z < b.r) resolveContact(b, 0, 0, 1, b.r - b.z, SURFACES.floor, 0, 0, 0, h);
         const wh = bd.wallHeight === undefined || b.z - b.r < bd.wallHeight;
         if (wh) {
-          if (b.x < bd.minX + b.r) contact(b, 1, 0, 0, bd.minX + b.r - b.x, e.restitutionWall, 0, 0, 0, h);
-          else if (b.x > bd.maxX - b.r) contact(b, -1, 0, 0, b.x - (bd.maxX - b.r), e.restitutionWall, 0, 0, 0, h);
-          if (b.y < bd.minY + b.r) contact(b, 0, 1, 0, bd.minY + b.r - b.y, e.restitutionWall, 0, 0, 0, h);
-          else if (b.y > bd.maxY - b.r) contact(b, 0, -1, 0, b.y - (bd.maxY - b.r), e.restitutionWall, 0, 0, 0, h);
+          if (b.x < bd.minX + b.r) resolveContact(b, 1, 0, 0, bd.minX + b.r - b.x, SURFACES.wall, 0, 0, 0, h);
+          else if (b.x > bd.maxX - b.r) resolveContact(b, -1, 0, 0, b.x - (bd.maxX - b.r), SURFACES.wall, 0, 0, 0, h);
+          if (b.y < bd.minY + b.r) resolveContact(b, 0, 1, 0, bd.minY + b.r - b.y, SURFACES.wall, 0, 0, 0, h);
+          else if (b.y > bd.maxY - b.r) resolveContact(b, 0, -1, 0, b.y - (bd.maxY - b.r), SURFACES.wall, 0, 0, 0, h);
         }
         for (const bx of this.boxes) this._boxCollide(b, bx, h);
         for (const ci of this.circles) this._circleCollide(b, ci, h);
@@ -557,12 +659,9 @@ export class BallWorld {
       }
       if (this.captureEnabled && b.state === 'free') for (const hv of this.hv) { this._hiveCapture(b, hv, h); if (b.state !== 'free') break; }
       if (b.state !== 'free') continue;
-      // sleep
-      if (b._c && b.vx * b.vx + b.vy * b.vy + b.vz * b.vz < BALL.sleepSpeed * BALL.sleepSpeed) {
-        b.sleepT += h;
-        if (b.sleepT >= BALL.sleepTime) { b.sleeping = true; b.vx = b.vy = b.vz = 0; }
-      } else b.sleepT = 0;
+      if (!bb) updateSleep(b, h);
     }
+    if (bb) bb.endSubstep(list, h);   // Box2D island sleep replaces the per-ball sleep in solver mode
   }
 
   _ballBall(list, h) {
@@ -639,13 +738,13 @@ export class BallWorld {
     const d = Math.sqrt(d2);
     let nx = 0, ny = 0, nz = 1;
     if (d > 1e-6) { nx = dx / d; ny = dy / d; nz = dz / d; }
-    const pen = rr - d, e = BALL.restitutionBall;
+    const pen = rr - d, e = SURFACES.ball.eRef;
     let vn = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny + (a.vz - b.vz) * nz;
     if (a.sleeping && -vn >= 0) { /* a asleep: b is the mover */ }
     if (b.sleeping && b.state === 'free' && vn < -3) this._wake(b);
     if (a.sleeping && vn < -3) this._wake(a);
-    if (a.sleeping) { contact(b, -nx, -ny, -nz, pen, e, 0, 0, 0, h); return; }
-    if (b.sleeping) { contact(a, nx, ny, nz, pen, e, 0, 0, 0, h); return; }
+    if (a.sleeping) { resolveContact(b, -nx, -ny, -nz, pen, SURFACES.ball, 0, 0, 0, h); return; }
+    if (b.sleeping) { resolveContact(a, nx, ny, nz, pen, SURFACES.ball, 0, 0, 0, h); return; }
     a._c = b._c = true;
     a.x += nx * pen * 0.5; a.y += ny * pen * 0.5; a.z += nz * pen * 0.5;
     b.x -= nx * pen * 0.5; b.y -= ny * pen * 0.5; b.z -= nz * pen * 0.5;
@@ -657,13 +756,7 @@ export class BallWorld {
       J = -(1 + (impact ? e : 0)) * vn * 0.5;
       a.vx += J * nx; a.vy += J * ny; a.vz += J * nz; b.vx -= J * nx; b.vy -= J * ny; b.vz -= J * nz;
     }
-    // tangential friction
-    const tx = rvx - vn * nx, ty = rvy - vn * ny, tz = rvz - vn * nz, tm = Math.hypot(tx, ty, tz);
-    if (tm > 1e-9) {
-      const dec = impact ? BALL.slideFriction * J : BALL.rollFriction * G * Math.abs(nz) * h * 0.5;
-      const m = Math.min(dec, tm * 0.5) / tm;
-      a.vx -= tx * m; a.vy -= ty * m; a.vz -= tz * m; b.vx += tx * m; b.vy += ty * m; b.vz += tz * m;
-    }
+    resolvePairFriction(a, b, nx, ny, nz, J, impact, SURFACES.ball);
   }
 
   _boxCollide(b, bx, h) {
@@ -671,10 +764,10 @@ export class BallWorld {
     const qx = clamp(b.x, bx.minX, bx.maxX), qy = clamp(b.y, bx.minY, bx.maxY), qz = clamp(b.z, bx.zMin, bx.zMax);
     const dx = b.x - qx, dy = b.y - qy, dz = b.z - qz, d2 = dx * dx + dy * dy + dz * dz;
     if (d2 > b.r * b.r) return;
-    if (d2 > 1e-12) { const d = Math.sqrt(d2); contact(b, dx / d, dy / d, dz / d, b.r - d, BALL.restitutionWall, 0, 0, 0, h); return; }
+    if (d2 > 1e-12) { const d = Math.sqrt(d2); resolveContact(b, dx / d, dy / d, dz / d, b.r - d, SURFACES.wall, 0, 0, 0, h); return; }
     const c = [[b.x - bx.minX, -1, 0, 0], [bx.maxX - b.x, 1, 0, 0], [b.y - bx.minY, 0, -1, 0], [bx.maxY - b.y, 0, 1, 0], [bx.zMax - b.z, 0, 0, 1]];
     let m = c[0]; for (const q of c) if (q[0] < m[0]) m = q;
-    contact(b, m[1], m[2], m[3], m[0] + b.r, BALL.restitutionWall, 0, 0, 0, h);
+    resolveContact(b, m[1], m[2], m[3], m[0] + b.r, SURFACES.wall, 0, 0, 0, h);
   }
   _circleCollide(b, ci, h) {
     if (b.z + b.r < ci.zMin || b.z - b.r > ci.zMax) return;
@@ -683,10 +776,10 @@ export class BallWorld {
     const qx = ci.x + ux * rad, qy = ci.y + uy * rad, qz = clamp(b.z, ci.zMin, ci.zMax);
     const ex = b.x - qx, ey = b.y - qy, ez = b.z - qz, d2 = ex * ex + ey * ey + ez * ez;
     if (d2 > b.r * b.r) return;
-    if (d2 > 1e-12) { const d = Math.sqrt(d2); contact(b, ex / d, ey / d, ez / d, b.r - d, BALL.restitutionWall, 0, 0, 0, h); return; }
+    if (d2 > 1e-12) { const d = Math.sqrt(d2); resolveContact(b, ex / d, ey / d, ez / d, b.r - d, SURFACES.wall, 0, 0, 0, h); return; }
     const radial = ci.r - dxy, top = ci.zMax - b.z;
-    if (radial < top) contact(b, ux, uy, 0, radial + b.r, BALL.restitutionWall, 0, 0, 0, h);
-    else contact(b, 0, 0, 1, top + b.r, BALL.restitutionWall, 0, 0, 0, h);
+    if (radial < top) resolveContact(b, ux, uy, 0, radial + b.r, SURFACES.wall, 0, 0, 0, h);
+    else resolveContact(b, 0, 0, 1, top + b.r, SURFACES.wall, 0, 0, 0, h);
   }
   _robotCollide(b, h) {
     const R = this.robot, D = this.robotDims, c = Math.cos(R.h), s = Math.sin(R.h);
@@ -712,7 +805,7 @@ export class BallWorld {
     }
     if (b.sleeping) this._wake(b);
     const nx = c * nlx - s * nly, ny = s * nlx + c * nly;
-    contact(b, nx, ny, nz, pen, BALL.restitutionRobot, R.vx - R.om * dy, R.vy + R.om * dx, 0, h);
+    resolveContact(b, nx, ny, nz, pen, SURFACES.robot, R.vx - R.om * dy, R.vy + R.om * dx, 0, h);
   }
   // world -> hive local (relative to pivot, CAD pose) for tip rotation delta
   _loc(hv, delta, x, y, z, o) {
@@ -756,7 +849,7 @@ export class BallWorld {
       b._c = true;
       const c = Math.cos(hv.delta), s = Math.sin(hv.delta);
       const nwy = nl[1] * c - nl[2] * s, nwz = nl[1] * s + nl[2] * c, rdy = b.y - py, rdz = b.z - pz;
-      contact(b, nl[0], nwy, nwz, 0, BALL.restitutionHive, 0, -hv.omega * rdz, hv.omega * rdy, h);
+      resolveContact(b, nl[0], nwy, nwz, 0, SURFACES.hive, 0, -hv.omega * rdz, hv.omega * rdy, h);
       return;
     }
     for (const co of hv.cells) if (crossesOpening(p, q, co.sensor) || (entering && crossesGrownOpening(p, q, co.sensor, b.r))) b._enter = hv.name + ':' + co.name;
@@ -777,7 +870,7 @@ export class BallWorld {
       if (!hv.mesh.sphereContacts(q[0], q[1], q[2], b.r, ct, 1)) break;
       const c = Math.cos(hv.delta), s = Math.sin(hv.delta);
       dy = b.y - py; dz = b.z - pz;
-      contact(b, ct[0], ct[1] * c - ct[2] * s, ct[1] * s + ct[2] * c, ct[3], BALL.restitutionHive, 0, -hv.omega * dz, hv.omega * dy, h);
+      resolveContact(b, ct[0], ct[1] * c - ct[2] * s, ct[1] * s + ct[2] * c, ct[3], SURFACES.hive, 0, -hv.omega * dz, hv.omega * dy, h);
     }
   }
   _hiveCapture(b, hv, h) {

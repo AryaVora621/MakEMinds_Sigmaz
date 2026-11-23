@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { BallWorld, BALL, ballsInBox } from '../web/js/balls.js';
+import { SURFACES } from '../web/js/physics/ball-bounce-rolling/params.js';
 
 const G = BALL.g;
 const scene = JSON.parse(readFileSync(new URL('../web/data/scene.json', import.meta.url), 'utf8'));
@@ -67,15 +68,55 @@ test('ball reflects off each wall', () => {
   }
 });
 
+// WHY THIS TEST CHANGED (round 2). The original asserted |p(0.5 s) - p0| < 0.06*40 for two balls ROLLING on the floor. That
+// passed at HEAD only because the old model had no spin. It also counted the floor's tangential force, which is EXTERNAL to
+// the two-ball system, so it never tested the collision by itself. With the spin-aware contact model (ball-bounce-rolling,
+// hollow-shell k = I/(m r^2) = 0.636 for pollen), each ball keeps its rolling spin through the hit (billiard follow-through).
+// Measured at 1/60 s steps: just after the hit, a has vx = -7.65 with r*wy = +29.10, and b has vx = +24.42 with r*wy = -16.25.
+// While a ball slides on a flat floor, friction acts through the contact point, so L = vx + k*r*wy is conserved. a: L = 10.86,
+// so it rolls at L/(1+k) = 6.64 in/s (6.53 measured). b: L = 14.08, so it rolls at 8.61 in/s (8.56 measured). After that
+// both roll in +x, and rolling resistance crr*g = 0.04*386.09 = 15.44 in/s^2 slows BOTH the same way. Over the ~0.25 s left,
+// that removes about 2*15.44*0.25 = 7.7 in/s of momentum, so p(0.5 s) = 11.5 is the correct value and the 2.4 bound
+// cannot hold. The momentum claim is now tested with the external floor friction switched off. Its bound is kept at
+// 0.06*40, but it also has to hold to 0.05 in/s (only the tiny air drag of a ball briefly lifted by ball-ball friction is
+// left). The follow-through test below checks the frictional floor against the analytic invariant.
+function withFloorFriction(muSlide, crr, fn) {
+  const f = SURFACES.floor, s = { muSlide: f.muSlide, crr: f.crr };
+  f.muSlide = muSlide; f.crr = crr;
+  try { return fn(); } finally { f.muSlide = s.muSlide; f.crr = s.crr; }
+}
 test('head-on ball-ball collision conserves momentum', () => {
+  withFloorFriction(0, 0, () => {
+    const w = new BallWorld({ bounds });
+    const a = w.addBall('pollen', [60, 70, BALL.r], [40, 0, 0]);
+    const b = w.addBall('pollen', [80, 70, BALL.r], [-20, 0, 0]);
+    const p0 = a.vx + b.vx;
+    run(w, 0.5);
+    const p1 = a.vx + b.vx;
+    assert.ok(Math.abs(p1 - p0) < 0.06 * 40, `p ${p0} -> ${p1}`);
+    assert.ok(Math.abs(p1 - p0) < 0.05, `collision alone must conserve p: ${p0} -> ${p1}`);
+    assert.ok(a.vx < 20 && b.vx > -20, 'they exchanged velocity');
+  });
+});
+test('head-on collision on the real floor: spin follow-through keeps vx + k*r*wy while sliding', () => {
   const w = new BallWorld({ bounds });
   const a = w.addBall('pollen', [60, 70, BALL.r], [40, 0, 0]);
   const b = w.addBall('pollen', [80, 70, BALL.r], [-20, 0, 0]);
-  const p0 = a.vx + b.vx;
-  run(w, 0.5);
-  const p1 = a.vx + b.vx;
-  assert.ok(Math.abs(p1 - p0) < 0.06 * 40, `p ${p0} -> ${p1}`);
-  assert.ok(a.vx < 20 && b.vx > -20, 'they exchanged velocity');
+  const L = o => o.vx + o.k * o.r * o.wy;   // in/s: angular momentum about the floor contact point / (m r)
+  let hit = -1, La = 0, Lb = 0;
+  for (let i = 0; i < 30; i++) {
+    w.step(1 / 60);
+    if (hit < 0 && a.vx < 20) { hit = i; La = L(a); Lb = L(b); continue; }
+    const slipA = Math.abs(a.vx - a.r * a.wy), slipB = Math.abs(b.vx - b.r * b.wy);
+    if (hit >= 0 && slipA > 0.5) assert.ok(Math.abs(L(a) - La) < 0.01 * Math.abs(La), `a: L ${La} -> ${L(a)} at ${i}`);
+    if (hit >= 0 && slipB > 0.5) assert.ok(Math.abs(L(b) - Lb) < 0.01 * Math.abs(Lb), `b: L ${Lb} -> ${L(b)} at ${i}`);
+  }
+  assert.ok(hit >= 0, 'balls collided');
+  // both end up rolling forward at L/(1+k), less rolling resistance (<= crr*g*0.5 s = 7.7 in/s)
+  for (const [o, L0] of [[a, La], [b, Lb]]) {
+    const vRoll = L0 / (1 + o.k);
+    assert.ok(o.vx > 0 && o.vx <= vRoll + 1e-6 && o.vx > vRoll - 0.5 * SURFACES.floor.crr * G, `vx ${o.vx} vs roll ${vRoll}`);
+  }
 });
 
 test('resting balls do not overlap', () => {

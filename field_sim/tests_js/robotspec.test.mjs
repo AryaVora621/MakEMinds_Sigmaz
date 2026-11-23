@@ -28,7 +28,12 @@ test('deriveConstants CAMERA, PLANT, DRIVE match today app.js', () => {
   const d = deriveConstants(load());
   assert.deepEqual(d.CAMERA, { x: 4.2, y: 0, z: 15.9, pitchDeg: 25, hfovDeg: 54.5, vfovDeg: 42, rangeIn: 150 });
   assert.deepEqual(d.PLANT, { turretRateDegS: 487, turretKp: 14, flywheelTauS: 0.35, rpmDipFrac: 0.06 });
-  assert.deepEqual(d.DRIVE, { maxSpeed: 60, maxAccel: 140, maxTurn: 3.2 });
+  // DRIVE pin changed in round 2 (integrator): robot_spec.json drive.gearing now holds the vault drive (5203 at 5.2:1 into
+  // a 24:48 belt = 10.364:1, 124.1 in/s free at 2.047 in), and drive.reconciliation records the measured full-stick steady
+  // state of the two drive models with floor losses: mecanum-dynamics 114.6 in/s / 9.42 rad/s, wheel-friction 114.5 in/s /
+  // 10.80 rad/s. The old 60 in/s / 3.2 rad/s were placeholders (prov "placeholder") at about half the gearing's capability.
+  // maxAccel 140 is unchanged (still a placeholder). app.js fallback DRIVE was updated to match.
+  assert.deepEqual(d.DRIVE, { maxSpeed: 114, maxAccel: 140, maxTurn: 9.4 });
 });
 
 test('deriveConstants footprint is the MaxBot 381 x 375 mm frame', () => {

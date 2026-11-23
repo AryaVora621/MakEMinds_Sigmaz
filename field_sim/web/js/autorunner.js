@@ -20,6 +20,17 @@
 // Samples are pre-computed at load() (sync samplers are ready immediately; for async ones `await runner.prepare()`).
 // follow(pathId) drives the robot along the samples with a trapezoidal speed profile, setting the pose every step.
 //
+// FOLLOWER MODEL (constructor option followerModel, overridable per auto by auto.settings.followerModel):
+//   'auto' (default)  today's behaviour: replay a trajectorySampler trajectory if one exists, else the trapezoid profile on pathSampler samples.
+//   'replay'          same as 'auto'.      'trapezoid'  ignore trajectories, always the trapezoid profile.
+//   'pedro'           closed-loop Pedro 2.1.0 follower in JS (physics/pedro-fidelity): one PedroDriveService per run, created at the first
+//                     follow and ticked on EVERY scheduler substep (also when no follow is active, so the robot keeps HOLDING its end point).
+//                     A follow command is done when the service has finished all its groups (incl. waitAfter). pedroParams = resolveParams overrides.
+//   Extra host expectations in 'pedro' mode: getPose() is read every control loop (10 ms by default). If it differs from the pose the
+//   service last wrote (collision push, teleport, a wall undoing the motion) the plant is re-synced and its velocity corrected, so host
+//   pushes feed back into the follower (hold pushback, stuck detection). setPose/setVelocity are written every loop (rad, in/s).
+//   stop()/reset()/seek()/load()/start() discard the service (next follow builds a fresh one at the host's current pose).
+//
 // Time: step(dt) multiplies dt by `speed` and advances the scheduler in fixed substeps of at most 1/60 s.
 // Errors: any command exception aborts the whole auto (all commands interrupted, velocity zeroed), state -> 'error'.
 // seek(t): rewinds with host.restore(snapshot taken at start()) if available (else just re-runs from the current host
@@ -29,6 +40,11 @@ import { Scheduler } from './scheduler.js';
 import { buildCommandTree, getCommandDef, walkNodes, parseCondition } from './autos.js';
 import { trajectoryPoseAt } from './pathing.js';
 import { makeAutoAim } from './autoaim_cmd.js';
+import { bridgeBody } from './pathing.js';
+import { PedroDriveService } from './physics/pedro-fidelity/closedloop.js';
+import { groupsFromBridgeRequest } from './physics/pedro-fidelity/pedropath.js';
+
+const FOLLOWER_MODELS = ['auto', 'pedro', 'replay', 'trapezoid'];
 
 const FIXED_DT = 1 / 60;
 const TAU = Math.PI * 2;
@@ -56,13 +72,26 @@ function poseAt(pts, s) {
 export class AutoRunner {
   /** trajectorySampler(route) -> traj [{t,x,y,h}] | {traj} | null (sync or Promise): when it returns a trajectory (e.g. from the real Pedro follower)
    *  the robot replays it by time instead of using the built-in trapezoid profile. */
-  constructor({ host, pathSampler, trajectorySampler } = {}) {
+  constructor({ host, pathSampler, trajectorySampler, followerModel = 'auto', pedroParams = {} } = {}) {
+    this.followerModel = FOLLOWER_MODELS.includes(followerModel) ? followerModel : 'auto'; this.pedroParams = pedroParams || {}; this._svc = null;
     this.host = host || {}; this.pathSampler = pathSampler || null; this.trajSampler = trajectorySampler || null; this.trajs = {};
     this.auto = null; this.samples = {}; this._prepared = false; this._readyP = Promise.resolve();
     this.state = 'idle'; this.speed = 1; this.errors = []; this.sched = null; this.time = 0;
     this._snap = null; this._scan = 0; this._active = new Set(); this._abort = false;
     this.warnings = []; this._aimCmd = null; this._trackAim = null;
   }
+  /** Effective follower model: auto.settings.followerModel overrides the constructor option. */
+  _model() { const m = this.auto?.settings?.followerModel; return FOLLOWER_MODELS.includes(m) ? m : this.followerModel; }
+  /** The run's PedroDriveService (created lazily at the host's current pose; discarded by stop/reset/seek/start/load). */
+  _pedroService() {
+    if (!this._svc) {
+      const hp = typeof this.host.getPose === 'function' ? this.host.getPose() : null, st = this.auto?.start || {};
+      const sp = hp && Number.isFinite(hp.x) ? { x: hp.x, y: hp.y, h: hp.h || 0 } : { x: st.x || 0, y: st.y || 0, h: st.h || 0 };
+      this._svc = new PedroDriveService({ host: this.host, params: this.pedroParams, startPose: sp });
+    }
+    return this._svc;
+  }
+  _dropService() { const s = this._svc; this._svc = null; try { s?.stop(); } catch (_) { /* ignore */ } }
   /** Soft failure: recorded in this.warnings and logged; never aborts the auto. */
   _warn(msg) { this.warnings.push(msg); this._log('warn: ' + msg); }
   get trace() { return this.sched ? this.sched.trace : []; }
@@ -79,7 +108,7 @@ export class AutoRunner {
   }
 
   load(auto) {
-    this.stop(); this.auto = auto; this.samples = {}; this.trajs = {}; this.errors = []; this._prepared = false; this._snap = null;
+    this.stop(); this._dropService(); this.auto = auto; this.samples = {}; this.trajs = {}; this.errors = []; this._prepared = false; this._snap = null;
     this.time = 0; this.sched = null; this._scan = 0; this._active = new Set(); this.state = 'idle';
     const r = this._sampleAll();
     if (r && typeof r.then === 'function') this._readyP = r; else { this._prepared = true; this._readyP = Promise.resolve(); }
@@ -91,6 +120,7 @@ export class AutoRunner {
   }
   /** Samples one path. Returns a promise when the sampler is async, else undefined (sync result stored at once). */
   _samplePath(id) {
+    if (!this.pathSampler && this._model() === 'pedro') return undefined;   // the closed-loop follower builds its own path chains
     let r;
     try { r = this.pathSampler ? this.pathSampler(this._routeFor(id)) : null; } catch (e) { this.errors.push(`path "${id}": ${e.message}`); return undefined; }
     if (r && typeof r.then === 'function') return r.then(v => { this.samples[id] = normalizeSamples(v); }, e => { this.errors.push(`path "${id}": ${e.message}`); });
@@ -141,7 +171,20 @@ export class AutoRunner {
         };
       },
       followRaw(pathId) {
-        const pts = R.samples[pathId], tj = R.trajs[pathId];
+        if (R._model() === 'pedro') {
+          if (!R.auto.paths[pathId]) throw new Error(`No samples for path "${pathId}"`);
+          return {
+            start() {
+              const svc = R._pedroService();
+              svc.followGroups(groupsFromBridgeRequest(bridgeBody(R._routeFor(pathId)), svc.P.constraints));
+            },
+            update() { /* the service is ticked by the runner on every scheduler substep */ },
+            done: () => !R._svc || !R._svc.isBusy(),
+            progress: () => (R._svc ? R._svc.progress() : 1),
+            stop() { R._svc?.stop(); },
+          };
+        }
+        const pts = R.samples[pathId], tj = R._model() === 'trapezoid' ? null : R.trajs[pathId];
         if (!pts && !tj) throw new Error(`No samples for path "${pathId}"`);
         if (tj) { // replay the time-parameterised trajectory (real follower motion)
           let t = 0, fin = false, last = null;
@@ -230,7 +273,7 @@ export class AutoRunner {
   }
 
   _begin() {
-    this._abort = false; this.errors = this.errors.filter(e => e.startsWith('path ')); this.time = 0; this.warnings = [];
+    this._dropService(); this._abort = false; this.errors = this.errors.filter(e => e.startsWith('path ')); this.time = 0; this.warnings = [];
     this._scan = 0; this._active = new Set(); this._stopAim();
     this.sched = new Scheduler();
     this.sched.schedule(buildCommandTree(this.auto, this._adapter()));
@@ -244,6 +287,7 @@ export class AutoRunner {
     if (running && !running.done()) running.update(dt);
     else if (this._trackAim) this._trackAim.update(dt);
     this.sched.tick(this._ctx, dt); this.time = this.sched.time;
+    if (this._svc && !this._abort) this._svc.tick(dt);
     if (this._abort) {
       this.sched.cancelAll(this._ctx); this._stopAim(); this._zero(); this.state = 'error'; return;
     }
@@ -264,12 +308,12 @@ export class AutoRunner {
   resume() { if (this.state === 'paused') this.state = 'running'; return this; }
   stop() {
     if (this.sched && this.sched.isRunning()) this.sched.cancelAll(this._ctx || {});
-    this._scanTrace(); this._stopAim(); this._zero();
+    this._scanTrace(); this._stopAim(); this._dropService(); this._zero();
     if (this.state === 'running' || this.state === 'paused') this.state = 'idle';
     return this;
   }
   reset() {
-    this.stop(); this.sched = null; this.time = 0; this.errors = []; this.warnings = []; this._scan = 0; this._active = new Set(); this.state = 'idle';
+    this.stop(); this._dropService(); this.sched = null; this.time = 0; this.errors = []; this.warnings = []; this._scan = 0; this._active = new Set(); this.state = 'idle';
     if (this._snap && this.host.restore) { try { this.host.restore(this._snap); } catch (_) { /* ignore */ } }
     else if (this.auto?.start && this.host.setPose) this.host.setPose({ x: this.auto.start.x, y: this.auto.start.y, h: this.auto.start.h || 0 });
     try { this.host.resetHives?.(); } catch (_) { /* ignore */ }

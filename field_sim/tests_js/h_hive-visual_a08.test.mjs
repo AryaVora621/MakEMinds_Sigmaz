@@ -52,10 +52,21 @@ test('equal loads: red and blue tip with equal-magnitude opposite angles in the 
   assert.deepEqual(b.tips, ['audience_up']);
 });
 
+// With the dynamic (rigid-body) tip the angle trace depends on the stored load. The 3 starting nectar
+// are stored in each hive's CAD-pose up cell: red 'audience', blue 'far'. After setState('audience_up')
+// red therefore holds them in its up cell and blue in its down cell, so the loads were NOT equal (the old
+// 0.6 s ease ignored load, which hid this). Measured with the original setup at 60 Hz: the traces diverge
+// from frame 1 (red -29.995420 deg vs blue -29.995553 deg) and red settles in 60 frames, blue in 105
+// (the nectar in blue's down cell resists the tip); both still end at +30. To test what this test claims
+// (same logical state + equal loads => identical traces) both hives drop their starting nectar first.
 test('same logical state on both hives gives identical angle traces (mirrored states, equal loads)', () => {
   const r = make('red'), b = make('blue');
   r.setState('audience_up');
   b.setState('audience_up');
+  assert.equal(r.forgetBall('audience', 3), 3);
+  assert.equal(b.forgetBall('far', 3), 3);
+  assert.equal(r.scored.length, 0);
+  assert.equal(b.scored.length, 0);
   const tr = tipTrace(r), tb = tipTrace(b);
   assert.deepEqual(tr.angles, tb.angles);
   assert.equal(tr.frames, tb.frames);

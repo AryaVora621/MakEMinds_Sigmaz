@@ -31,14 +31,11 @@ import robot.RobotSettings;
  *     A                spin the flywheel up and keep aiming
  *     B                stop the flywheel
  *     right trigger    (held) feed a ball as soon as the shot is ready (flywheel and turret at
- *                      target, robot steady). Uses intake.feed(), so the intake full-stop does not block it.
+ *                      target, robot steady). Uses intake.feed().
  *     X                toggle the flower mechanism (rising edge; needs RobotSettings.Robot.USE_FLOWER_MECH);
  *                      when the flower mech is faulted, X clears the fault instead
- *     Y                toggle the gate (rising edge; needs RobotSettings.Robot.USE_GATE)
- *     left bumper      toggle the colour sorter on/off (rising edge; needs RobotSettings.Robot.USE_COLOR_SORT)
+ *     Y                toggle the gate: lets balls in to, or blocks them from, the shooter (rising edge; needs RobotSettings.Robot.USE_GATE)
  *     D-pad up/down    hive tipped: flip which cell is the aim target (RobotSettings.Robot.FAR_CELL_UP; rising edge)
- *     BACK             RECOVERY: reset the ball count to 0, release the intake full-stop and reset the
- *                      sorter pattern (rising edge; the count reset needs RobotSettings.Robot.USE_BALL_TRACKER)
  *
  * The shooter lineup comes from robot.RobotSettings.Robot; the shooter aims continuously from the live pose, so it
  * works while driving. The turret aims; the chassis is never auto-turned. Teleop starts from the pose
@@ -71,8 +68,6 @@ public class TwoPlayerTeleOp extends LinearOpMode {
             boolean backWasDown = false;
             boolean xWasDown = false;
             boolean yWasDown = false;
-            boolean g2BackWasDown = false;
-            boolean g2LbWasDown = false;
             boolean dpadWasDown = false;
             while (opModeInInit()) {
                 if (gamepad1.start) {
@@ -107,15 +102,6 @@ public class TwoPlayerTeleOp extends LinearOpMode {
                     robot.toggleGate();
                 }
                 yWasDown = gamepad2.y;
-                if (gamepad2.left_bumper && !g2LbWasDown) {
-                    robot.toggleSort();
-                }
-                g2LbWasDown = gamepad2.left_bumper;
-                if (gamepad2.back && !g2BackWasDown) {
-                    robot.resetBallCount();
-                    if (robot.sorter != null) robot.sorter.resetPattern();
-                }
-                g2BackWasDown = gamepad2.back;
                 boolean dpadDown = gamepad2.dpad_up || gamepad2.dpad_down;
                 if (dpadDown && !dpadWasDown) {
                     robot.toggleFarCellUp();   // hive tipped: gamepad2 D-pad up/down flips the aim cell

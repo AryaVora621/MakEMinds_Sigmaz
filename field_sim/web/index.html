@@ -137,7 +137,7 @@
           <button id="m-reset" title="Reset match">Reset</button>
         </div>
         <div class="row"><span>Drive speed</span><b id="v-speedset"></b></div>
-        <input type="range" id="opt-speed" min="10" max="110" step="1" title="Drive speed">
+        <input type="range" id="opt-speed" min="10" max="130" step="1" title="Drive speed (kinematic drive; robot_spec drive.maxSpeedInS 114, free speed 124 in/s)">
         <div class="row"><span>Acceleration</span><b id="v-accelset"></b></div>
         <input type="range" id="opt-accel" min="30" max="400" step="5" title="Acceleration">
         <label class="t"><input type="checkbox" id="opt-intake" checked> Intake on <kbd>I</kbd></label>
@@ -155,6 +155,14 @@
           <button id="btn-refill" title="Restore the starting balls">Reset field</button>
           <button id="btn-reset" title="Put the robot back at its start (R)">Reset robot</button>
         </div>
+      </div>
+    </details>
+
+    <details class="card" id="phys-card">
+      <summary>Physics models</summary>
+      <div class="body">
+        <div id="phys-panel"></div>
+        <div class="desc" id="phys-tel" aria-live="off"></div>
       </div>
     </details>
 

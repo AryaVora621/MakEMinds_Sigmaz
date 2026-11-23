@@ -1,0 +1,6 @@
+{
+  "source": "",
+  "cycles": [],
+  "shots": null,
+  "notes": "Fill in from real FTC data you collected: source = where the numbers come from; cycles = cycle times in seconds; shots = {made, attempted} as integers. No values are shipped on purpose."
+}

@@ -66,7 +66,14 @@ for (const mesh of [false, true]) {
     const first = s.dyn[a].state, cell = s.dyn[a].upCell;
     for (let i = 1; i < POLLEN_TO_TIP; i++) { feed(s, a); run(s, 1.2); }
     assert.equal(s.tips.length, 1, 'tipped back before 8 fresh pollen');
-    feed(s, a); run(s, 1.2);
+    // Wait window 1.2 s -> 2.5 s for the tip-back only. Proof (dynamic hive, default params, measured):
+    // the first tip (3 starting nectar + 8 pollen, the calibration load) takes 1.00 s after capture
+    // (= nominalTipTimeS by construction). The starting nectar dropped out with that tip, so the tip-back
+    // carries 8 pollen only, below the calibrated hold torque; the rule assist (assistMinNm) drives it and
+    // it takes 1.53 s after capture. Capture is 0.17 s after feed, so the hive settles 1.70 s after feed,
+    // which the old 1.2 s window (sized for the 0.6 s ease) cannot see. The claim tested (8 fresh pollen
+    // tip back, 7 do not) is unchanged.
+    feed(s, a); run(s, 2.5);
     assert.equal(s.tips.length, 2);
     assert.notEqual(s.dyn[a].state, first);
     assert.ok(s.log.some((x) => x === a + '/' + cell) && s.log.some((x) => x !== a + '/' + cell), 'both cells received balls');

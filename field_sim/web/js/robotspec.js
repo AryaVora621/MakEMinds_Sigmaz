@@ -161,6 +161,16 @@ export function deriveConstants(spec) {
   };
 }
 
+/** Physics-model defaults from the optional spec.physics block (read by physics_glue.js PhysicsRuntime).
+ *  Shape: { defaults: {switch: value} } with the switch names of physics_glue.js PHYS_OPTIONS / PHYS_DEFAULTS.
+ *  Values are validated there (mergeSettings), not here, so robotspec.js stays free of physics imports.
+ *  A missing block returns { defaults: {} } (the glue's own defaults apply). */
+export function derivePhysics(spec) {
+  const ph = spec && spec.physics && typeof spec.physics === 'object' ? spec.physics : null;
+  const d = ph && ph.defaults && typeof ph.defaults === 'object' ? ph.defaults : {};
+  return { defaults: { ...d } };
+}
+
 /** World-frame corners of the footprint polygon for pose (x, y, heading h). */
 export function footprintCorners(polygon, x, y, h) {
   const c = Math.cos(h), s = Math.sin(h);

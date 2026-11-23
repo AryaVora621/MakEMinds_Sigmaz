@@ -104,7 +104,30 @@
     ]
   },
   "drive": {
-    "maxSpeedInS": 60, "maxAccel": 140, "maxTurnRadS": 3.2,
+    "maxSpeedInS": 114, "maxAccel": 140, "maxTurnRadS": 9.4,
+    "gearing": {
+      "motor": "gobilda5203", "gearbox": "gb5_2", "beltRatio": 2.0,
+      "note": "MaxBot Design (Memory Vault, MODEL, no CAD): '5203 1150 rpm at 24:48, 575 wheel rpm, 104 mm GripForce'. motor/gearbox are motor-model ids (physics/motor-model/params.js MOTORS, GEARBOXES): bare 5203 6000 rpm [sourced goBILDA], 5.2:1 cartridge = 57/11 = 5.1818 [sourced goBILDA formula], belt 24T:48T = 2.0 [vault]. Overall 10.364 motor rev per wheel rev, 579 wheel rpm free, 124.1 in/s free surface speed at 2.047 in wheel radius. Read by physics_glue.js driveGearingFromSpec for all three physical drive models and the battery-sag drive load.",
+      "prov": {"*": "vault"}
+    },
+    "reconciliation": "ASSUMED, recomputed 2026-11-22 from the gearing above (was 60 in/s and 3.2 rad/s placeholders, about half of what the gearing allows). Full-stick steady state after 3 s at 120 Hz, 31.4 lb, fresh 12 V: mecanum-dynamics 114.6 in/s forward, 90.3 in/s strafe, 9.42 rad/s turn; wheel-friction 114.5 in/s forward, 10.80 rad/s turn; motor-model 123.6 in/s (it has no rolling resistance, so it sits at the 124.1 in/s free speed). maxSpeedInS = 114 and maxTurnRadS = 9.4 take the two models with floor losses. maxAccel stays the 140 in/s^2 placeholder: the physical models are traction-limited by an ASSUMED mu 0.7 (about 270 in/s^2), so a measured value is needed. Replace all three with the Pedro tuner numbers (xVelocity, forwardZeroPowerAcceleration) once the robot runs.",
+    "prov": {"*": "placeholder", "maxSpeedInS": "assumed", "maxTurnRadS": "assumed"}
+  },
+  "physics": {
+    "note": "Default physics-model switches for the sim (web/js/physics_glue.js). All are integrator choices [assumed], not robot measurements; the Physics panel overrides them per viewer. fixedHz [Hz]: 60 matches autorunner.js FIXED_DT = 1/60. Drive mass/wheel radius/spacing come from chassis.mass_lb and wheels[*] above; gearing for every physical drive model (motor, dynamics, friction) and the battery-sag drive load comes from drive.gearing. robotCollision stays legacy and imuModel stays basic (see tests_js/integration/round2.test.mjs for the measured reasons).",
+    "defaults": {
+      "fixedStep": true, "fixedHz": 120, "renderInterp": true,
+      "driveModel": "motor", "robotCollision": "legacy",
+      "batterySag": true, "batteryPreset": "fresh",
+      "weightTransfer": true,
+      "flywheelModel": "dynamics",
+      "exitModel": "physical",
+      "odometry": "nominal", "imuModel": "basic", "aimFromOdometry": true,
+      "hiveTipModel": "rule", "hiveMotion": "dynamic",
+      "autoFollower": "auto", "pedroPlant": "spec",
+      "ballAero": "legacy", "ballBall": "legacy",
+      "validationTools": false
+    },
     "prov": {"*": "placeholder"}
   },
   "cad_todo": [

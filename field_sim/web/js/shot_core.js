@@ -199,9 +199,74 @@
     return { speed: sp, vel: [(vs ? vs[0] : 0) + Math.cos(azRad) * ce * sp, (vs ? vs[1] : 0) + Math.sin(azRad) * ce * sp, Math.sin(elevRad) * sp] };
   }
 
+  /* ---- shooter-exit additions (opt-in; existing functions above are untouched) ---- */
+
+  /* Ball velocity from speed/azimuth/elevation plus an optional base velocity vBase [3] (robot + rotation terms). */
+  function launchVelocityFrom(speed, azRad, elevRad, vBase) {
+    var ce = Math.cos(elevRad);
+    return [(vBase ? vBase[0] : 0) + Math.cos(azRad) * ce * speed,
+            (vBase ? vBase[1] : 0) + Math.sin(azRad) * ce * speed,
+            (vBase ? vBase[2] : 0) + Math.sin(elevRad) * speed];
+  }
+
+  /* Solve with a non-zero exit point. exitFn(elevRad, azAbsRad) -> {dx,dy,dz} = exit minus pivot, field-frame inches.
+   * The offset is folded into p.rx/p.ry (robot frame, via R(-psi)) and p.z0, so kinematics() adds om x r correctly.
+   * Fixed-point iteration: the offset depends on the solved (elev, az). Stops when the offset moves < 1e-4 in. */
+  function solveExit(p, mode, param, branch, exitFn, iters) {
+    iters = iters == null ? 4 : iters;
+    var c = Math.cos(p.psi), s = Math.sin(p.psi);
+    var px = p.x + c * p.rx - s * p.ry, py = p.y + s * p.rx + c * p.ry;
+    var off = exitFn(PI / 4, Math.atan2(p.Y - py, p.X - px));
+    var r = null, pe = p, used = off, i, n = Math.max(1, iters);
+    for (i = 1; i <= n; i++) {
+      pe = {};
+      for (var k in p) pe[k] = p[k];
+      pe.rx = p.rx + (c * off.dx + s * off.dy);
+      pe.ry = p.ry + (-s * off.dx + c * off.dy);
+      pe.z0 = p.z0 + off.dz; used = off;
+      r = solve(pe, mode, param, branch);
+      if (!r.ok) break;
+      var nxt = exitFn(r.elev, r.az);
+      var delta = Math.hypot(nxt.dx - off.dx, nxt.dy - off.dy, nxt.dz - off.dz);
+      if (delta < 1e-4) break;
+      off = nxt;
+    }
+    r.exitOffset = { dx: used.dx, dy: used.dy, dz: used.dz };
+    r.iters = Math.min(i, n);
+    r.p = pe;
+    return r;
+  }
+
+  /* First front-to-back crossing of the ballistic path P0 + v t - 0.5 G t^2 zhat with plane {x,y,z,normal}.
+   * Solves -0.5 G nz t^2 + (n.v) t + n.(P0 - X) = 0 for the smallest t > 1e-9 with ds/dt = n.v - G nz t < 0. */
+  function planeCrossing(P0, vel, plane) {
+    var n = plane.normal, A = -0.5 * G * n[2];
+    var B = n[0] * vel[0] + n[1] * vel[1] + n[2] * vel[2];
+    var C = n[0] * (P0[0] - plane.x) + n[1] * (P0[1] - plane.y) + n[2] * (P0[2] - plane.z);
+    var roots = [];
+    if (Math.abs(A) < 1e-12) { if (Math.abs(B) > 1e-300) roots.push(-C / B); }
+    else {
+      var disc = B * B - 4 * A * C;
+      if (disc < 0) return null;
+      var sq = Math.sqrt(disc), q = -0.5 * (B + (B >= 0 ? sq : -sq));
+      if (q !== 0) roots.push(q / A, C / q); else roots.push(0);
+      roots.sort(function (u, v) { return u - v; });
+    }
+    for (var i = 0; i < roots.length; i++) {
+      var t = roots[i];
+      if (!(t > 1e-9)) continue;
+      if (B + 2 * A * t < 0) {
+        return { t: t, p: [P0[0] + vel[0] * t, P0[1] + vel[1] * t, P0[2] + vel[2] * t - 0.5 * G * t * t],
+                 v: [vel[0], vel[1], vel[2] - G * t] };
+      }
+    }
+    return null;
+  }
+
   var Core = { G: G, speedFromRpm: speedFromRpm, launchVelocity: launchVelocity, launchSpeed: launchSpeed, rpmForSpeed: rpmForSpeed,
     IN_TO_M: IN_TO_M, wrap: wrap, kinematics: kinematics, forward: forward,
     trajectoryPoint: trajectoryPoint, quarticPosRoots: quarticPosRoots, minSpeedT: minSpeedT,
-    stationaryAngles: stationaryAngles, stationaryTSpeed: stationaryTSpeed, solve: solve, rpmEstimate: rpmEstimate };
+    stationaryAngles: stationaryAngles, stationaryTSpeed: stationaryTSpeed, solve: solve, rpmEstimate: rpmEstimate,
+    solveExit: solveExit, planeCrossing: planeCrossing, launchVelocityFrom: launchVelocityFrom };
   if (typeof module !== 'undefined' && module.exports) module.exports = Core; else root.Core = Core;
 })(typeof window !== 'undefined' ? window : this);

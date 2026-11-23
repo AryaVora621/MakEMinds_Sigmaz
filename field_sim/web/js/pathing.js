@@ -6,6 +6,8 @@
 // Heading semantics: constant uses heading.start (default: the previous segment's end heading); linear goes
 // start -> end the shortest way round (end defaults to start); tangent follows the path derivative (+pi if reversed).
 
+import { simulateBridgeRequest } from './physics/pedro-fidelity/closedloop.js';
+
 export const FIELD = 144;
 export const SCHEMA_VERSION = 1;
 const TAU = Math.PI * 2;
@@ -357,7 +359,12 @@ export function followSim(route, dt, state = {}, opts = {}) {
   const out = { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f, h: wrapAngle(a.h + angDiff(a.h, b.h) * f), done: !!state.done, progress: L > 0 ? state.s / L : 1, v: state.v, s: state.s };
   return out;
 }
-export function estimateTime(route, vmax = 60, aMax = 90) {
+export function estimateTime(route, vmax = 60, aMax = 90, { model = 'trapezoid', params } = {}) {
+  if (model === 'pedro') {   // closed-loop Pedro 2.1.0 model: time of the last pathEnd (settle time excluded)
+    if (routeLength(route) < 1e-9) return 0;
+    const tr = pedroTrajectory(route, { params }), ends = (tr.events || []).filter(e => e.kind === 'pathEnd');
+    return ends.length ? ends.at(-1).t : tr.duration;
+  }
   const st = {}; let t = 0; const dt = 0.005;
   if (routeLength(route) < 1e-9) return 0;
   while (t < 600) { const r = followSim(route, dt, st, { vmax, aMax }); t += dt; if (r.done) break; }
@@ -463,9 +470,14 @@ export function rotationAt(route, seg, t) {
 
 // ---------- time-parameterised trajectory ----------
 /** Local fallback trajectory [{t,x,y,h,vx,vy}] every `dt` s from the trapezoidal follower model (same as the preview). */
-export function localTrajectory(route, { dt = 0.02, vmax = 60, aMax = 90 } = {}) {
+export function localTrajectory(route, { dt = 0.02, vmax = 60, aMax = 90, model = 'trapezoid', params } = {}) {
   const st = {}, out = []; let t = 0, prev = null;
   if (routeLength(route) < 1e-9) return [{ t: 0, x: route.start.x, y: route.start.y, h: route.start.h || 0, vx: 0, vy: 0 }];
+  if (model === 'pedro') {   // closed-loop Pedro model resampled at dt (linear interpolation, headings via the shortest arc)
+    const tr = pedroTrajectory(route, { params }), T = tr.at(-1)?.t ?? 0, n = Math.max(1, Math.ceil(T / dt - 1e-9));
+    for (let i = 0; i <= n; i++) { const q = trajectoryPoseAt(tr, Math.min(T, i * dt)); out.push({ t: +(i * dt).toFixed(6), x: q.x, y: q.y, h: q.h, vx: q.vx, vy: q.vy }); }
+    return out;
+  }
   for (let i = 0; i < 60000; i++) {
     const r = followSim(route, i === 0 ? 0 : dt, st, { vmax, aMax }); if (i > 0) t += dt;
     out.push({ t, x: r.x, y: r.y, h: r.h, vx: prev ? (r.x - prev.x) / dt : 0, vy: prev ? (r.y - prev.y) / dt : 0 }); prev = r;
@@ -474,15 +486,49 @@ export function localTrajectory(route, { dt = 0.02, vmax = 60, aMax = 90 } = {})
   return out;
 }
 /** Best available trajectory: the real Pedro follower (pedrofollow.js, optional) else localTrajectory. Returns {traj, source}. */
+/** opts.model: undefined = real Java Pedro, else local trapezoid (an approximate/js-fallback result is NOT reported as 'pedro-follower');
+ *  'auto' = Java, else the closed-loop JS model ('pedro-js'); 'pedro' = the closed-loop JS model directly; 'trapezoid' = Java, else local. */
 export async function planTrajectory(route, opts = {}) {
-  try {
-    const mod = await import('./pedrofollow.js');
-    if (mod && typeof mod.followRoute === 'function') {
-      const traj = await mod.followRoute(route, { x: route.start.x, y: route.start.y, h: route.start.h || 0 });
-      if (Array.isArray(traj) && traj.length > 1) return { traj, source: 'pedro-follower' };
-    }
-  } catch (_) { /* module missing or server down: fall back */ }
+  const model = opts.model;
+  if (model !== 'pedro') {
+    try {
+      const mod = await import('./pedrofollow.js');
+      if (mod && typeof mod.followRoute === 'function') {
+        const traj = await mod.followRoute(route, { x: route.start.x, y: route.start.y, h: route.start.h || 0 });
+        if (Array.isArray(traj) && traj.length > 1 && traj.approximate !== true && traj.source !== 'js-fallback') return { traj, source: 'pedro-follower' };
+      }
+    } catch (_) { /* module missing or server down: fall back */ }
+  }
+  if (model === 'pedro' || model === 'auto') {
+    try {
+      const traj = pedroTrajectory(route, { params: opts.params });
+      if (Array.isArray(traj) && traj.length > 1) return { traj, source: 'pedro-js' };
+    } catch (_) { /* fall through to local */ }
+  }
   return { traj: localTrajectory(route, opts), source: 'local' };
+}
+/** Closed-loop Pedro 2.1.0 follower run (pure JS, physics/pedro-fidelity). opts {params (resolveParams overrides), maxTimeS, holdEnd, maxPower}.
+ *  Returns the Traj of simulateBridgeRequest (h, w in rad; .source 'pedro-js'). */
+export function pedroTrajectory(route, opts = {}) {
+  const ov = { ...(opts.params || {}) };
+  for (const k of ['maxTimeS', 'holdEnd', 'maxPower', 'settleS', 'trajStride']) if (opts[k] !== undefined) ov[k] = opts[k];
+  return simulateBridgeRequest(bridgeBody(route, opts), ov);
+}
+/** Bridge request body for a route (same as pedrofollow.followRequest(route, route.start, opts); copied here because pedrofollow imports this file).
+ *  Segments may carry waitAfter (s) and callbacks [{t}|{ms}, name]. opts keys copied: dt, stride, maxTime, settle, holdEnd, maxPower, robot, constants, pathConstraints. */
+export function bridgeBody(route, opts = {}) {
+  const base = routeToBridgeJson(route, 1);
+  const sp = route.start || { x: 0, y: 0, h: 0 };
+  const body = { start: { x: sp.x, y: sp.y, h: (sp.h || 0) * 180 / Math.PI }, segments: base.segments };
+  base.segments.forEach((sg, i) => {
+    const s = route.segments[i];
+    const cbs = (s.callbacks || []).map(c => (c.ms !== undefined ? { ms: c.ms, name: c.name || 'callback' } : { t: c.t, name: c.name || 'callback' }));
+    if (cbs.length) sg.callbacks = cbs;
+    const w = s.waitAfter ?? s.wait;
+    if (Number.isFinite(w) && w > 0) sg.waitAfter = w;
+  });
+  for (const k of ['dt', 'stride', 'maxTime', 'settle', 'holdEnd', 'maxPower', 'robot', 'constants', 'pathConstraints']) if (opts[k] !== undefined) body[k] = opts[k];
+  return body;
 }
 /** Interpolated pose of a trajectory at time t. */
 export function trajectoryPoseAt(traj, t) {

@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
-import { buildObstacles, resolveRobot, slideVelocity, ROBOT } from './collision.js';
+import { buildObstacles, resolveRobot, ROBOT } from './collision.js';
 import { BallWorld, BALL } from './balls.js';
 import { parseHiveCollider } from './hivemesh.js';
 import { FlowerArm, findFlowerContact, feedFromFlower } from './flowerarm.js';
@@ -13,7 +13,9 @@ import { readGamepad, mapKeyboard, MecanumDrive, MatchClock, driverCamera, Pract
 import { MatchScorer, RULES } from './matchrules.js';
 import { createPathEditor } from './pathui.js';
 import { sampleRoute, PLAN_VIEW, viewBounds, resolveHeadings, toScreen, fromScreen, allianceViewTransform, viewScale } from './pathing.js';
-import { evaluateShot, forwardShot, feasibleRegion, setCore, REASON } from './shotrules.js';
+import { evaluateShot, forwardShot, feasibleRegion, setCore, REASON, solveAutoShot, exitModelOf } from './shotrules.js';
+import { PhysicsRuntime, formatPhysicsTelemetry } from './physics_glue.js';
+import { createPhysicsPanel, loadPhysicsSettings } from './physics_panel.js';
 import { LegalZone } from './legalzone.js';
 import { ShooterPlant, ManualAim, aimInputFromKeys, aimInputFromGamepad, modeCommand, describeMode } from './aimcontrol.js';
 import { loadRobotSpec, deriveConstants, provenanceReport, validateSpec } from './robotspec.js';
@@ -36,7 +38,7 @@ const SHOOTER = {
 };
 const PLANT = { turretRateDegS: 540, turretKp: 14, flywheelTauS: 0.35, rpmDipFrac: 0.06 };  // placeholder dynamics
 const CAMERA = { x: 4.5, z: 14, pitchDeg: 30, hfovDeg: 54.5, vfovDeg: 42, rangeIn: 150 };    // Limelight 3A on the turret
-const DRIVE = { maxSpeed: 60, maxAccel: 140, maxTurn: 3.2 };
+const DRIVE = { maxSpeed: 114, maxAccel: 140, maxTurn: 9.4 };   // in/s, in/s^2, rad/s; fallback = robot_spec.json drive (reconciled to drive.gearing, assumed)
 const START = { x: 72, y: 24, h: Math.PI / 2 };
 const BALL_R = 1.4, G = 386.0886;
 // The robot is data-driven: data/robot_spec.json (CAD numbers go there). Its derived constants override the defaults above.
@@ -326,7 +328,19 @@ function aimTarget() {
 }
 function solveShot() {
   const tg = aimTarget();
-  const p = { x: S.x, y: S.y, psi: S.h, vx: S.vx, vy: S.vy, om: S.om, rx: SHOOTER.pivotX, ry: SHOOTER.pivotY, z0: SHOOTER.exitHeight, X: tg.x, Y: tg.y, Z: tg.z };
+  const ap = phys.aimPose(S);                                  // believed pose (Pinpoint model) when "aim from odometry" is on, else the truth
+  if (exitModelOf(SHOOTER) === 'physical') {
+    // shooter-exit physical model: the shotrules solve (exit-point iteration, hood map, physical rpm inverse)
+    const r = solveAutoShot({ x: ap.x, y: ap.y, h: ap.h, vx: ap.vx, vy: ap.vy, om: ap.om }, SHOOTER, tg, nextShotKind(), Core);
+    r.target = tg; r.clamped = false;
+    if (!r.p) r.p = { z0: SHOOTER.exitHeight };
+    if (!r.ok) { r.rpm = 0; r.turretDeg = 0; r.entry = NaN; return r; }
+    r.hoodCmdDeg = r.hoodDeg;                                  // hood actuator angle (not the launch elevation) goes to the plant
+    r.entry = r.fwd ? deg(r.fwd.entry) : NaN;
+    const n = tg.normal, vg = [r.vs[0] + r.uh[0], r.vs[1] + r.uh[1], r.uz - G * r.T]; r.fromBehind = n[0] * vg[0] + n[1] * vg[1] + n[2] * vg[2] >= 0;
+    return r;
+  }
+  const p = { x: ap.x, y: ap.y, psi: ap.h, vx: ap.vx, vy: ap.vy, om: ap.om, rx: SHOOTER.pivotX, ry: SHOOTER.pivotY, z0: SHOOTER.exitHeight, X: tg.x, Y: tg.y, Z: tg.z };
   let r = Core.solve(p, 'gamma', rad(SHOOTER.entryDeg), 'low');
   let clamped = false;
   if (r.ok) {
@@ -344,10 +358,33 @@ function solveShot() {
 // ================= shooter mechanism + aim modes (auto / assist / manual / free) =================
 const plantSpec = { turretRateDegS: PLANT.turretRateDegS, turretKp: PLANT.turretKp, turretMinDeg: SHOOTER.turretMinDeg, turretMaxDeg: SHOOTER.turretMaxDeg, hoodMinDeg: SHOOTER.hoodMin, hoodMaxDeg: SHOOTER.hoodMax, flywheelTauS: PLANT.flywheelTauS, maxRpm: SHOOTER.maxRpm, rpmDipFrac: PLANT.rpmDipFrac };
 const plant = new ShooterPlant(plantSpec); plant.state.hoodDeg = S.hoodDeg;
+// ---- physics models (physics_glue.js): drive / battery / weight transfer / flywheel / Pinpoint / fixed step switches ----
+const lsGet = () => { try { return window.localStorage; } catch (_) { return null; } };
+const phys = new PhysicsRuntime({ spec: robotSpec, settings: loadPhysicsSettings(lsGet()), kinematicDrive: drive, plant, startPose: START, colliders: fieldData, obstacles });
+let validationTools = null;
+function applyPhysicsSwitch(key) {
+  SHOOTER.exitModel = phys.cfg.exitModel;                     // shotrules.js exitModelOf(SHOOTER)
+  if (key === 'hiveTipModel' || key === 'hiveMotion' || key === '*') for (const a of ['red', 'blue']) {
+    try { hiveDyn[a].setRule({ tipModel: phys.cfg.hiveTipModel, motionModel: phys.cfg.hiveMotion }); } catch (e) { diag.log('hive setRule: ' + e.message); }
+  }
+  if (key === 'validationTools' || key === '*') setValidationTools(phys.cfg.validationTools);
+  if (key === 'flywheelModel') { S.rpm = plant.state.rpm; }
+  if (key !== '*') toast('Physics: ' + key + ' = ' + phys.cfg[key], 'ok');
+}
+async function setValidationTools(on) {
+  if (on && !validationTools) {
+    try {
+      const { installValidationTools } = await import('./physics/validation-tuning/install.js');
+      if (!phys.cfg.validationTools) return;                  // switched off while loading
+      validationTools = installValidationTools({ THREE, scene3d: scene, world, getDrive: () => drive, diag, doc: document, win: window });
+      toast('Validation tools on: F8 overlay, F9 tuning panel', 'ok');
+    } catch (e) { diag.toast('validation tools failed to load: ' + e.message, 'bad'); }
+  } else if (!on && validationTools) { validationTools.dispose(); validationTools = null; }
+}
 const manualAim = new ManualAim({ turretMinDeg: plantSpec.turretMinDeg, turretMaxDeg: plantSpec.turretMaxDeg, hoodMinDeg: plantSpec.hoodMinDeg, hoodMaxDeg: plantSpec.hoodMaxDeg, maxRpm: plantSpec.maxRpm });
 const S_AIM = { mode: 'auto', enforceZone: true, zone: new LegalZone({ preset: 'open' }), lastCmd: null, label: 'auto', showRegion: false, regionKey: '', region: null };
 const hiveTall = fieldData.boxes.filter(b => b.kind === 'hive_frame').map(b => ({ ...b, zMax: 80 }));   // hive legs are solid posts up to the hive body
-function aimSol(sol) { return sol && sol.ok ? { ok: true, turretDeg: sol.turretDeg, elevDeg: deg(sol.elev), rpm: sol.rpm } : { ok: false }; }
+function aimSol(sol) { return sol && sol.ok ? { ok: true, turretDeg: sol.turretDeg, elevDeg: sol.hoodCmdDeg ?? deg(sol.elev), rpm: sol.rpm } : { ok: false }; }   // elevDeg is the hood command (physical exit: hood map, not elevation)
 function setAimMode(m) {
   S_AIM.mode = m; S_AIM.lastCmd = null;
   Object.assign(manualAim.state, { turretDeg: plant.state.turretDeg, hoodDeg: plant.state.hoodDeg, rpm: plant.state.rpm });
@@ -366,7 +403,7 @@ function plantStep(dt, sol) {
   if (S_AIM.mode !== 'auto') manualAim.update(dt, { ...input, sol: solA });
   const cmd = modeCommand(S_AIM.mode, solA, manualAim, plantSpec, S_AIM.lastCmd);
   S_AIM.lastCmd = cmd; S_AIM.label = cmd.label;
-  plant.step(dt, cmd);
+  phys.plantStep(dt, cmd);                                    // turret/hood: ShooterPlant; rpm: the selected flywheel model
   S.turretDeg = plant.state.turretDeg; S.hoodDeg = plant.state.hoodDeg; S.rpm = plant.state.rpm;
   if (sol && sol.ok) sol.turretCmd = cmd.turretDeg ?? sol.turretDeg;
 }
@@ -395,25 +432,19 @@ function currentCmd() {
 function driveStep(dt) {
   const cmd = currentCmd();
   if (matchClock.phase === 'over') { cmd.fwd = cmd.strafe = cmd.turn = 0; }
-  const prev = { x: S.x, y: S.y, h: S.h };
-  const v = drive.step(cmd, dt, S, { fieldCentric: S_PRACTICE.fieldCentric, headingOffset: S_PRACTICE.headingOffset, alliance: S.alliance });
+  // drive model (kinematic | motor-model) + battery-sag limits + weight-transfer traction limit (physics_glue.js)
+  const v = phys.driveStep(cmd, dt, S, { fieldCentric: S_PRACTICE.fieldCentric, headingOffset: S_PRACTICE.headingOffset, alliance: S.alliance }, { intakeOn: S_PRACTICE.intake });
   S.vx = v.vx; S.vy = v.vy; S.om = v.om;
-  const want = { x: S.x + S.vx * dt, y: S.y + S.vy * dt, h: wrap(S.h + S.om * dt) };
-  const r = resolveRobot(want, prev, obstacles);
-  S.x = r.x; S.y = r.y; S.h = r.h;
-  if (r.hit) {
-    const sv = slideVelocity(S.vx, S.vy, r.normals);
-    S.vx = sv.vx; S.vy = sv.vy;
-    const c = Math.cos(S.h), s = Math.sin(S.h);                         // back into the body frame so the robot does not "remember" pushing into the wall
-    S.bodyV[0] = c * S.vx + s * S.vy; S.bodyV[1] = -s * S.vx + c * S.vy;
-    S.bump = (S.bump || 0) + 1;
-  }
+  // robot vs field (physics_glue moveRobot): legacy pose correction + slide | wall-collisions contact solver | rigid-body world
+  S._coll = phys.moveRobot(S, dt);                                      // for weight transfer / odometry (afterMotion)
+  if (S._coll) S.bump = (S.bump || 0) + 1;
   if (cmd.shoot && !S_PRACTICE.shootHeld) shoot();
   S_PRACTICE.shootHeld = cmd.shoot;
 }
 function placeRobot(x, y) {
   const r = resolveRobot({ x, y, h: S.h }, { x: S.x, y: S.y, h: S.h }, obstacles);
   S.x = r.x; S.y = r.y; S.bodyV = [0, 0, 0]; S.vx = S.vy = 0;
+  phys.relocalize(S);                                          // a sim tool, not wheel motion: the Pinpoint model is told the new pose
 }
 
 // ================= shooting: a real physics ball leaves the shooter; the hive opening captures it =================
@@ -422,13 +453,13 @@ function shoot() {
   if (S_PRACTICE.ammoLimit && S_PRACTICE.ammo <= 0) { diag.toast('Hopper empty: drive over balls with the intake on (I)', 'info', { id: 'hopper-empty' }); return; }
   // shots ALWAYS fire: the ball leaves from the real turret/hood/flywheel state and the physics decides whether it scores
   const f = forwardShot(evalCtx());               // the ball leaves from the REAL turret / hood / rpm, not from the solver
-  const n = S.noise ? 1 + (Math.random() - 0.5) * 0.03 : 1;
+  const n = S.noise ? phys.shotNoise() : 1;                   // seeded (timestep-determinism createRng), same +-1.5 % band as before
   const vel = [f.vel[0] * n, f.vel[1] * n, f.vel[2] * n];
   const kind = f.kind;   // oldest held ball's kind, else the selector; balls.js addBall(type, pos, vel, kind) keeps it
   const ball = world.fireHeld(f.exit, vel) || world.addBall(kind, f.exit, vel, kind);   // a real hold slot is freed so intake can refill
   ball.shot = true; ball.shotAge = 0;
   if (S_PRACTICE.ammoLimit) S_PRACTICE.ammo--;
-  plant.kick(); S.rpm = plant.state.rpm;
+  phys.kick(kind); S.rpm = plant.state.rpm;                   // rpm dip from the selected flywheel model
   stats.record('shot'); S.shots++;
 }
 world.onIntake = (ball, side) => { S_PRACTICE.ammo++; diag.toast('Intake (' + side + '): ' + S_PRACTICE.ammo + '/' + S_PRACTICE.ammoCap, 'ok', { id: 'intake' }); };
@@ -554,7 +585,7 @@ function resetField() {
   for (const a of ['red', 'blue']) { const st = hiveDyn[a].state, h = hive[a]; h.state = st; h.target = h.angles[st]; h.shown = h.angles[st]; }
   updateAimMarks(); refreshTipButtons(); syncBallMeshes(); refreshHiveHud();
 }
-function resetRobot() { Object.assign(S, { x: START.x, y: START.y, h: START.h, vx: 0, vy: 0, om: 0, bodyV: [0, 0, 0], turretDeg: 0, rpm: 0 }); Object.assign(plant.state, { turretDeg: 0, rpm: 0 }); S_PRACTICE.headingOffset = 0; MAP.trail.length = 0; }
+function resetRobot() { Object.assign(S, { x: START.x, y: START.y, h: START.h, vx: 0, vy: 0, om: 0, bodyV: [0, 0, 0], turretDeg: 0, rpm: 0 }); Object.assign(plant.state, { turretDeg: 0, rpm: 0 }); S_PRACTICE.headingOffset = 0; MAP.trail.length = 0; phys.resetRobot(START); }
 // Shared reset for Stop, Restart, the match Reset, Reset field and Reset robot. Order matters: stop the auto first (its reset
 // restores the field through autoHost), then the field, hives, next-shot kind and robot pose.
 function stopAutoRun() { if (autoActive()) autoPlanner.stop(); }
@@ -563,6 +594,7 @@ function resetAllState() {
   resetField();
   resetHiveDynamics();
   resetBallKind();
+  phys.reset(START);                                           // battery back to its preset, fixed clock and noise seed restarted
   resetRobot();
 }
 // Every HiveDynamics back to its CAD start state; the hive meshes, aim marks, tip buttons and HUD follow it.
@@ -703,7 +735,7 @@ const autoRunning = () => !!(autoPlanner.runner && autoPlanner.runner.state === 
 const autoActive = () => !!(autoPlanner.runner && (autoPlanner.runner.state === 'running' || autoPlanner.runner.state === 'paused'));
 function prepareAutoRun() {
   resetField(); stats.reset(); S.shots = 0; S.scored = 0;
-  Object.assign(S, { vx: 0, vy: 0, om: 0, bodyV: [0, 0, 0], turretDeg: 0, rpm: 0 }); Object.assign(plant.state, { turretDeg: 0, rpm: 0 });
+  Object.assign(S, { vx: 0, vy: 0, om: 0, bodyV: [0, 0, 0], turretDeg: 0, rpm: 0 }); Object.assign(plant.state, { turretDeg: 0, rpm: 0 }); phys.resetRobot(S);
   if (S_AUTO.savedLimit === null) S_AUTO.savedLimit = S_PRACTICE.ammoLimit;
   S_PRACTICE.ammoLimit = true; $('opt-ammo').checked = true;                   // real hopper accounting so shootAll ends when the hopper is empty
   S_AUTO.transfer = false;                                                      // every run starts with the transfer off
@@ -1038,6 +1070,10 @@ $('plan-flip').onchange = e => { PLAN_FLIP = !!e.target.checked; MAP.fitKey = nu
 // ================= main loop =================
 const clock = new THREE.Clock();
 let hudT = 0, last = { x: S.x, y: S.y, h: S.h };
+// Physics models card (index.html #phys-panel): one switch per model, persisted per viewer
+const physPanel = createPhysicsPanel(document, $('phys-panel'), $('phys-tel'), phys, (key) => applyPhysicsSwitch(key), lsGet());
+applyPhysicsSwitch('*');
+S.sol = solveShot();                                           // a frame with 0 fixed steps must still find a solution object
 $('loading').style.display = 'none'; diag.bootDone();
 setCam('iso');
 function matchPhase() { const ph = matchClock.phase; return ph === 'auto' || ph === 'transition' ? 'auto' : 'teleop'; }
@@ -1056,15 +1092,23 @@ function simUpdate(dt) {
     S.vx += (nvx - S.vx) * 0.3; S.vy += (nvy - S.vy) * 0.3; S.om += (nom - S.om) * 0.3;
     S.x = p.x; S.y = p.y; S.h = p.h;
   } else if (!pathEditor.playing && !autoActive()) driveStep(dt);
+  if (linkedLive || pathEditor.playing || autoActive()) phys.passiveStep(dt, S, { intakeOn: S_PRACTICE.intake });   // battery-sag keeps running on every motion source
   last = { x: S.x, y: S.y, h: S.h };
+  // weight transfer (loads, pitch/roll, tip) and the Pinpoint model follow every motion source (driver, auto, link, playback)
+  phys.setMech(S.turretDeg, world.held ? world.held.length : 0, S_PRACTICE.intake);
+  phys.afterMotion(S, dt, S._coll); S._coll = null;
+  for (const ev of phys.consumeEvents()) {
+    const msg = { hubReset: 'Control Hub brownout reset: outputs off until it reboots', fuseBlown: 'Main 20 A fuse blown: the robot is dead (Reset field)', lowBattery: 'Low battery warning', tipStarted: 'Robot is tipping from the impact', pinpointLost: 'Pinpoint lost power in the brownout' }[ev];
+    if (msg) diag.toast(msg, ev === 'lowBattery' ? 'warn' : 'bad', { id: 'phys-' + ev });
+  }
 
   S.sol = solveShot();
   if (linkedLive && S.ext.turretDeg !== undefined) {
-    S.turretDeg = S.ext.turretDeg; S.hoodDeg = S.ext.hoodDeg ?? S.hoodDeg; S.rpm = S.ext.rpm ?? S.rpm; Object.assign(plant.state, { turretDeg: S.turretDeg, hoodDeg: S.hoodDeg, rpm: S.rpm });
+    S.turretDeg = S.ext.turretDeg; S.hoodDeg = S.ext.hoodDeg ?? S.hoodDeg; S.rpm = S.ext.rpm ?? S.rpm; Object.assign(plant.state, { turretDeg: S.turretDeg, hoodDeg: S.hoodDeg, rpm: S.rpm }); phys.syncRpm(S.rpm);
     if (S.sol.ok) S.sol.turretCmd = S.sol.turretDeg;
   } else plantStep(dt, S.sol);
   S.eval = evaluateShot(evalCtx());
-  updateRegion3d(); autoRunTick(); autoPlanner.tick(dt); autoShots(dt);
+  updateRegion3d(); autoRunTick(); phys.configureRunner(autoPlanner.runner); autoPlanner.tick(dt); autoShots(dt);   // autoFollower / pedroPlant switches
 
   // hive tip animation
   for (const a of ['red', 'blue']) {
@@ -1073,7 +1117,7 @@ function simUpdate(dt) {
   }
   updateBalls(dt);
 
-  robot.position.set(S.x, S.y, 0); robot.rotation.z = S.h;
+  drawRobot(S);
   turretG.rotation.z = rad(S.turretDeg);
   hoodPivot.rotation.y = -rad(S.hoodDeg);
   flowerArm.update(dt);
@@ -1082,10 +1126,34 @@ function simUpdate(dt) {
   built.animate(dt, { vx: S.vx * cr + S.vy * sr, vy: -S.vx * sr + S.vy * cr, om: S.om, intakeOn: S_PRACTICE.intake, rpm: S.rpm, turretDeg: S.turretDeg, hoodDeg: S.hoodDeg, flowerArmDeg: flowerArm.angleDeg });
   updateCameraAndTags();
 }
+const _robotM = new THREE.Matrix4(), _visM = new THREE.Matrix4();
+function drawRobot(p) {
+  const vm = phys.visualMatrix();                              // weight-transfer chassis pitch/roll/heave and tip-over, robot frame
+  if (vm) { _robotM.makeRotationZ(p.h).setPosition(p.x, p.y, 0).multiply(_visM.fromArray(vm)); _robotM.decompose(robot.position, robot.quaternion, robot.scale); }
+  else { robot.position.set(p.x, p.y, 0); robot.rotation.set(0, 0, p.h); }
+}
+// render interpolation (timestep-determinism FixedClock alpha): ball positions before the last executed fixed step
+const ballPrev = new Map();
+function snapshotBalls() { ballPrev.clear(); for (const b of world.balls) ballPrev.set(b.id, [b.x, b.y, b.z]); }
+function drawInterpolated() {
+  const a = phys.renderAlpha();
+  if (a >= 1) return;                                          // renderInterp off / variable step: simUpdate already drew the current state
+  drawRobot(phys.renderPose(S));
+  for (const b of world.balls) {
+    const m = ballMeshes.get(b.id), q = ballPrev.get(b.id);
+    if (!m || !q || Math.abs(b.x - q[0]) + Math.abs(b.y - q[1]) + Math.abs(b.z - q[2]) > 24) continue;   // [assumed] 24 in = teleport/recycle, draw as is
+    m.position.set(q[0] + (b.x - q[0]) * a, q[1] + (b.y - q[1]) * a, q[2] + (b.z - q[2]) * a);
+  }
+}
 function frame() { requestAnimationFrame(frame); try { frameBody(); } catch (e) { diag.error(e, 'frame loop'); } }
 function frameBody() {
-  const dt = Math.min(clock.getDelta(), 0.05);
-  simUpdate(dt);
+  const rawDt = clock.getDelta();
+  const dt = Math.min(rawDt, 0.05);                            // frame dt for camera/HUD smoothing
+  // fixed step (timestep-determinism FixedClock): 0..N whole steps of h per frame; variable: one step of min(dt, 0.05 s)
+  const fs = phys.frameSteps(rawDt);
+  for (let k = 0; k < fs.steps; k++) { phys.beginStep(S); snapshotBalls(); simUpdate(fs.h); phys.onStep(); }
+  drawInterpolated();                                          // draw at lerp(previous step, current step, alpha)
+  if (validationTools) validationTools.tick(dt * 1000);
 
   // trajectory preview
   const sol = S.sol;
@@ -1191,7 +1259,7 @@ function updateHud() {
   if (s.ok) {
     $('v-dist').textContent = `${f(s.d)} in / ${f(s.T, 2)} s`;
     $('v-turret').innerHTML = `set ${f(s.turretCmd ?? s.turretDeg)}° · now ${f(S.turretDeg)}°`;
-    $('v-hood').textContent = `set ${f(deg(s.elev))}° · now ${f(S.hoodDeg)}°${s.clamped ? ' (clamped)' : ''}`;
+    $('v-hood').textContent = `set ${f(s.hoodCmdDeg ?? deg(s.elev))}° · now ${f(S.hoodDeg)}°${s.clamped ? ' (clamped)' : ''}${s.hoodCmdDeg != null ? ' (launch ' + f(deg(s.elev)) + '°)' : ''}`;
     $('v-rpm').textContent = `set ${f(s.rpm, 0)} · now ${f(S.rpm, 0)}`;
     $('v-entry').textContent = `${f(s.entry)}°`;
     const ready = Math.abs(S.rpm - s.rpm) / s.rpm < 0.04 && Math.abs((s.turretCmd ?? s.turretDeg) - S.turretDeg) < 2;
@@ -1200,6 +1268,7 @@ function updateHud() {
   }
   updateAutoPanel();
   updateHiveHud(performance.now());
+  if (physPanel && $('phys-card').open) physPanel.setTelemetry(formatPhysicsTelemetry(phys.telemetry(S)));
   $('v-tags').innerHTML = (S.visibleTags || []).map(i => `<span class="tag vis">${i}</span>`).join('') || '<span class="dim">none</span>';
   $('v-tx').textContent = Number.isFinite(S.tx) ? S.tx.toFixed(1) + '°' : '-';
   $('v-score').textContent = `${S.shots} / ${S.scored}`;
@@ -1208,6 +1277,6 @@ function updateHud() {
     $('pstats').textContent = `shots ${sm.shots ?? 0} · scored ${sm.scored ?? 0} · missed ${sm.misses} · balls ${S_PRACTICE.ammo}/${S_PRACTICE.ammoCap}` + (S_PRACTICE.fieldCentric ? ' · field-centric' : ''); }
   for (const id of Object.keys(tagInfo)) tagInfo[id].label.element.style.outline = tagInfo[id].visible ? '1px solid #5fe08a' : 'none';
 }
-window.__sim = { flowerArm, built, step: simUpdate, renderer, sun, S, world, hiveDyn, obstacles, matchClock, scorer, stats, autoPlanner, autoHost, pathEditor, S_PRACTICE, hive, camera, controls, setCam, tip, shoot: () => shoot(), S_AIM, get ballKind() { return S.ballKind; }, plant, manualAim, diag, evalCtx, evaluateShot, scene, layers };   // handy for debugging in the console
+window.__sim = { flowerArm, built, step: simUpdate, renderer, sun, S, world, hiveDyn, obstacles, matchClock, scorer, stats, autoPlanner, autoHost, pathEditor, S_PRACTICE, hive, camera, controls, setCam, tip, shoot: () => shoot(), S_AIM, get ballKind() { return S.ballKind; }, plant, manualAim, diag, evalCtx, phys, get validationTools() { return validationTools; }, evaluateShot, scene, layers };   // handy for debugging in the console
 { const h = (location.hash || '').slice(1); setView(['3d', 'auto', 'viz'].includes(h) ? h : '3d'); }   // #path, #auto ... deep-link a tab
 requestAnimationFrame(frame);

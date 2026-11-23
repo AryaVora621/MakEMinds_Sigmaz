@@ -29,6 +29,12 @@
 
 import { BALL_KINDS, launchScaleFor, LAUNCH_REF_KIND } from './balls.js';
 import { rimClearanceIn } from './aimcontrol.js';
+import { PARAMS } from './physics/shooter-exit/params.js';
+import { exitState, rpmForExitSpeed } from './physics/shooter-exit/exit_model.js';
+import { hoodToElevDeg, elevToHoodDeg, exitPointWorld, launchVelocityWorld, makeExitFn } from './physics/shooter-exit/launch_geometry.js';
+import { shotSigmas, perturbLaunch, launchVel, analyticHitProbability, monteCarloHit } from './physics/shooter-exit/dispersion.js';
+import { mulberry32, makeGaussian } from './physics/shooter-exit/rng.js';
+import { predictPose } from './physics/shooter-exit/lead.js';
 
 export const SHOOT_MODES = ['auto', 'assist', 'manual', 'free'];
 /* Ball kind of a shot ctx.kind ('pollen' | 'nectar'); anything else is the reference pollen. The kind sets the ball radius
@@ -40,6 +46,7 @@ export const REASON = {
   BEHIND_OPENING: 'BEHIND_OPENING', TRAJECTORY_BLOCKED: 'TRAJECTORY_BLOCKED',
   FLYWHEEL_NOT_READY: 'FLYWHEEL_NOT_READY', TURRET_NOT_READY: 'TURRET_NOT_READY', HOOD_NOT_READY: 'HOOD_NOT_READY',
   NO_AMMO: 'NO_AMMO', ILLEGAL_ZONE: 'ILLEGAL_ZONE', OUT_OF_FIELD: 'OUT_OF_FIELD', WRONG_MODE_PARAM: 'WRONG_MODE_PARAM',
+  LOW_HIT_PROB: 'LOW_HIT_PROB',
 };
 
 export const G = 386.0886;
@@ -129,22 +136,51 @@ export function trajectoryBlocked(start, vel, obstacles, hiveBoxes, opts) {
 }
 
 // ---------------------------------------------------------------- shooter kinematics
+/* Exit model: 'legacy' (default, bit-identical to the original formula) or 'physical' (shooter-exit/exit_model.js, opt-in via
+ * shooter.exitModel === 'physical'). */
+export function exitModelOf(sh) { return sh && sh.exitModel === 'physical' ? 'physical' : 'legacy'; }
+const gapOf = (sh, kind) => (sh && sh.gapIn ? sh.gapIn[kind] : undefined);
+const exitOpts = (sh, kind) => ({ model: exitModelOf(sh), wheelR: sh.wheelR, eff: sh.eff, rpmScale: sh.rpmScale || 1, gapIn: gapOf(sh, kind), maxRpm: sh.maxRpm });
+const geomOpts = (sh, kind) => ({ model: exitModelOf(sh), gapIn: gapOf(sh, kind), wheelR: sh.wheelR });
 // Wheel-surface speed from rpm (the existing model), then the ball's mass factor: exit speed = wheel speed * massScale.
-function speedFromRpm(rpm, sh, massScale) { return Math.max(0, rpm) / (sh.rpmScale || 1) * 2 * Math.PI * sh.wheelR * sh.eff / 60 * (massScale == null ? 1 : massScale); }
-// Inverse: rpm needed for a ball of massScale to leave at `speed` (exact inverse of speedFromRpm).
-function rpmFromSpeed(speed, sh, core, massScale) { return core.rpmEstimate(speed / (massScale == null ? 1 : massScale), sh.wheelR, sh.eff) * (sh.rpmScale || 1); }
+function speedFromRpm(rpm, sh, massScale, kind) {
+  if (exitModelOf(sh) === 'physical') return exitState(rpm, kind || LAUNCH_REF_KIND, exitOpts(sh, kind || LAUNCH_REF_KIND)).speed;
+  return Math.max(0, rpm) / (sh.rpmScale || 1) * 2 * Math.PI * sh.wheelR * sh.eff / 60 * (massScale == null ? 1 : massScale);
+}
+// Inverse: rpm needed for a ball of massScale to leave at `speed` (exact inverse of speedFromRpm). Physical: NaN (unreachable) -> Infinity.
+function rpmFromSpeed(speed, sh, core, massScale, kind) {
+  if (exitModelOf(sh) === 'physical') {
+    const k = kind || LAUNCH_REF_KIND, r = rpmForExitSpeed(speed, k, exitOpts(sh, k));
+    return Number.isNaN(r) ? Infinity : r;
+  }
+  return core.rpmEstimate(speed / (massScale == null ? 1 : massScale), sh.wheelR, sh.eff) * (sh.rpmScale || 1);
+}
+// Hood actuator angle [deg] of a solver result (legacy: elevation in deg, exactly r.elev*DEG).
+function hoodOf(sol, sh, kind) {
+  if (exitModelOf(sh) !== 'physical') return sol.elev * DEG;
+  return sol.exitOffset && sol.hoodDeg != null ? sol.hoodDeg : elevToHoodDeg(sol.elev * DEG, kind, geomOpts(sh, kind));
+}
 
 function pivotWorld(pose, sh) {
   const c = Math.cos(pose.h), s = Math.sin(pose.h), px = sh.pivotX || 0, py = sh.pivotY || 0;
   return [pose.x + c * px - s * py, pose.y + s * px + c * py];
 }
 
-/** Ball launch from the REAL turret/hood/rpm, for the kind of ctx.kind (default pollen). Returns the kind and its radius too. */
+/** Ball launch from the REAL turret/hood/rpm, for the kind of ctx.kind (default pollen). Returns the kind and its radius too.
+ *  Physical exit model adds spinRadS, compression, contactTimeS, sigma (and uses the hood map + exit geometry). */
 export function forwardShot(ctx) {
   const { pose, shooter: sh } = ctx;
   const kind = kindName(ctx), ms = launchScaleFor(kind);
+  if (exitModelOf(sh) === 'physical') {
+    const go = geomOpts(sh, kind), st = exitState(ctx.rpm || 0, kind, exitOpts(sh, kind));
+    const az = pose.h + (ctx.turretDeg || 0) * RAD, el = hoodToElevDeg(ctx.hoodDeg || 0, kind, go) * RAD;
+    const exit = exitPointWorld(pose, sh, az, el, kind, go);
+    const { vel, vBase } = launchVelocityWorld({ pose, robotVel: ctx.robotVel, sh, azRad: az, elevRad: el, speed: st.speed, exit, turretRateDegS: ctx.turretRateDegS || 0 });
+    return { speed: st.speed, elevRad: el, azRad: az, vel, exit, kind, ballR: rimClearanceIn(kind), massScale: ms, vBase,
+      spinRadS: st.spinRadS, compression: st.compression, contactTimeS: st.contactTimeS, sigma: shotSigmas(kind, { gapIn: gapOf(sh, kind) }) };
+  }
   const az = pose.h + (ctx.turretDeg || 0) * RAD, el = (ctx.hoodDeg || 0) * RAD;
-  const speed = speedFromRpm(ctx.rpm || 0, sh, ms);
+  const speed = speedFromRpm(ctx.rpm || 0, sh, ms, kind);
   const [px, py] = pivotWorld(pose, sh);
   const rv = ctx.robotVel || pose;   // optional override {vx,vy,om} (robot velocity at the moment of firing)
   const vx0 = (rv.vx || 0) - (rv.om || 0) * (py - pose.y), vy0 = (rv.vy || 0) + (rv.om || 0) * (px - pose.x);
@@ -153,10 +189,29 @@ export function forwardShot(ctx) {
 }
 
 /** The ball that leaves the shooter right now: position and velocity from the ACTUAL rpm / hood / turret / robot motion.
- *  Never refuses (rpm 0 gives speed 0, the ball just drops out). Same numbers as forwardShot. */
+ *  Never refuses (rpm 0 gives speed 0, the ball just drops out). Same numbers as forwardShot unless ctx.noise is given:
+ *  ctx.noise {seed?, rng?} scatters speed/elevation/azimuth/release time (dispersion.js); rng persists in ctx.noise.rng. */
 export function launchBall(ctx) {
   const f = forwardShot(ctx);
-  return { pos: f.exit, vel: f.vel, speed: f.speed, elevRad: f.elevRad, azRad: f.azRad, kind: f.kind, ballR: f.ballR };
+  const out = { pos: f.exit, vel: f.vel, speed: f.speed, elevRad: f.elevRad, azRad: f.azRad, kind: f.kind, ballR: f.ballR,
+    spinRadS: f.spinRadS, noiseApplied: false };
+  if (ctx.noise) {
+    const nz = ctx.noise;
+    if (!nz.rng) nz.rng = mulberry32(nz.seed == null ? PARAMS.dispersion.SEED : nz.seed);
+    if (!nz.gauss) nz.gauss = makeGaussian(nz.rng);
+    const sig = f.sigma || shotSigmas(f.kind, { gapIn: gapOf(ctx.shooter, f.kind) });
+    const pl = perturbLaunch(launchFrom(f), sig, nz.gauss);
+    out.pos = pl.pos; out.speed = pl.speed; out.elevRad = pl.elevRad; out.azRad = pl.azRad; out.vel = launchVel(pl);
+    out.noiseApplied = true;
+  }
+  return out;
+}
+
+// Dispersion launch object of a forwardShot: vBase = vel - speed*direction (works for both exit models).
+function launchFrom(f) {
+  const ce = Math.cos(f.elevRad);
+  const vBase = f.vBase || [f.vel[0] - f.speed * ce * Math.cos(f.azRad), f.vel[1] - f.speed * ce * Math.sin(f.azRad), f.vel[2] - f.speed * Math.sin(f.elevRad)];
+  return { pos: f.exit.slice(), speed: f.speed, elevRad: f.elevRad, azRad: f.azRad, vBase };
 }
 
 function targetOf(ctx) { return ctx.target; }
@@ -179,19 +234,29 @@ function landing(fs, ctx, boxes) {
 }
 
 // ---------------------------------------------------------------- auto solver (mirrors app.js solveShot)
-function solveAuto(pose, sh, tg, core, kind, robotVel) {
-  const rv = robotVel || pose;   // robot velocity used by the solver (closed form: the pivot velocity enters the ball's ground velocity)
+function solveAuto(pose, sh, tg, core, kind, robotVel, leadS) {
+  let rv = robotVel || pose;   // robot velocity used by the solver (closed form: the pivot velocity enters the ball's ground velocity)
+  if (leadS > 0) {   // latency look-ahead: solve for the pose/velocity the robot will have at release
+    const pp = predictPose(pose, { vx: rv.vx || 0, vy: rv.vy || 0, om: rv.om || 0 }, leadS);
+    pose = { ...pose, x: pp.x, y: pp.y, h: pp.h }; rv = { vx: pp.vx, vy: pp.vy, om: pp.om };
+  }
   const p = { x: pose.x, y: pose.y, psi: pose.h, vx: rv.vx || 0, vy: rv.vy || 0, om: rv.om || 0,
     rx: sh.pivotX || 0, ry: sh.pivotY || 0, z0: sh.exitHeight, X: tg.x, Y: tg.y, Z: tg.z };
-  let r = core.solve(p, 'gamma', (sh.entryDeg == null ? DEFAULT_ENTRY_DEG : sh.entryDeg) * RAD, 'low');
+  const physical = exitModelOf(sh) === 'physical';
+  const gam = (sh.entryDeg == null ? DEFAULT_ENTRY_DEG : sh.entryDeg) * RAD;
+  const kk = kind || LAUNCH_REF_KIND, go = geomOpts(sh, kk);
+  const exitFn = physical ? makeExitFn(pose, sh, kk, go) : null;
+  const slv = physical ? (mode, param) => core.solveExit(p, mode, param, 'low', exitFn) : (mode, param) => core.solve(p, mode, param, 'low');
+  let r = slv('gamma', gam);
   if (r.ok) {
-    const e = r.elev * DEG, c = Math.min(sh.hoodMax, Math.max(sh.hoodMin, e));
-    if (c !== e) { const r2 = core.solve(p, 'theta', c * RAD, 'low'); if (r2.ok) r = r2; }
+    const e = physical ? elevToHoodDeg(r.elev * DEG, kk, go) : r.elev * DEG, c = Math.min(sh.hoodMax, Math.max(sh.hoodMin, e));
+    if (c !== e) { const r2 = slv('theta', (physical ? hoodToElevDeg(c, kk, go) : c) * RAD); if (r2.ok) r = r2; }
   }
-  r.p = p;
+  if (!physical) r.p = p;   // physical: solveExit already set r.p to the offset-exit parameters
   // r.speed is the BALL exit speed the aim needs; the rpm is the wheel rpm that gives that speed for this kind's mass.
-  r.rpm = r.ok ? rpmFromSpeed(r.speed, sh, core, launchScaleFor(kind || LAUNCH_REF_KIND)) : 0;
+  r.rpm = r.ok ? rpmFromSpeed(r.speed, sh, core, launchScaleFor(kk), kk) : 0;
   r.turretDeg = r.ok ? r.turret * DEG : 0;
+  r.hoodDeg = physical ? (r.ok ? elevToHoodDeg(r.elev * DEG, kk, go) : NaN) : r.elev * DEG;
   if (r.ok) {
     const n = tg.normal, vg = [r.vs[0] + r.uh[0], r.vs[1] + r.uh[1], r.uz - G * r.T];
     r.fromBehind = n[0] * vg[0] + n[1] * vg[1] + n[2] * vg[2] >= 0;
@@ -200,12 +265,18 @@ function solveAuto(pose, sh, tg, core, kind, robotVel) {
 }
 
 const rangeCache = new Map();
-function rangeKey(sh, tg, kind) { return [sh.exitHeight, sh.wheelR, sh.eff, sh.rpmScale, sh.maxRpm, sh.hoodMin, sh.hoodMax, sh.entryDeg, sh.pivotX, sh.pivotY, tg.z, kind].join('|'); }
+let _paramsKey = null;
+function paramsKey() { return _paramsKey || (_paramsKey = JSON.stringify([PARAMS.geom, PARAMS.hood, PARAMS.compression, PARAMS.model, PARAMS.wheel, PARAMS.slip, PARAMS.ball])); }
+function rangeKey(sh, tg, kind) {
+  const base = [sh.exitHeight, sh.wheelR, sh.eff, sh.rpmScale, sh.maxRpm, sh.hoodMin, sh.hoodMax, sh.entryDeg, sh.pivotX, sh.pivotY, tg.z, kind].join('|');
+  const phys = exitModelOf(sh) === 'physical';
+  return base + '|' + exitModelOf(sh) + '|' + JSON.stringify(sh.gapIn || null) + (phys ? '|' + paramsKey() : '');
+}
 
 function stationaryOk(d, sh, tg, core, kind) {
   const r = solveAuto({ x: tg.x - d, y: tg.y, h: 0 }, sh, { x: tg.x, y: tg.y, z: tg.z, normal: [-1, 0, 0] }, core, kind);
   if (!r.ok) return false;
-  const e = r.elev * DEG;
+  const e = r.hoodDeg;
   return r.rpm <= sh.maxRpm && e >= sh.hoodMin - 1e-9 && e <= sh.hoodMax + 1e-9 && !r.fromBehind;
 }
 function ranges(sh, tg, core, kind) {
@@ -238,7 +309,7 @@ export function maxRangeEstimate(shooter, target, core, kind) { return ranges(sh
 export function nearestRangeEstimate(shooter, target, core, kind) { return ranges(shooter, target, core || getCore(), kindName({ kind })).near; }
 /** Auto solution for one ball kind from a pose (the same solve the auto mode uses): {ok, turretDeg, elevDeg, rpm, speed, ...}. */
 /* robotVel (optional, trailing, default = pose.vx/vy/om): {vx,vy,om} of the robot at the moment of firing. */
-export function solveAutoShot(pose, shooter, target, kind, core, robotVel) { return solveAuto(pose, shooter, target, core || getCore(), kindName({ kind }), robotVel); }
+export function solveAutoShot(pose, shooter, target, kind, core, robotVel, leadS) { return solveAuto(pose, shooter, target, core || getCore(), kindName({ kind }), robotVel, leadS); }
 
 // ---------------------------------------------------------------- the physics rule set shared by auto/assist/region
 function R(code, severity, text) { return { code, severity, text }; }
@@ -246,7 +317,7 @@ function R(code, severity, text) { return { code, severity, text }; }
 /** Evaluate the solver feasibility for the aim target. Returns {reasons, sol}. checkPath: also test the solver path vs obstacles. */
 function autoPhysics(pose, sh, tg, ctx, core, sol, checkPath, boxes) {
   const reasons = [], kind = kindName(ctx), ballR = rimClearanceIn(kind);
-  if (!sol) sol = solveAuto(pose, sh, tg, core, kind, ctx.robotVel);
+  if (!sol) sol = solveAuto(pose, sh, tg, core, kind, ctx.robotVel, ctx.leadS);
   const [px, py] = pivotWorld(pose, sh);
   const d = Math.hypot(tg.x - px, tg.y - py);
   const rg = ranges(sh, tg, core, kind);
@@ -256,7 +327,7 @@ function autoPhysics(pose, sh, tg, ctx, core, sol, checkPath, boxes) {
     else reasons.push(R(REASON.NO_SOLUTION, 'block', 'No ballistic solution to the opening from here' + (sol.reason ? ` (${sol.reason})` : '')));
     return { reasons, sol, d };
   }
-  const elev = sol.elev * DEG, rpm = sol.rpm;
+  const elev = hoodOf(sol, sh, kind), rpm = sol.rpm;
   if (elev < sh.hoodMin - 1e-6 || elev > sh.hoodMax + 1e-6) {
     if (rg.far === rg.far && d > rg.far) reasons.push(R(REASON.OUT_OF_RANGE_FAR, 'block', `Too far: ${d.toFixed(0)} in away, max range is about ${Math.floor(rg.far)} in`));
     else if (rg.near === rg.near && d < rg.near) reasons.push(R(REASON.OUT_OF_RANGE_NEAR, 'block', `Too close: ${d.toFixed(0)} in away, min range is about ${Math.ceil(rg.near)} in`));
@@ -269,7 +340,7 @@ function autoPhysics(pose, sh, tg, ctx, core, sol, checkPath, boxes) {
   if (sol.fromBehind) reasons.push(R(REASON.BEHIND_OPENING, 'block', 'Ball would arrive from behind the hive opening'));
   if (checkPath) {
     const vel = [sol.vs[0] + sol.uh[0], sol.vs[1] + sol.uh[1], sol.uz];
-    const fl = flight([sol.P[0], sol.P[1], sh.exitHeight], vel, ctx.obstacles, ctx.hiveBoxes, { target: tg, _boxes: boxes, ballR });
+    const fl = flight([sol.P[0], sol.P[1], sol.p && sol.p.z0 != null && exitModelOf(sh) === 'physical' ? sol.p.z0 : sh.exitHeight], vel, ctx.obstacles, ctx.hiveBoxes, { target: tg, _boxes: boxes, ballR });
     if (fl.blocked) reasons.push(R(REASON.TRAJECTORY_BLOCKED, 'block', `Ball path blocked by ${fl.by} at (${fl.at.map(v => v.toFixed(0)).join(', ')})`));
   }
   const pri = c => (c === REASON.OUT_OF_RANGE_FAR || c === REASON.OUT_OF_RANGE_NEAR ? 0 : 1);
@@ -306,12 +377,69 @@ function hintFor(reasons, sh, tg, core, kind) {
       case REASON.ILLEGAL_ZONE: return 'Drive into the allowed shooting zone';
       case REASON.FLYWHEEL_NOT_READY: return 'Wait for the flywheel to spin up';
       case REASON.TURRET_NOT_READY: return 'Wait for the turret to settle on the target';
+      case REASON.LOW_HIT_PROB: return 'Move closer or to a steadier pose to raise the hit probability';
       case REASON.HOOD_NOT_READY: return 'Wait for the hood to settle';
       case REASON.WRONG_MODE_PARAM: return 'Use one of: ' + SHOOT_MODES.join(', ');
       default: return 'Reposition and try again';
     }
   }
   return null;
+}
+
+// ---------------------------------------------------------------- dispersion (opt-in: ctx.dispersion / ctx.minHitProb)
+// Launch object ({pos, speed, elevRad, azRad, vBase}) of the auto solution (exit point, ground velocity of the exit, ball speed).
+function solverLaunch(sol, sh, kind) {
+  const z0 = sol.p && sol.p.z0 != null && exitModelOf(sh) === 'physical' ? sol.p.z0 : sh.exitHeight;
+  return { pos: [sol.P[0], sol.P[1], z0], speed: sol.speed, elevRad: sol.elev, azRad: sol.az, vBase: [sol.vs[0], sol.vs[1], 0], ballR: rimClearanceIn(kind), sigma: shotSigmas(kind, { gapIn: gapOf(sh, kind) }) };
+}
+function dispOpts(ctx, opts) {
+  const dc = ctx.dispersion && typeof ctx.dispersion === 'object' ? ctx.dispersion : {};
+  const o = opts || {};
+  return { method: o.method || dc.method || 'analytic', n: o.n || dc.n, seed: o.seed != null ? o.seed : dc.seed };
+}
+/** Hit probability of a launch {pos, speed, elevRad, azRad, vBase, ballR?, sigma?}: analytic, Monte Carlo (through landing()) or both. */
+function dispersionFor(ctx, launch, boxes, kind, opts) {
+  const o = dispOpts(ctx, opts), core = getCore(ctx), tg = ctx.target;
+  const ballR = launch.ballR != null ? launch.ballR : rimClearanceIn(kind);
+  const sig = launch.sigma || shotSigmas(kind, { gapIn: gapOf(ctx.shooter, kind) });
+  const res = { method: o.method };
+  if (o.method !== 'mc') res.analytic = analyticHitProbability({ launch, sig, target: tg, ballR, core });
+  if (o.method === 'mc' || o.method === 'both') {
+    const mcOpts = { launch, sig, simulate: (l) => { const r = landing({ exit: l.pos, vel: launchVel(l), ballR }, ctx, boxes); return { lands: r.lands, miss: r.miss }; } };
+    if (o.n) mcOpts.n = o.n;
+    if (o.seed != null) mcOpts.seed = o.seed;
+    res.mc = monteCarloHit(mcOpts);
+  }
+  res.p = o.method === 'mc' ? res.mc.p : res.analytic.p;
+  res.spread = o.method === 'mc' ? res.mc.spread : res.analytic.sigma;
+  return res;
+}
+// Adds forward.hitProb/spread/method (when ctx.dispersion) and LOW_HIT_PROB (when ctx.minHitProb) for assist/manual.
+function dispersionOf(ctx, fs, forward, boxes, reasons) {
+  if (!ctx.dispersion && ctx.minHitProb == null) return;
+  const d = dispersionFor(ctx, { ...launchFrom(fs), ballR: fs.ballR, sigma: fs.sigma }, boxes, fs.kind);
+  if (ctx.dispersion) { forward.hitProb = d.p; forward.spread = d.spread; forward.method = d.method; }
+  if (ctx.minHitProb != null && d.p < ctx.minHitProb) reasons.push(R(REASON.LOW_HIT_PROB, 'block', `Hit probability ${(d.p * 100).toFixed(0)}% is below ${(ctx.minHitProb * 100).toFixed(0)}%`));
+}
+
+/** Hit probability for the shot of ctx (same ctx as evaluateShot). auto: the solver launch; assist/manual: the actual setpoints.
+ *  opts {method:'analytic'|'mc'|'both' = 'analytic', n, seed}. Returns {p, method, analytic?, mc?, spread:[sigmaLat, sigmaUp]}. */
+export function hitProbability(ctx, opts) {
+  const kind = kindName(ctx), boxes = allBoxes(ctx.obstacles, ctx.hiveBoxes);
+  let launch;
+  if (ctx.mode === 'auto') {
+    const sol = solveAuto(ctx.pose, ctx.shooter, ctx.target, getCore(ctx), kind, ctx.robotVel, ctx.leadS);
+    if (!sol.ok) return { p: 0, method: dispOpts(ctx, opts).method, spread: [0, 0] };
+    launch = solverLaunch(sol, ctx.shooter, kind);
+  } else {
+    const fs = forwardShot(ctx);
+    launch = { ...launchFrom(fs), ballR: fs.ballR, sigma: fs.sigma };
+  }
+  const d = dispersionFor(ctx, launch, boxes, kind, opts);
+  const out = { p: d.p, method: d.method, spread: d.spread };
+  if (d.analytic) out.analytic = d.analytic;
+  if (d.mc) out.mc = d.mc;
+  return out;
 }
 
 /** Main entry: should this shot be allowed, and why not. */
@@ -331,9 +459,10 @@ export function evaluateShot(ctx) {
     if (!hint && blocks.length && blocks[0].code === REASON.WRONG_MODE_PARAM) hint = 'Use one of: ' + SHOOT_MODES.join(', ');
     const out = { allowed, reasons, summary, hint };
     if (forward) out.forward = forward;
+    if (autoHit != null) out.hitProb = autoHit;
     return out;
   };
-  let forward = null;
+  let forward = null, autoHit = null;
   if (!SHOOT_MODES.includes(mode)) { reasons.push(R(REASON.WRONG_MODE_PARAM, 'block', `Unknown shoot mode '${mode}'`)); return finish(); }
 
   if (ctx.ammo && ctx.ammo.limited && !(ctx.ammo.count > 0)) reasons.push(R(REASON.NO_AMMO, 'block', 'No balls loaded'));
@@ -359,6 +488,7 @@ export function evaluateShot(ctx) {
       const dd = Math.hypot(forward.at[0] - fs.exit[0], forward.at[1] - fs.exit[1], forward.at[2] - fs.exit[2]);
       reasons.push(R(REASON.TRAJECTORY_BLOCKED, dd <= EXIT_BLOCK_IN ? 'block' : 'warn', `Ball path blocked by ${forward.by} ${dd.toFixed(0)} in from the exit`));
     }
+    dispersionOf(ctx, fs, forward, boxes, reasons);
     reasons.push({ code: 'FORWARD_SIM', severity: 'info', text: forward.lands ? 'Ball would enter the opening' : 'Ball would miss the opening' });
     return finish();
   }
@@ -368,7 +498,7 @@ export function evaluateShot(ctx) {
   const ms0 = launchScaleFor(kindName(ctx));
   if (sol0) {
     // the caller's solution holds the pollen rpm; a non-reference kind needs its own rpm for the same exit speed
-    if (sol0.rpm == null || ms0 !== 1) sol0.rpm = rpmFromSpeed(sol0.speed, sh, core, ms0);
+    if (sol0.rpm == null || ms0 !== 1 || exitModelOf(sh) === 'physical') sol0.rpm = rpmFromSpeed(sol0.speed, sh, core, ms0, kindName(ctx));
     if (sol0.turretDeg == null) sol0.turretDeg = sol0.turret * DEG;
     if (sol0.fromBehind == null) { const n = tg.normal; sol0.fromBehind = n[0] * (sol0.vs[0] + sol0.uh[0]) + n[1] * (sol0.vs[1] + sol0.uh[1]) + n[2] * (sol0.uz - G * sol0.T) >= 0; }
   }
@@ -384,11 +514,16 @@ export function evaluateShot(ctx) {
         const tErr = Math.abs(tc - (ctx.turretDeg || 0));
         if (tErr > tolT) reasons.push(R(REASON.TURRET_NOT_READY, 'block', `Turret ${tErr.toFixed(1)} deg off target`));
       }
-      const hErr = Math.abs(sol.elev * DEG - (ctx.hoodDeg || 0));
+      const hErr = Math.abs(hoodOf(sol, sh, kindName(ctx)) - (ctx.hoodDeg || 0));
       if (hErr > tolH) reasons.push(R(REASON.HOOD_NOT_READY, 'block', `Hood ${hErr.toFixed(1)} deg off setpoint`));
       const rErr = Math.abs((ctx.rpm || 0) - sol.rpm) / Math.max(sol.rpm, 1);
       if ((ctx.rpm || 0) < MIN_SPIN_RPM) reasons.push(R(REASON.FLYWHEEL_NOT_READY, 'block', 'Flywheel is off'));
       else if (rErr > tolR) reasons.push(R(REASON.FLYWHEEL_NOT_READY, 'block', `Flywheel ${(rErr * 100).toFixed(0)}% off setpoint`));
+      if (ctx.dispersion || ctx.minHitProb != null) {
+        const d = dispersionFor(ctx, solverLaunch(sol, sh, kindName(ctx)), boxes, kindName(ctx));
+        autoHit = d.p;
+        if (ctx.minHitProb != null && d.p < ctx.minHitProb) reasons.push(R(REASON.LOW_HIT_PROB, 'block', `Hit probability ${(d.p * 100).toFixed(0)}% is below ${(ctx.minHitProb * 100).toFixed(0)}%`));
+      }
     }
     return finish();
   }
@@ -401,6 +536,7 @@ export function evaluateShot(ctx) {
   const fs = forwardShot(ctx);
   forward = landing(fs, ctx, boxes);
   if (forward.blocked) reasons.push(R(REASON.TRAJECTORY_BLOCKED, 'block', `Ball path blocked by ${forward.by} at (${forward.at.map(v => v.toFixed(0)).join(', ')})`));
+  dispersionOf(ctx, fs, forward, boxes, reasons);
   reasons.push({ code: 'FORWARD_SIM', severity: 'info', text: forward.lands ? 'Ball would enter the opening' : 'Ball would miss the opening' });
   return finish();
 }

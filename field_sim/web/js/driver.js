@@ -12,6 +12,8 @@
 //   * Gamepad/keyboard mappings, deadzone 0.08, drive accel/decel numbers, camera heights and limits.
 
 import { RULES } from './matchrules.js';
+import { MecanumDynamics, resolveParams } from './physics/mecanum-dynamics/index.js';
+export { MecanumDynamics, resolveParams };
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const wrap = a => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; };
@@ -106,6 +108,12 @@ export function driverForwardOffset(alliance) { return alliance === 'blue' ? Mat
  * base rotated ccw by (driverForwardOffset(alliance) + headingOffset): the alliance part is applied when
  * opts.alliance (constructor or step option) is given, headingOffset (rad, ccw) is an extra IMU-style reset.
  * Robot-centric: fwd/strafe are along the robot's own axes.
+ *
+ * Models: opts.model = 'kinematic' (default, the slew-rate model above, unchanged) or 'dynamic' (opt-in
+ * rigid-body mecanum model in physics/mecanum-dynamics; opts.spec = robot spec JSON or null, opts.dynamics =
+ * parameter overrides). In dynamic mode state.bodyV is the momentum state (in/s, in/s, rad/s), maxSpeed/
+ * maxAccel/strafeFactor etc. are ignored, the stick is normalised to the unit disc, and slip scales grip
+ * (1 - 0.7*slip). step() never moves the pose. Per-wheel telemetry is left in this.lastTelemetry.
  */
 export class MecanumDrive {
   constructor(opts = {}) {
@@ -118,7 +126,15 @@ export class MecanumDrive {
     this.strafeFactor = opts.strafeFactor ?? 0.85;
     this.slip = opts.slip ?? 0.0;                           // 0..1: reduces grip (accel/decel) when >0
     this.alliance = opts.alliance ?? null;                  // 'red'|'blue' -> field-centric forward points across the field
+    this._model = opts.model ?? 'kinematic';                // 'kinematic' | 'dynamic'
+    if (this._model !== 'kinematic' && this._model !== 'dynamic') throw new Error('unknown drive model ' + this._model);
+    this.lastTelemetry = null;                              // per-wheel telemetry of the last dynamic step
+    this._dyn = this._model === 'dynamic'
+      ? new MecanumDynamics({ spec: opts.spec ?? null, overrides: opts.dynamics ?? {} })
+      : null;
   }
+
+  get model() { return this._model; }
 
   _approach(cur, want, accel, decel, dt) {
     const braking = Math.abs(want) < Math.abs(cur) || cur * want < 0;
@@ -132,6 +148,22 @@ export class MecanumDrive {
     if (!state.bodyV) state.bodyV = [0, 0, 0];
     const fwd = clamp(cmd.fwd || 0, -1, 1), str = clamp(cmd.strafe || 0, -1, 1), trn = clamp(cmd.turn || 0, -1, 1);
     const c = Math.cos(state.h), s = Math.sin(state.h);
+    if (this._dyn) {
+      let f, l;
+      if (fieldCentric) {
+        const dx = -str, dy = fwd;
+        const co = Math.cos(headingOffset), so = Math.sin(headingOffset);
+        const wx = dx * co - dy * so, wy = dx * so + dy * co;
+        f = wx * c + wy * s;
+        l = -wx * s + wy * c;
+      } else { f = fwd; l = str; }
+      const m = Math.hypot(f, l);
+      if (m > 1) { f /= m; l /= m; }
+      this._dyn.setGripScale(1 - 0.7 * clamp(this.slip, 0, 1));
+      const r = this._dyn.step(state, { fwd: f, strafe: l, turn: trn }, dt);
+      this.lastTelemetry = r.telemetry;
+      return { vx: r.vx, vy: r.vy, om: r.om };
+    }
     let wantF, wantL;
     if (fieldCentric) {
       // driver frame -> world: driver forward = +y, driver left = -x, then rotate by headingOffset

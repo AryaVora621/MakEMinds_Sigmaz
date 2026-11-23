@@ -1,0 +1,40 @@
+{
+  "machine": "Intel(R) Core(TM) Ultra 7 256V x8, win32 x64 (machine note: baseline written once by the P3 harness author; re-run on your own machine before gating)",
+  "node": "v24.14.0",
+  "written": "2026-11-23T01:09:40.217Z",
+  "regressFactor": 1.5,
+  "results": [
+    {
+      "scene": "rain",
+      "balls": 200,
+      "steps": 300,
+      "medianMs": 0.017099999999999227,
+      "p95Ms": 0.03190000000000737,
+      "maxMs": 0.4175999999999931
+    },
+    {
+      "scene": "pile",
+      "balls": 100,
+      "steps": 300,
+      "medianMs": 0.03314999999999202,
+      "p95Ms": 0.08549999999999613,
+      "maxMs": 0.17480000000000473
+    },
+    {
+      "scene": "push",
+      "balls": 60,
+      "steps": 300,
+      "medianMs": 0.03130000000000166,
+      "p95Ms": 0.09319999999999595,
+      "maxMs": 0.3943999999999903
+    },
+    {
+      "scene": "drop",
+      "balls": 12,
+      "steps": 300,
+      "medianMs": 0.00190000000000623,
+      "p95Ms": 0.004199999999997317,
+      "maxMs": 0.008900000000011232
+    }
+  ]
+}
