@@ -49,6 +49,13 @@ field constants, turret aiming math, ball sensing, intake/transfer logic and the
 | Two Player TeleOp | TeleOp | `commands.teleop.TwoPlayerTeleOp` |
 | Drivetrain Test | Test | `commands.teleop.DrivetrainTest` (spin one wheel at a time to check motor directions) |
 | Tuning | Pedro Pathing | `pedroPathing.Tuning` (Pedro tuning menu) |
+| Demo: Pinpoint Dashboard | Demo | `commands.teleop.demo.PinpointDashboard` (live pose, velocity, status; moves nothing) |
+| Demo: Drive Square | Demo | `commands.teleop.demo.DriveSquareDemo` (24 in square on Pinpoint feedback, low power, aborts if the pose does not change) |
+| Demo: Turret Sweep | Demo | `commands.teleop.demo.TurretSweepDemo` (rate-limited sweep inside the turret limits) |
+| Demo: Flywheel Spin | Demo | `commands.teleop.demo.FlywheelSpinDemo` (ramp to a dpad-chosen rpm, shows each motor's rpm) |
+| Demo: Showcase | Demo | `commands.teleop.demo.ShowcaseDemo` (A runs a 12 s turret + flywheel show with the pose on screen) |
+
+Demo OpModes: B always stops, missing devices show "NOT FOUND" instead of crashing, D-pad adjusts the cap. Controls are in each class header.
 
 ## Settings
 
