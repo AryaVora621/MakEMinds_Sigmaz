@@ -207,6 +207,21 @@ public class Turret {
         return angle;
     }
 
+    /** True if getAngle() comes from calibrated Axon feedback; false = it is a time-based estimate toward the target. */
+    public boolean feedbackTrusted() {
+        return servoA.feedbackTrusted();
+    }
+
+    /** True if servo A's analog feedback input was found in the robot configuration. */
+    public boolean hasFeedback() {
+        return servoA.hasFeedback();
+    }
+
+    /** Servo A's raw feedback angle in degrees (before offset); NaN without feedback or before the first update. */
+    public double getRawFeedbackDeg() {
+        return servoA.getRawFeedbackDeg();
+    }
+
     /** True when the angle (feedback or estimate) is within tolerance of the target and the init settle time is over. */
     public boolean atTarget() {
         if (settleRemainingS > 0 && !servoA.feedbackTrusted()) return false;

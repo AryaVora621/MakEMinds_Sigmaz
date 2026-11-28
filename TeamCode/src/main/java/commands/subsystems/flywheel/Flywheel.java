@@ -17,21 +17,38 @@ import robot.RobotSettings;
 public class Flywheel {
     /** Absolute RPM ceiling for this flywheel. final on purpose: deliberately NOT in RobotSettings (safety ceiling). */
     public static final double HARD_MAX_RPM = 5000;
-
+    /** Run-away guard: power at or above this fraction while the wheel barely turns counts as "not spinning up". */
+    static final double STALL_POWER = 0.6;
+    /** Run-away guard: measured speed below this fraction of the target counts as "barely turning". */
+    static final double STALL_SPEED_FRACTION = 0.15;
+    /** Run-away guard: seconds of "full power, wheel not turning" before the power is cut (dead or reversed encoder, jammed wheel). */
+    static final double STALL_CUT_S = 2.0;
 
     private final DcMotorEx motor;
+    /** Null when the second motor is not in the robot configuration: the flywheel then runs on motor A alone. */
     private final DcMotorEx motorB;
+    /** Null if the robot has no voltage sensor; the controller then falls back to NOMINAL_VOLTAGE. */
     private final VoltageSensor voltageSensor;
     private final ElapsedTime timer = new ElapsedTime();
     private final FlywheelController controller;
 
     private double targetVelocity;
     private double velocity;
+    private double lastPower;
+    private double stallS;
+    private boolean faulted;
 
     public Flywheel(HardwareMap hardwareMap) {
         motor = initMotor(hardwareMap, RobotSettings.Flywheel.MOTOR_NAME, RobotSettings.Flywheel.MOTOR_REVERSED);
-        motorB = initMotor(hardwareMap, RobotSettings.Flywheel.MOTOR_B_NAME, RobotSettings.Flywheel.MOTOR_B_REVERSED);
-        voltageSensor = hardwareMap.voltageSensor.iterator().next();
+        // The second motor name is still a PLACEHOLDER: a wrong name must not take the whole shooter down.
+        DcMotorEx b = null;
+        try {
+            b = initMotor(hardwareMap, RobotSettings.Flywheel.MOTOR_B_NAME, RobotSettings.Flywheel.MOTOR_B_REVERSED);
+        } catch (RuntimeException e) {
+            b = null;
+        }
+        motorB = b;
+        voltageSensor = hardwareMap.voltageSensor.iterator().hasNext() ? hardwareMap.voltageSensor.iterator().next() : null;
 
         controller = new FlywheelPIDF();
         timer.reset();
@@ -74,6 +91,40 @@ public class Flywheel {
         targetVelocity = clampTargetTicks(ticksPerSecond, RobotSettings.Flywheel.MIN_RPM, maxRpm(), RobotSettings.Flywheel.TICKS_PER_REV);
     }
 
+    /** The RPM target actually in use after the MIN_RPM / maxRpm clamp (0 = stopped). */
+    public double getTargetRpm() {
+        return targetVelocity * 60.0 / RobotSettings.Flywheel.TICKS_PER_REV;
+    }
+
+    /** True if the second flywheel motor was found in the robot configuration. */
+    public boolean hasMotorB() {
+        return motorB != null;
+    }
+
+    /** Motor A's own measured RPM (its encoder), for diagnostics. */
+    public double getMotorARpm() {
+        return motor.getVelocity() * 60.0 / RobotSettings.Flywheel.TICKS_PER_REV;
+    }
+
+    /** Motor B's own measured RPM (its encoder, only meaningful if plugged in); NaN if motor B is missing. */
+    public double getMotorBRpm() {
+        return motorB == null ? Double.NaN : motorB.getVelocity() * 60.0 / RobotSettings.Flywheel.TICKS_PER_REV;
+    }
+
+    /** True once the run-away guard cut the power; cleared by stopping (target 0). */
+    public boolean isFaulted() {
+        return faulted;
+    }
+
+    /**
+     * Pure: advances the run-away timer. Counts up while a target is set, the last power was high and the wheel is
+     * (nearly) not turning (also when it turns backwards); any other loop resets it.
+     */
+    static double stallStep(double stallS, double targetTicks, double velocityTicks, double lastPower, double dt) {
+        boolean stalled = targetTicks > 0 && lastPower >= STALL_POWER && !(velocityTicks >= STALL_SPEED_FRACTION * targetTicks);
+        return stalled ? stallS + dt : 0;
+    }
+
     public double getRpm() {
         return velocity * 60.0 / RobotSettings.Flywheel.TICKS_PER_REV;
     }
@@ -82,19 +133,38 @@ public class Flywheel {
     public void update() {
         double dt = Math.max(timer.seconds(), 1e-3);
         timer.reset();
-        velocity = RobotSettings.Flywheel.VELOCITY_FROM_BOTH ? 0.5 * (motor.getVelocity() + motorB.getVelocity()) : motor.getVelocity();
-        setPower(controller.calculate(targetVelocity, velocity, voltageSensor.getVoltage(), dt));
+        velocity = RobotSettings.Flywheel.VELOCITY_FROM_BOTH && motorB != null ? 0.5 * (motor.getVelocity() + motorB.getVelocity()) : motor.getVelocity();
+        if (targetVelocity == 0) {
+            faulted = false;
+        }
+        stallS = stallStep(stallS, targetVelocity, velocity, lastPower, dt);
+        if (stallS > STALL_CUT_S) {
+            faulted = true;   // a dead or reversed encoder would otherwise read 0 rpm and the PIDF would hold full power forever
+        }
+        if (faulted) {
+            lastPower = 0;
+            setPower(0);
+            return;
+        }
+        double volts = voltageSensor != null ? voltageSensor.getVoltage() : RobotSettings.FlywheelPIDF.NOMINAL_VOLTAGE;
+        lastPower = controller.calculate(targetVelocity, velocity, volts, dt);
+        setPower(lastPower);
     }
 
     public void stop() {
         targetVelocity = 0;
         controller.reset();
+        faulted = false;
+        stallS = 0;
+        lastPower = 0;
         setPower(0);
     }
 
     private void setPower(double power) {
         motor.setPower(power);
-        motorB.setPower(power);
+        if (motorB != null) {
+            motorB.setPower(power);
+        }
     }
 
     public double getVelocity() {

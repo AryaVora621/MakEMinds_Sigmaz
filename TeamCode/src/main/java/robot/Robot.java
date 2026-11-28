@@ -182,7 +182,7 @@ public class Robot {
     public boolean feedIfReady(boolean wantFire) {
         boolean feedingBefore = wasFeeding;
         wasFeeding = false;
-        if (wantFire && readyToFire()) {
+        if (wantFire && intake != null && readyToFire()) {
             intake.feed();
             if (!feedingBefore && System.currentTimeMillis() - lastShotLogMs >= RobotSettings.Robot.SHOT_LOG_MIN_INTERVAL_MS) {
                 lastShotLogMs = System.currentTimeMillis();
