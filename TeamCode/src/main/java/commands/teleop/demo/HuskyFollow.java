@@ -17,7 +17,7 @@ import commands.subsystems.drivebase.Drivebase;
  *   gamepad1 A = remember the current distance as the one to hold
  *   gamepad1 B = pause (robot stops), X = resume
  *   gamepad1 Y = switch mode: object tracking / color / face / tag (re-teach on the HuskyLens after switching)
- * It stops when it loses the target for 0.3 s. STOP always ends it.
+ * When it loses the target it spins slowly for up to 6 s to find it, then stops. STOP always ends it.
  */
 @TeleOp(name = "Demo: Husky Follow", group = "Demo")
 public class HuskyFollow extends LinearOpMode {
@@ -74,7 +74,14 @@ public class HuskyFollow extends LinearOpMode {
                     cmd = HuskyFollowMath.command(best.x, best.width, targetW);
                     state = "following";
                 }
-                if (lost.seconds() > 0.3 || paused) cmd = new double[] {0, 0};
+                if (paused) cmd = new double[] {0, 0};
+                else if (lost.seconds() > 0.3 && lost.seconds() < 6) {
+                    cmd = new double[] {0, 0.15};       // lost it: slow spin in place to find it again
+                    state = "searching";
+                } else if (lost.seconds() >= 6) {
+                    cmd = new double[] {0, 0};           // give up after a few seconds rather than spin forever
+                    state = "no target: stopped";
+                }
                 drive.drive(cmd[0], 0, cmd[1]);
 
                 telemetry.addData("state", state);
