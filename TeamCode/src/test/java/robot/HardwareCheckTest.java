@@ -58,7 +58,7 @@ public class HardwareCheckTest {
     public void driveOnlyRequiresFourDriveMotorsAndPinpoint() {
         List<String> n = names();
         assertEquals(5, n.size());   // 4 drive motors + pinpoint
-        assertTrue(n.contains("pinpoint"));
+        assertTrue(n.contains("pinPoint"));
     }
 
     private static List<String> names() {
@@ -74,7 +74,7 @@ public class HardwareCheckTest {
         RobotSettings.Robot.USE_FLOWER_MECH = false;
         List<String> n = names();
         assertEquals(7, n.size());   // 4 drive + pinpoint + intake + transfer
-        assertTrue(n.contains("intake") && n.contains("transfer") && n.contains("pinpoint"));
+        assertTrue(n.contains("intake") && n.contains("transfer") && n.contains("pinPoint"));
     }
 
     @Ignore("Drive-only mode: HardwareCheck.required() lists only drive + odometry. Remove this @Ignore when the subsystems are restored.")

@@ -144,7 +144,7 @@ public final class RobotSettings {
 
         // ---- hardware ----
         /** Config name of the Pinpoint computer. */
-        public static String HARDWARE_NAME = "pinpoint";
+        public static String HARDWARE_NAME = "pinPoint"; // matches the Control Hub config (case-sensitive)
         /** Pod hardware used (sets ticks per mm). */
         public static GoBildaPinpointDriver.GoBildaOdometryPods POD_TYPE =
                 GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
