@@ -8,7 +8,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
 
 import commands.subsystems.drivebase.Drivebase;
 
@@ -104,8 +105,13 @@ public class LaptopDrive extends LinearOpMode {
     }
 
     private static String read() {
-        try {
-            return new String(Files.readAllBytes(CMD.toPath()), StandardCharsets.UTF_8);
+        // Control Hub is Android 7: no java.nio.file, so plain streams only.
+        try (FileInputStream in = new FileInputStream(CMD)) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[256];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            return new String(out.toByteArray(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             return null;
         }
