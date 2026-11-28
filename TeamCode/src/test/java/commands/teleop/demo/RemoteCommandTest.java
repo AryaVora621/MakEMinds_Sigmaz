@@ -15,7 +15,7 @@ public class RemoteCommandTest {
     }
 
     @Test public void clampsPowerAndTime() {
-        RemoteCommand c = RemoteCommand.parse("1 1.0 -5 NaN 99999");
+        RemoteCommand c = RemoteCommand.parse("1 3.0 -5 NaN 99999");
         assertEquals(RemoteCommand.POWER_CAP, c.forward, 1e-9);
         assertEquals(-RemoteCommand.POWER_CAP, c.strafe, 1e-9);
         assertEquals(0, c.turn, 1e-9);
