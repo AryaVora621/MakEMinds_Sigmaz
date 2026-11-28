@@ -6,7 +6,7 @@ package commands.teleop.demo;
  * ask for more than the caps below.
  */
 public final class RemoteCommand {
-    public static final double POWER_CAP = 0.15; // owner 11/28: this robot is fast, drive really slow
+    public static final double POWER_CAP = 0.30; // owner 11/28: started at 0.15 (robot is fast), then "double your speed"
     public static final int MAX_MS = 1000;
 
     public final long seq;

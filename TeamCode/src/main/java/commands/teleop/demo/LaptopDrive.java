@@ -18,7 +18,7 @@ import commands.subsystems.drivebase.Drivebase;
  * ("seq forward strafe turn ms" or "seq stop"), this OpMode runs each new seq once for at most 1 s, then stops.
  * It writes pose and state to status.txt for the laptop to read.
  *
- * Safety: power capped at 0.15, every command times out on its own (a lost link can only coast to a stop),
+ * Safety: power capped at 0.30, every command times out on its own (a lost link can only coast to a stop),
  * a command older than this OpMode run is ignored, gamepad1 B locks out the laptop until X, and the Driver Station
  * STOP button always wins. Any stick on gamepad1 also stops the laptop command and drives by hand.
  */
@@ -121,8 +121,13 @@ public class LaptopDrive extends LinearOpMode {
         String pose = pin == null ? "nan nan nan" : String.format(java.util.Locale.US, "%.2f %.2f %.1f",
                 DemoPinpoint.x(pin), DemoPinpoint.y(pin), Math.toDegrees(DemoPinpoint.headingRad(pin)));
         String line = state + " " + seq + " " + pose + "\n";
-        try (FileOutputStream o = new FileOutputStream(STATUS)) {
+        // write then rename, so the laptop never reads a half-written file
+        File tmp = new File(DIR, "status.tmp");
+        try (FileOutputStream o = new FileOutputStream(tmp)) {
             o.write(line.getBytes(StandardCharsets.UTF_8));
+            o.close();
+            if (!tmp.renameTo(STATUS)) STATUS.delete();
+            tmp.renameTo(STATUS);
         } catch (Exception ignored) {
             // status is a convenience for the laptop; driving must not depend on it
         }
