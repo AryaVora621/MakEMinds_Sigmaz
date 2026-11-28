@@ -11,8 +11,8 @@ import commands.subsystems.drivebase.Drivebase;
  * Follows whatever the HuskyLens is tracking, with no laptop. Plug the HuskyLens into an I2C port and name it
  * "huskylens" in the robot config.
  *
- * Teach it first, on the HuskyLens itself: Object Tracking mode, point it at the object (tennis ball, hand, a shirt),
- * press its learn button. Then start this OpMode and it follows at about 30 Hz.
+ * Teach it first, on the HuskyLens itself: Color Recognition mode, center the yellow object in the crosshair,
+ * press its learn button (shows ID1). Y on gamepad1 switches to object tracking, face or tag mode. Then start this OpMode and it follows at about 30 Hz.
  *   No gamepad needed: it starts following on PLAY and holds the distance it saw at 70 px box width.
  *   gamepad1 A = remember the current distance as the one to hold
  *   gamepad1 B = pause (robot stops), X = resume
@@ -22,7 +22,8 @@ import commands.subsystems.drivebase.Drivebase;
 @TeleOp(name = "Demo: Husky Follow", group = "Demo")
 public class HuskyFollow extends LinearOpMode {
     private static final HuskyLens.Algorithm[] MODES = {
-            HuskyLens.Algorithm.OBJECT_TRACKING, HuskyLens.Algorithm.COLOR_RECOGNITION,
+            // color first (owner 11/28): object tracking lost the ball as soon as it moved; a learned color holds on
+            HuskyLens.Algorithm.COLOR_RECOGNITION, HuskyLens.Algorithm.OBJECT_TRACKING,
             HuskyLens.Algorithm.FACE_RECOGNITION, HuskyLens.Algorithm.TAG_RECOGNITION};
 
     @Override
